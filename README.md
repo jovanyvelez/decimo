@@ -1,2 +1,2 @@
 # decimo
-Notas de clase
+Notas de clase grado décimo
