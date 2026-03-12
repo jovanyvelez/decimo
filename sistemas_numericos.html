@@ -1,0 +1,2377 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistemas Numéricos — El Lenguaje de las Máquinas</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #070d1a;
+    --bg2: #0d1628;
+    --bg3: #111e35;
+    --cyan: #00e5ff;
+    --green: #00ff9d;
+    --orange: #ff6b35;
+    --yellow: #ffd60a;
+    --pink: #ff3d7f;
+    --purple: #a855f7;
+    --text: #cdd6f4;
+    --muted: #6b7a99;
+    --border: rgba(0,229,255,0.15);
+    --font-head: 'Syne', sans-serif;
+    --font-mono: 'Space Mono', monospace;
+    --font-body: 'DM Sans', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ─── GRID BACKGROUND ─── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── NAV ─── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(7,13,26,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    height: 56px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  nav::-webkit-scrollbar { display: none; }
+
+  .nav-logo {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--cyan);
+    white-space: nowrap;
+    margin-right: 2rem;
+    flex-shrink: 0;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 0.1rem;
+    list-style: none;
+    flex-shrink: 0;
+  }
+
+  .nav-links a {
+    display: block;
+    padding: 0.35rem 0.7rem;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--muted);
+    text-decoration: none;
+    border-radius: 4px;
+    white-space: nowrap;
+    transition: color 0.2s, background 0.2s;
+  }
+  .nav-links a:hover { color: var(--cyan); background: rgba(0,229,255,0.06); }
+
+  /* ─── LAYOUT ─── */
+  .page { position: relative; z-index: 1; }
+
+  section {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 5rem 2rem 3rem;
+  }
+
+  section + section { padding-top: 2rem; }
+
+  /* ─── HERO ─── */
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 6rem;
+    max-width: 920px;
+    margin: 0 auto;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(0,229,255,0.08);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 0.35rem 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--cyan);
+    margin-bottom: 2rem;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .hero-badge .dot {
+    width: 6px; height: 6px;
+    background: var(--cyan);
+    border-radius: 50%;
+    animation: pulse 1.5s ease infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.7); }
+  }
+
+  h1.hero-title {
+    font-family: var(--font-head);
+    font-size: clamp(2.8rem, 7vw, 5.5rem);
+    font-weight: 800;
+    line-height: 1.0;
+    letter-spacing: -0.03em;
+    margin-bottom: 1.5rem;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+
+  h1.hero-title .line1 { display: block; color: var(--text); }
+  h1.hero-title .line2 {
+    display: block;
+    background: linear-gradient(90deg, var(--cyan), var(--green));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-sub {
+    font-size: 1.1rem;
+    color: var(--muted);
+    max-width: 520px;
+    margin-bottom: 3rem;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+
+  .hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+
+  .meta-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1.1rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text);
+    background: var(--bg2);
+  }
+
+  .meta-chip svg { flex-shrink: 0; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── SECTION HEADERS ─── */
+  .sec-tag {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--cyan);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 0.6rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .sec-tag::before {
+    content: '';
+    display: inline-block;
+    width: 24px; height: 1px;
+    background: var(--cyan);
+  }
+
+  h2.sec-title {
+    font-family: var(--font-head);
+    font-size: clamp(1.7rem, 4vw, 2.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+    color: #fff;
+  }
+
+  h3.sub-title {
+    font-family: var(--font-head);
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--cyan);
+    margin: 2rem 0 0.8rem;
+  }
+
+  /* ─── CARDS ─── */
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.8rem;
+    margin-bottom: 1.2rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s, transform 0.2s;
+  }
+  .card:hover { border-color: rgba(0,229,255,0.35); transform: translateY(-2px); }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .card:hover::before { opacity: 1; }
+
+  .card-accent-cyan { border-left: 3px solid var(--cyan); }
+  .card-accent-green { border-left: 3px solid var(--green); }
+  .card-accent-orange { border-left: 3px solid var(--orange); }
+  .card-accent-yellow { border-left: 3px solid var(--yellow); }
+  .card-accent-pink { border-left: 3px solid var(--pink); }
+  .card-accent-purple { border-left: 3px solid var(--purple); }
+
+  /* ─── CODE BLOCKS ─── */
+  .code-block {
+    background: #050a14;
+    border: 1px solid rgba(0,229,255,0.12);
+    border-radius: 12px;
+    padding: 1.4rem 1.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    line-height: 1.9;
+    color: #a8d8ea;
+    margin: 1rem 0;
+    overflow-x: auto;
+    position: relative;
+  }
+
+  .code-block .c-cyan { color: var(--cyan); }
+  .code-block .c-green { color: var(--green); }
+  .code-block .c-orange { color: var(--orange); }
+  .code-block .c-yellow { color: var(--yellow); }
+  .code-block .c-pink { color: var(--pink); }
+  .code-block .c-muted { color: var(--muted); }
+
+  .code-label {
+    position: absolute;
+    top: 0.6rem; right: 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  /* ─── TABLES ─── */
+  .table-wrap { overflow-x: auto; margin: 1.2rem 0; border-radius: 12px; border: 1px solid var(--border); }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+
+  thead tr {
+    background: var(--bg3);
+  }
+
+  th {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--cyan);
+    padding: 1rem 1.2rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+
+  td {
+    padding: 0.75rem 1.2rem;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-family: var(--font-mono);
+    font-size: 0.83rem;
+    color: var(--text);
+  }
+
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: rgba(0,229,255,0.03); }
+
+  td.td-dec { color: var(--yellow); }
+  td.td-bin { color: var(--cyan); }
+  td.td-oct { color: var(--green); }
+  td.td-hl { background: rgba(0,229,255,0.06); }
+
+  /* ─── CALLOUT ─── */
+  .callout {
+    display: flex;
+    gap: 1rem;
+    padding: 1.1rem 1.4rem;
+    border-radius: 10px;
+    margin: 1rem 0;
+    border: 1px solid transparent;
+  }
+  .callout-cyan { background: rgba(0,229,255,0.06); border-color: rgba(0,229,255,0.2); }
+  .callout-yellow { background: rgba(255,214,10,0.06); border-color: rgba(255,214,10,0.2); }
+  .callout-orange { background: rgba(255,107,53,0.06); border-color: rgba(255,107,53,0.2); }
+  .callout-green { background: rgba(0,255,157,0.06); border-color: rgba(0,255,157,0.2); }
+  .callout-pink { background: rgba(255,61,127,0.06); border-color: rgba(255,61,127,0.2); }
+
+  .callout-icon { flex-shrink: 0; margin-top: 0.1rem; }
+  .callout-text { font-size: 0.92rem; color: var(--text); }
+  .callout-text strong { color: #fff; }
+
+  /* ─── STEP BLOCKS ─── */
+  .steps { display: flex; flex-direction: column; gap: 0; margin: 1.2rem 0; }
+
+  .step {
+    display: flex;
+    gap: 1.2rem;
+    padding: 1.1rem 0;
+  }
+
+  .step + .step { border-top: 1px solid rgba(255,255,255,0.04); }
+
+  .step-num {
+    flex-shrink: 0;
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--cyan);
+    margin-top: 0.1rem;
+  }
+
+  .step-content { flex: 1; }
+  .step-title { font-weight: 600; color: #fff; margin-bottom: 0.3rem; font-size: 0.95rem; }
+  .step-body { font-size: 0.88rem; color: var(--muted); }
+
+  /* ─── EXERCISE CARDS ─── */
+  .ex-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+  }
+
+  .ex-header {
+    background: var(--bg3);
+    padding: 0.7rem 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .ex-badge {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .ex-badge-bin { background: rgba(0,229,255,0.15); color: var(--cyan); }
+  .ex-badge-oct { background: rgba(0,255,157,0.15); color: var(--green); }
+  .ex-badge-dec { background: rgba(255,214,10,0.15); color: var(--yellow); }
+
+  .ex-title { font-family: var(--font-mono); font-size: 0.8rem; color: var(--text); }
+  .ex-body { padding: 1.2rem; }
+
+  /* ─── ROLE CARDS ─── */
+  .role-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .role-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.4rem;
+    position: relative;
+    transition: all 0.25s;
+  }
+  .role-card:hover { transform: translateY(-3px); }
+
+  .role-icon-wrap {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+
+  .role-num {
+    position: absolute;
+    top: 1rem; right: 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+  }
+
+  .role-name {
+    font-family: var(--font-head);
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 0.4rem;
+    color: #fff;
+  }
+
+  .role-desc { font-size: 0.83rem; color: var(--muted); line-height: 1.6; }
+  .role-phrase {
+    margin-top: 0.8rem;
+    padding: 0.5rem 0.8rem;
+    background: var(--bg3);
+    border-radius: 6px;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--cyan);
+    font-style: italic;
+  }
+
+  /* ─── BREAK SECTION ─── */
+  .break-section {
+    background: linear-gradient(135deg, #0d1628 0%, #111e35 100%);
+    border: 1px solid rgba(255,214,10,0.25);
+    border-radius: 20px;
+    padding: 3rem 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    margin: 3rem 0;
+  }
+
+  .break-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 0%, rgba(255,214,10,0.05) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .break-title {
+    font-family: var(--font-head);
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--yellow);
+    margin: 1rem 0 0.5rem;
+  }
+
+  .break-sub { font-size: 1rem; color: var(--muted); margin-bottom: 1.5rem; }
+
+  /* ─── TIMER SVG ─── */
+  .timer-svg-wrap {
+    display: flex;
+    justify-content: center;
+    margin: 1.5rem 0 1rem;
+  }
+
+  /* ─── RUNAROUND GRID ─── */
+  .round-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin: 1.2rem 0;
+  }
+
+  .round-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.1rem;
+  }
+
+  .round-name {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--cyan);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.4rem;
+  }
+
+  .round-desc { font-size: 0.85rem; color: var(--text); }
+
+  /* ─── SCORE TABLE ─── */
+  .score-grid {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 1rem 0;
+  }
+
+  .score-row {
+    display: contents;
+  }
+
+  .score-row > div {
+    padding: 0.7rem 1.1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 0.87rem;
+  }
+
+  .score-row:last-child > div { border-bottom: none; }
+  .score-row:nth-child(even) > div { background: rgba(0,229,255,0.02); }
+
+  .score-label { color: var(--text); }
+  .score-pts {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    color: var(--yellow);
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  /* ─── PRACTICE TABLE ─── */
+  .practice-grid {
+    display: grid;
+    gap: 0.6rem;
+    margin: 1.2rem 0;
+  }
+
+  .prac-item {
+    display: grid;
+    grid-template-columns: 2rem 1fr auto;
+    align-items: center;
+    gap: 1rem;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.8rem 1.1rem;
+    font-size: 0.87rem;
+  }
+
+  .prac-num {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+
+  .prac-q { color: var(--text); }
+  .prac-type {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  /* ─── GLOSSARY ─── */
+  .glossary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 0.8rem;
+    margin: 1rem 0;
+  }
+
+  .gloss-item {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+  }
+
+  .gloss-term {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--cyan);
+    margin-bottom: 0.3rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .gloss-term::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--cyan);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .gloss-def { font-size: 0.83rem; color: var(--muted); line-height: 1.55; }
+
+  /* ─── TIME MAP ─── */
+  .time-map {
+    display: grid;
+    gap: 0.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .tm-row {
+    display: grid;
+    grid-template-columns: 2.5rem 1fr auto;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: 0.87rem;
+    transition: background 0.2s;
+  }
+
+  .tm-row:hover { background: var(--bg3); }
+  .tm-row.tm-break { background: rgba(255,214,10,0.06); border: 1px solid rgba(255,214,10,0.15); }
+  .tm-icon { display: flex; align-items: center; justify-content: center; }
+  .tm-label { color: var(--text); }
+  .tm-time { font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+
+  /* ─── CONVERSION VISUAL ─── */
+  .conv-visual {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
+    margin: 1.2rem 0;
+  }
+
+  .conv-boxes {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+    margin: 1.5rem 0 0.5rem;
+  }
+
+  .conv-box {
+    padding: 0.8rem 1.4rem;
+    border-radius: 10px;
+    font-family: var(--font-mono);
+    font-weight: 700;
+  }
+
+  .conv-box-dec { background: rgba(255,214,10,0.12); border: 1px solid rgba(255,214,10,0.3); color: var(--yellow); font-size: 1.3rem; }
+  .conv-box-bin { background: rgba(0,229,255,0.12); border: 1px solid rgba(0,229,255,0.3); color: var(--cyan); font-size: 1rem; letter-spacing: 0.1em; }
+  .conv-box-oct { background: rgba(0,255,157,0.12); border: 1px solid rgba(0,255,157,0.3); color: var(--green); font-size: 1.3rem; }
+
+  .conv-arrow {
+    display: flex;
+    align-items: center;
+  }
+
+  /* ─── SELF EVAL ─── */
+  .eval-grid {
+    display: grid;
+    gap: 0.5rem;
+    margin: 1rem 0;
+  }
+
+  .eval-row {
+    display: grid;
+    grid-template-columns: 1fr repeat(3, 2.5rem);
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1rem;
+    background: var(--bg3);
+    border-radius: 8px;
+    font-size: 0.87rem;
+  }
+
+  .eval-q { color: var(--text); }
+  .eval-opt {
+    width: 2rem; height: 2rem;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .eval-opt:hover { border-color: var(--cyan); background: rgba(0,229,255,0.1); transform: scale(1.1); }
+
+  /* ─── RUBRIC ─── */
+  .rubric-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); margin: 1.2rem 0; }
+
+  .rubric-table { width: 100%; border-collapse: collapse; min-width: 640px; }
+  .rubric-table th {
+    background: var(--bg3);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0.85rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  .rubric-table th:nth-child(2) { color: #4ade80; }
+  .rubric-table th:nth-child(3) { color: var(--cyan); }
+  .rubric-table th:nth-child(4) { color: var(--yellow); }
+  .rubric-table th:nth-child(5) { color: var(--pink); }
+
+  .rubric-table td {
+    padding: 0.75rem 1rem;
+    font-size: 0.82rem;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    vertical-align: top;
+  }
+  .rubric-table tr:last-child td { border-bottom: none; }
+  .rubric-table td:first-child { font-weight: 600; color: #fff; font-size: 0.85rem; }
+
+  /* ─── MASTER TABLE ─── */
+  .master-table-wrap { overflow-x: auto; border-radius: 16px; border: 1px solid var(--border); margin: 1.5rem 0; }
+  .master-table { width: 100%; border-collapse: collapse; }
+  .master-table thead tr { background: var(--bg3); }
+  .master-table th {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    padding: 1rem 1.5rem;
+    text-align: center;
+    border-bottom: 2px solid var(--border);
+  }
+  .master-table th:nth-child(1) { color: var(--yellow); }
+  .master-table th:nth-child(2) { color: var(--cyan); }
+  .master-table th:nth-child(3) { color: var(--green); }
+
+  .master-table td {
+    padding: 0.6rem 1.5rem;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+  }
+  .master-table tr.hl-row td { background: rgba(0,229,255,0.05); }
+  .master-table tr:hover td { background: rgba(0,229,255,0.04); }
+  .master-table tr:last-child td { border-bottom: none; }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 640px) {
+    section { padding: 3.5rem 1.2rem 2rem; }
+    #hero { padding: 5rem 1.2rem 2rem; }
+    .role-grid { grid-template-columns: 1fr; }
+    .glossary-grid { grid-template-columns: 1fr; }
+    .eval-row { grid-template-columns: 1fr; }
+  }
+
+  /* ─── DIVIDER ─── */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 1.5rem 0;
+  }
+
+  /* ─── PILL TAG ─── */
+  .pill {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    padding: 0.2rem 0.7rem;
+    border-radius: 100px;
+    margin: 0.1rem;
+  }
+  .pill-cyan { background: rgba(0,229,255,0.1); color: var(--cyan); border: 1px solid rgba(0,229,255,0.2); }
+  .pill-green { background: rgba(0,255,157,0.1); color: var(--green); border: 1px solid rgba(0,255,157,0.2); }
+  .pill-orange { background: rgba(255,107,53,0.1); color: var(--orange); border: 1px solid rgba(255,107,53,0.2); }
+  .pill-yellow { background: rgba(255,214,10,0.1); color: var(--yellow); border: 1px solid rgba(255,214,10,0.2); }
+
+  /* ─── SCROLLBAR ─── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+  p { margin-bottom: 0.8rem; color: var(--text); font-size: 0.94rem; }
+  p:last-child { margin-bottom: 0; }
+  strong { color: #fff; font-weight: 600; }
+
+  /* accent number inline */
+  .num-cyan { font-family: var(--font-mono); color: var(--cyan); font-weight: 700; }
+  .num-green { font-family: var(--font-mono); color: var(--green); font-weight: 700; }
+  .num-yellow { font-family: var(--font-mono); color: var(--yellow); font-weight: 700; }
+
+  .text-muted { color: var(--muted); font-size: 0.85rem; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media(max-width:600px) { .two-col { grid-template-columns: 1fr; } }
+
+  .section-break { height: 2px; background: linear-gradient(90deg, transparent, var(--border), transparent); margin: 3rem 0; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ NAV ═══════════════ -->
+<nav>
+  <span class="nav-logo">SYS:NUM_v1</span>
+  <ul class="nav-links">
+    <li><a href="#intro">Intro</a></li>
+    <li><a href="#decimal">Decimal</a></li>
+    <li><a href="#binario">Binario</a></li>
+    <li><a href="#tabla">Tabla</a></li>
+    <li><a href="#descanso1">Descanso&nbsp;1</a></li>
+    <li><a href="#octal">Octal</a></li>
+    <li><a href="#descanso2">Descanso&nbsp;2</a></li>
+    <li><a href="#practica">Práctica</a></li>
+    <li><a href="#juego">Juego</a></li>
+    <li><a href="#cierre">Cierre</a></li>
+  </ul>
+</nav>
+
+<div class="page">
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<section id="hero">
+  <div class="hero-badge">
+    <span class="dot"></span>
+    Clase interactiva · Sistemas digitales
+  </div>
+
+  <h1 class="hero-title">
+    <span class="line1">El Lenguaje</span>
+    <span class="line2">Secreto de<br>las Máquinas</span>
+  </h1>
+
+  <p class="hero-sub">
+    Descubre cómo las computadoras hablan, piensan y calculan usando solo dos símbolos.
+    Hoy aprenderás a leer y escribir en el idioma de los circuitos.
+  </p>
+
+  <div class="hero-meta">
+    <div class="meta-chip">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      4 horas de clase
+    </div>
+    <div class="meta-chip">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      15–16 años
+    </div>
+    <div class="meta-chip">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      Sistemas Binario y Octal
+    </div>
+    <div class="meta-chip">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      Juego de roles incluido
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ GUÍA DE TIEMPOS ═══════════════ -->
+<section id="intro">
+  <div class="sec-tag">Planificación</div>
+  <h2 class="sec-title">Guía de Tiempos</h2>
+
+  <!-- SVG de bloques de tiempo -->
+  <div style="margin: 1.5rem 0; overflow-x: auto;">
+    <svg viewBox="0 0 860 90" xmlns="http://www.w3.org/2000/svg" style="width:100%; min-width:600px; height:auto; display:block;">
+      <defs>
+        <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#00e5ff" stop-opacity="0.9"/><stop offset="100%" stop-color="#00e5ff" stop-opacity="0.6"/></linearGradient>
+        <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#ffd60a" stop-opacity="0.9"/><stop offset="100%" stop-color="#ffd60a" stop-opacity="0.6"/></linearGradient>
+        <linearGradient id="g3" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#a855f7" stop-opacity="0.9"/><stop offset="100%" stop-color="#a855f7" stop-opacity="0.6"/></linearGradient>
+      </defs>
+      <!-- Total: 240min usables / scale: 240px total = 1px per min -->
+      <!-- Bloque 1: 120min = 430px -->
+      <rect x="0" y="20" width="430" height="44" rx="8" fill="url(#g1)" opacity="0.18"/>
+      <rect x="0" y="20" width="430" height="3" rx="1" fill="url(#g1)"/>
+      <text x="215" y="50" text-anchor="middle" fill="#00e5ff" font-family="Space Mono,monospace" font-size="11" font-weight="700">BLOQUE 1 — Intro + Decimal + Binario + Tabla</text>
+      <text x="215" y="66" text-anchor="middle" fill="#6b7a99" font-family="Space Mono,monospace" font-size="9">120 minutos</text>
+      <!-- Descanso 1: 15min = 54px -->
+      <rect x="432" y="20" width="54" height="44" rx="8" fill="url(#g2)" opacity="0.18"/>
+      <rect x="432" y="20" width="54" height="3" rx="1" fill="url(#g2)"/>
+      <text x="459" y="50" text-anchor="middle" fill="#ffd60a" font-family="Space Mono,monospace" font-size="9" font-weight="700">Descanso</text>
+      <text x="459" y="64" text-anchor="middle" fill="#6b7a99" font-family="Space Mono,monospace" font-size="8">15 min</text>
+      <!-- Bloque 2: 70min = 252px -->
+      <rect x="488" y="20" width="252" height="44" rx="8" fill="url(#g1)" opacity="0.18"/>
+      <rect x="488" y="20" width="252" height="3" rx="1" fill="url(#g1)"/>
+      <text x="614" y="50" text-anchor="middle" fill="#00e5ff" font-family="Space Mono,monospace" font-size="11" font-weight="700">BLOQUE 2 — Sistema Octal</text>
+      <text x="614" y="66" text-anchor="middle" fill="#6b7a99" font-family="Space Mono,monospace" font-size="9">70 minutos</text>
+      <!-- Descanso 2: 15min = 54px -->
+      <rect x="742" y="20" width="54" height="44" rx="8" fill="url(#g2)" opacity="0.18"/>
+      <rect x="742" y="20" width="54" height="3" rx="1" fill="url(#g2)"/>
+      <text x="769" y="50" text-anchor="middle" fill="#ffd60a" font-family="Space Mono,monospace" font-size="9" font-weight="700">Descanso</text>
+      <text x="769" y="64" text-anchor="middle" fill="#6b7a99" font-family="Space Mono,monospace" font-size="8">15 min</text>
+      <!-- Bloque 3: 60min = 216px → ajustado a 54px para caber -->
+      <rect x="798" y="20" width="62" height="44" rx="8" fill="url(#g3)" opacity="0.18"/>
+      <rect x="798" y="20" width="62" height="3" rx="1" fill="url(#g3)"/>
+      <text x="829" y="47" text-anchor="middle" fill="#a855f7" font-family="Space Mono,monospace" font-size="8.5" font-weight="700">Práctica</text>
+      <text x="829" y="59" text-anchor="middle" fill="#a855f7" font-family="Space Mono,monospace" font-size="8">+ Juego</text>
+      <text x="829" y="69" text-anchor="middle" fill="#6b7a99" font-family="Space Mono,monospace" font-size="8">60 min</text>
+      <!-- Ticks de tiempo -->
+      <line x1="0" y1="72" x2="860" y2="72" stroke="#1e2d45" stroke-width="1"/>
+      <text x="0" y="85" fill="#6b7a99" font-family="Space Mono,monospace" font-size="8">0:00</text>
+      <text x="415" y="85" fill="#6b7a99" font-family="Space Mono,monospace" font-size="8">2:00h</text>
+      <text x="480" y="85" fill="#6b7a99" font-family="Space Mono,monospace" font-size="8">2:15h</text>
+      <text x="730" y="85" fill="#6b7a99" font-family="Space Mono,monospace" font-size="8">3:25h</text>
+      <text x="790" y="85" fill="#6b7a99" font-family="Space Mono,monospace" font-size="8">3:40h</text>
+      <text x="840" y="85" fill="#6b7a99" font-family="Space Mono,monospace" font-size="8">4:40h</text>
+    </svg>
+  </div>
+
+  <div class="time-map">
+    <div class="tm-row">
+      <div class="tm-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="16" height="16" rx="4" fill="rgba(0,229,255,0.15)"/><path d="M7 10l2 2 4-4" stroke="#00e5ff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="tm-label">Introducción + Sistema Decimal</div>
+      <div class="tm-time">20 min</div>
+    </div>
+    <div class="tm-row">
+      <div class="tm-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="16" height="16" rx="4" fill="rgba(0,229,255,0.15)"/><path d="M7 10l2 2 4-4" stroke="#00e5ff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="tm-label">Sistema Binario — teoría y conversiones</div>
+      <div class="tm-time">45 min</div>
+    </div>
+    <div class="tm-row">
+      <div class="tm-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="16" height="16" rx="4" fill="rgba(0,229,255,0.15)"/><path d="M7 10l2 2 4-4" stroke="#00e5ff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="tm-label">Ejercicios binarios + Tabla maestra</div>
+      <div class="tm-time">35 min</div>
+    </div>
+    <div class="tm-row">
+      <div class="tm-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="16" height="16" rx="4" fill="rgba(0,229,255,0.15)"/><path d="M7 10l2 2 4-4" stroke="#00e5ff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="tm-label">Práctica guiada binario</div>
+      <div class="tm-time">20 min</div>
+    </div>
+    <div class="tm-row tm-break">
+      <div class="tm-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="#ffd60a" stroke-width="1.5"/><path d="M10 6v4l2.5 2.5" stroke="#ffd60a" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      <div class="tm-label" style="color: var(--yellow); font-weight:600;">DESCANSO 1</div>
+      <div class="tm-time" style="color:var(--yellow);">15 min</div>
+    </div>
+    <div class="tm-row">
+      <div class="tm-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="16" height="16" rx="4" fill="rgba(0,255,157,0.15)"/><path d="M7 10l2 2 4-4" stroke="#00ff9d" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="tm-label">Sistema Octal — teoría y conversiones</div>
+      <div class="tm-time">40 min</div>
+    </div>
+    <div class="tm-row">
+      <div class="tm-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="16" height="16" rx="4" fill="rgba(0,255,157,0.15)"/><path d="M7 10l2 2 4-4" stroke="#00ff9d" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="tm-label">Ejercicios octal + conversión Binario ↔ Octal</div>
+      <div class="tm-time">30 min</div>
+    </div>
+    <div class="tm-row tm-break">
+      <div class="tm-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="#ffd60a" stroke-width="1.5"/><path d="M10 6v4l2.5 2.5" stroke="#ffd60a" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      <div class="tm-label" style="color: var(--yellow); font-weight:600;">DESCANSO 2</div>
+      <div class="tm-time" style="color:var(--yellow);">15 min</div>
+    </div>
+    <div class="tm-row">
+      <div class="tm-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="16" height="16" rx="4" fill="rgba(168,85,247,0.15)"/><path d="M7 10l2 2 4-4" stroke="#a855f7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="tm-label">Práctica individual con seguimiento</div>
+      <div class="tm-time">20 min</div>
+    </div>
+    <div class="tm-row">
+      <div class="tm-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="16" height="16" rx="4" fill="rgba(168,85,247,0.15)"/><path d="M7 10l2 2 4-4" stroke="#a855f7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="tm-label">Juego de roles — Computadora Humana</div>
+      <div class="tm-time">30 min</div>
+    </div>
+    <div class="tm-row">
+      <div class="tm-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="16" height="16" rx="4" fill="rgba(168,85,247,0.15)"/><path d="M7 10l2 2 4-4" stroke="#a855f7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="tm-label">Resumen y cierre</div>
+      <div class="tm-time">10 min</div>
+    </div>
+  </div>
+
+  <div class="section-break"></div>
+
+  <!-- Intro motivacional -->
+  <h2 class="sec-title">¿Por qué las computadoras no hablan como nosotros?</h2>
+
+  <p>Imagina que tienes que comunicarte con alguien que <strong>solo puede decir dos palabras: "sí" o "no"</strong>. Con suficientes preguntas de sí/no puedes transmitir cualquier información del mundo. Eso es exactamente lo que hacen las computadoras.</p>
+
+  <!-- SVG transistor explicativo -->
+  <div style="margin: 2rem 0; display:flex; justify-content:center;">
+    <svg viewBox="0 0 560 180" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:560px; height:auto;">
+      <!-- Estado 0 -->
+      <rect x="10" y="20" width="240" height="140" rx="14" fill="#0d1628" stroke="rgba(107,122,153,0.3)" stroke-width="1"/>
+      <text x="130" y="48" text-anchor="middle" fill="#6b7a99" font-family="Space Mono,monospace" font-size="10" font-weight="700">TRANSISTOR — APAGADO</text>
+      <!-- Cuerpo -->
+      <rect x="100" y="65" width="60" height="70" rx="8" fill="#111e35" stroke="rgba(107,122,153,0.4)" stroke-width="1.5"/>
+      <!-- Pines -->
+      <line x1="130" y1="65" x2="130" y2="40" stroke="#6b7a99" stroke-width="2" stroke-linecap="round"/>
+      <line x1="100" y1="100" x2="60" y2="100" stroke="#6b7a99" stroke-width="2" stroke-linecap="round"/>
+      <line x1="160" y1="100" x2="200" y2="100" stroke="#6b7a99" stroke-width="2" stroke-linecap="round"/>
+      <!-- Labels -->
+      <text x="130" y="36" text-anchor="middle" fill="#6b7a99" font-family="Space Mono,monospace" font-size="8">Control</text>
+      <text x="44" y="103" text-anchor="middle" fill="#6b7a99" font-family="Space Mono,monospace" font-size="8">Entrada</text>
+      <text x="214" y="103" text-anchor="middle" fill="#6b7a99" font-family="Space Mono,monospace" font-size="8">Salida</text>
+      <!-- X de corte -->
+      <line x1="112" y1="90" x2="148" y2="110" stroke="#ff3d7f" stroke-width="2.5"/>
+      <line x1="148" y1="90" x2="112" y2="110" stroke="#ff3d7f" stroke-width="2.5"/>
+      <!-- Estado label -->
+      <rect x="65" y="145" width="130" height="7" rx="3" fill="#ff3d7f" opacity="0.2"/>
+      <text x="130" y="156" text-anchor="middle" fill="#ff3d7f" font-family="Space Mono,monospace" font-size="11" font-weight="700">0 — Sin corriente</text>
+      <!-- Emoji estado -->
+      <text x="130" y="175" text-anchor="middle" fill="#6b7a99" font-family="Space Mono,monospace" font-size="9">No hay electricidad</text>
+
+      <!-- Estado 1 -->
+      <rect x="310" y="20" width="240" height="140" rx="14" fill="#0d1628" stroke="rgba(0,229,255,0.25)" stroke-width="1"/>
+      <text x="430" y="48" text-anchor="middle" fill="#00e5ff" font-family="Space Mono,monospace" font-size="10" font-weight="700">TRANSISTOR — ENCENDIDO</text>
+      <!-- Cuerpo glow -->
+      <rect x="400" y="65" width="60" height="70" rx="8" fill="#0a1e30" stroke="rgba(0,229,255,0.5)" stroke-width="1.5"/>
+      <!-- Pines activos -->
+      <line x1="430" y1="65" x2="430" y2="40" stroke="#00e5ff" stroke-width="2" stroke-linecap="round"/>
+      <line x1="400" y1="100" x2="360" y2="100" stroke="#00e5ff" stroke-width="2" stroke-linecap="round"/>
+      <line x1="460" y1="100" x2="500" y2="100" stroke="#00e5ff" stroke-width="2" stroke-linecap="round"/>
+      <!-- Particulas flujo -->
+      <circle cx="375" cy="100" r="3" fill="#00e5ff" opacity="0.7"><animate attributeName="cx" values="360;400" dur="1.2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;0.9;0" dur="1.2s" repeatCount="indefinite"/></circle>
+      <circle cx="485" cy="100" r="3" fill="#00e5ff" opacity="0.7"><animate attributeName="cx" values="460;500" dur="1.2s" begin="0.4s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;0.9;0" dur="1.2s" begin="0.4s" repeatCount="indefinite"/></circle>
+      <!-- Check -->
+      <path d="M418 97 L427 106 L443 88" stroke="#00e5ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <!-- Labels -->
+      <text x="430" y="36" text-anchor="middle" fill="#00e5ff" font-family="Space Mono,monospace" font-size="8">Control</text>
+      <text x="344" y="103" text-anchor="middle" fill="#00e5ff" font-family="Space Mono,monospace" font-size="8">Entrada</text>
+      <text x="514" y="103" text-anchor="middle" fill="#00e5ff" font-family="Space Mono,monospace" font-size="8">Salida</text>
+      <!-- Estado label -->
+      <rect x="365" y="145" width="130" height="7" rx="3" fill="#00e5ff" opacity="0.2"/>
+      <text x="430" y="156" text-anchor="middle" fill="#00e5ff" font-family="Space Mono,monospace" font-size="11" font-weight="700">1 — Con corriente</text>
+      <text x="430" y="175" text-anchor="middle" fill="#6b7a99" font-family="Space Mono,monospace" font-size="9">Hay electricidad</text>
+    </svg>
+  </div>
+
+  <div class="callout callout-cyan">
+    <div class="callout-icon"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#00e5ff" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+    <div class="callout-text"><strong>Dato curioso:</strong> El chip del iPhone 15 tiene <strong>19,000 millones</strong> de transistores en un espacio del tamaño de tu uña. Cada uno solo conoce el 0 y el 1.</div>
+  </div>
+
+  <h3 class="sub-title">Los sistemas numéricos que veremos hoy</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Sistema</th><th>Base</th><th>Símbolos</th><th>¿Dónde se usa?</th></tr></thead>
+      <tbody>
+        <tr><td>Decimal</td><td class="td-dec">10</td><td>0, 1, 2, 3, 4, 5, 6, 7, 8, 9</td><td>Vida diaria</td></tr>
+        <tr class="td-hl"><td><strong>Binario</strong></td><td class="td-bin">2</td><td class="td-bin">0, 1</td><td>Circuitos, CPU</td></tr>
+        <tr class="td-hl"><td><strong>Octal</strong></td><td class="td-oct">8</td><td class="td-oct">0, 1, 2, 3, 4, 5, 6, 7</td><td>Permisos Unix, programación</td></tr>
+        <tr><td>Hexadecimal</td><td style="color:var(--pink)">16</td><td>0–9, A–F</td><td>Colores web, RAM (próxima clase)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══════════════ DECIMAL ═══════════════ -->
+<section id="decimal">
+  <div class="sec-tag">Repaso base</div>
+  <h2 class="sec-title">El Sistema Decimal</h2>
+  <p>Antes de aprender un nuevo idioma, hay que entender bien el propio. El sistema decimal funciona con <strong>potencias de 10</strong>.</p>
+
+  <h3 class="sub-title">¿Qué significa el número 3,472?</h3>
+
+  <!-- SVG posicional decimal -->
+  <div style="margin: 1.5rem 0; display:flex; justify-content:center; overflow-x:auto;">
+    <svg viewBox="0 0 520 140" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:520px; height:auto;">
+      <!-- Columnas -->
+      <!-- Millares -->
+      <rect x="10" y="10" width="110" height="75" rx="10" fill="rgba(255,214,10,0.08)" stroke="rgba(255,214,10,0.3)" stroke-width="1"/>
+      <text x="65" y="50" text-anchor="middle" fill="#ffd60a" font-family="Space Mono,monospace" font-size="32" font-weight="700">3</text>
+      <text x="65" y="74" text-anchor="middle" fill="#ffd60a" font-family="Space Mono,monospace" font-size="10">10³ = 1000</text>
+      <text x="65" y="99" text-anchor="middle" fill="#6b7a99" font-family="Space Mono,monospace" font-size="9">Miles</text>
+      <text x="65" y="130" text-anchor="middle" fill="#ffd60a" font-family="Space Mono,monospace" font-size="10">3 × 1000 = 3000</text>
+
+      <!-- Centenas -->
+      <rect x="135" y="10" width="110" height="75" rx="10" fill="rgba(0,229,255,0.08)" stroke="rgba(0,229,255,0.3)" stroke-width="1"/>
+      <text x="190" y="50" text-anchor="middle" fill="#00e5ff" font-family="Space Mono,monospace" font-size="32" font-weight="700">4</text>
+      <text x="190" y="74" text-anchor="middle" fill="#00e5ff" font-family="Space Mono,monospace" font-size="10">10² = 100</text>
+      <text x="190" y="99" text-anchor="middle" fill="#6b7a99" font-family="Space Mono,monospace" font-size="9">Cientos</text>
+      <text x="190" y="130" text-anchor="middle" fill="#00e5ff" font-family="Space Mono,monospace" font-size="10">4 × 100 = 400</text>
+
+      <!-- Decenas -->
+      <rect x="260" y="10" width="110" height="75" rx="10" fill="rgba(0,255,157,0.08)" stroke="rgba(0,255,157,0.3)" stroke-width="1"/>
+      <text x="315" y="50" text-anchor="middle" fill="#00ff9d" font-family="Space Mono,monospace" font-size="32" font-weight="700">7</text>
+      <text x="315" y="74" text-anchor="middle" fill="#00ff9d" font-family="Space Mono,monospace" font-size="10">10¹ = 10</text>
+      <text x="315" y="99" text-anchor="middle" fill="#6b7a99" font-family="Space Mono,monospace" font-size="9">Decenas</text>
+      <text x="315" y="130" text-anchor="middle" fill="#00ff9d" font-family="Space Mono,monospace" font-size="10">7 × 10 = 70</text>
+
+      <!-- Unidades -->
+      <rect x="385" y="10" width="110" height="75" rx="10" fill="rgba(255,107,53,0.08)" stroke="rgba(255,107,53,0.3)" stroke-width="1"/>
+      <text x="440" y="50" text-anchor="middle" fill="#ff6b35" font-family="Space Mono,monospace" font-size="32" font-weight="700">2</text>
+      <text x="440" y="74" text-anchor="middle" fill="#ff6b35" font-family="Space Mono,monospace" font-size="10">10⁰ = 1</text>
+      <text x="440" y="99" text-anchor="middle" fill="#6b7a99" font-family="Space Mono,monospace" font-size="9">Unidades</text>
+      <text x="440" y="130" text-anchor="middle" fill="#ff6b35" font-family="Space Mono,monospace" font-size="10">2 × 1 = 2</text>
+    </svg>
+  </div>
+
+  <div class="callout callout-yellow">
+    <div class="callout-icon"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#ffd60a" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+    <div class="callout-text"><strong>Concepto clave — Sistema Posicional:</strong> En cualquier sistema numérico, <strong>la posición de cada dígito le da su valor</strong>. Este principio aplica igual en binario, octal y cualquier otra base.</div>
+  </div>
+
+  <div class="code-block">
+    <span class="code-label">Verificación</span>
+    (<span class="c-yellow">3</span> × 1000) + (<span class="c-cyan">4</span> × 100) + (<span class="c-green">7</span> × 10) + (<span class="c-orange">2</span> × 1)<br>
+    = <span class="c-yellow">3000</span> + <span class="c-cyan">400</span> + <span class="c-green">70</span> + <span class="c-orange">2</span><br>
+    = <span class="c-cyan">3,472</span> ✓
+  </div>
+</section>
+
+<!-- ═══════════════ BINARIO ═══════════════ -->
+<section id="binario">
+  <div class="sec-tag">Bloque 2 · 45 min</div>
+  <h2 class="sec-title">El Sistema Binario</h2>
+  <p>El sistema binario funciona exactamente igual que el decimal, <strong>pero con potencias de 2</strong> en lugar de potencias de 10.</p>
+
+  <h3 class="sub-title">Vocabulario esencial</h3>
+  <div class="two-col">
+    <div class="card card-accent-cyan">
+      <div style="display:flex; align-items:center; gap:0.8rem; margin-bottom:0.5rem;">
+        <div style="width:40px;height:40px;border-radius:10px;background:rgba(0,229,255,0.1);display:flex;align-items:center;justify-content:center;">
+          <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#00e5ff" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        </div>
+        <div><div style="font-family:var(--font-mono);font-size:0.9rem;color:#fff;font-weight:700;">Bit</div><div class="text-muted">Binary Digit</div></div>
+      </div>
+      <p style="font-size:0.85rem;color:var(--muted)">Un solo dígito binario (<strong style="color:var(--cyan)">0 o 1</strong>). Es la unidad mínima de información digital.</p>
+    </div>
+    <div class="card card-accent-green">
+      <div style="display:flex; align-items:center; gap:0.8rem; margin-bottom:0.5rem;">
+        <div style="width:40px;height:40px;border-radius:10px;background:rgba(0,255,157,0.1);display:flex;align-items:center;justify-content:center;">
+          <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#00ff9d" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="4"/><path d="M8 12h8M12 8v8"/></svg>
+        </div>
+        <div><div style="font-family:var(--font-mono);font-size:0.9rem;color:#fff;font-weight:700;">Byte</div><div class="text-muted">8 bits</div></div>
+      </div>
+      <p style="font-size:0.85rem;color:var(--muted)">Grupo de <strong style="color:var(--green)">8 bits</strong>. Puede representar 256 valores distintos (0 a 255).</p>
+    </div>
+  </div>
+
+  <h3 class="sub-title">Las potencias de 2 que debes memorizar</h3>
+
+  <!-- SVG potencias de 2 visual -->
+  <div style="margin:1.2rem 0; overflow-x:auto;">
+    <svg viewBox="0 0 720 100" xmlns="http://www.w3.org/2000/svg" style="width:100%;min-width:600px;height:auto;">
+      <defs>
+        <linearGradient id="barGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#00e5ff" stop-opacity="0.8"/>
+          <stop offset="100%" stop-color="#00e5ff" stop-opacity="0.2"/>
+        </linearGradient>
+      </defs>
+      <!-- 9 potencias: 2^0=1 a 2^8=256 -->
+      <!-- cada columna: ancho 78px, gap 2px, total ~720px -->
+      <g font-family="Space Mono,monospace">
+        <!-- 2^0 = 1 -->
+        <rect x="4" y="72" width="74" height="4" rx="2" fill="url(#barGrad)"/>
+        <text x="41" y="68" text-anchor="middle" fill="#00e5ff" font-size="10" font-weight="700">1</text>
+        <text x="41" y="87" text-anchor="middle" fill="#6b7a99" font-size="8">2⁰</text>
+        <text x="41" y="98" text-anchor="middle" fill="#6b7a99" font-size="7">pos 0</text>
+        <!-- 2^1 = 2 -->
+        <rect x="82" y="70" width="74" height="6" rx="2" fill="url(#barGrad)"/>
+        <text x="119" y="66" text-anchor="middle" fill="#00e5ff" font-size="10" font-weight="700">2</text>
+        <text x="119" y="87" text-anchor="middle" fill="#6b7a99" font-size="8">2¹</text>
+        <text x="119" y="98" text-anchor="middle" fill="#6b7a99" font-size="7">pos 1</text>
+        <!-- 2^2 = 4 -->
+        <rect x="160" y="66" width="74" height="10" rx="2" fill="url(#barGrad)"/>
+        <text x="197" y="62" text-anchor="middle" fill="#00e5ff" font-size="10" font-weight="700">4</text>
+        <text x="197" y="87" text-anchor="middle" fill="#6b7a99" font-size="8">2²</text>
+        <text x="197" y="98" text-anchor="middle" fill="#6b7a99" font-size="7">pos 2</text>
+        <!-- 2^3 = 8 -->
+        <rect x="238" y="58" width="74" height="18" rx="2" fill="url(#barGrad)"/>
+        <text x="275" y="54" text-anchor="middle" fill="#00e5ff" font-size="10" font-weight="700">8</text>
+        <text x="275" y="87" text-anchor="middle" fill="#6b7a99" font-size="8">2³</text>
+        <text x="275" y="98" text-anchor="middle" fill="#6b7a99" font-size="7">pos 3</text>
+        <!-- 2^4 = 16 -->
+        <rect x="316" y="42" width="74" height="34" rx="2" fill="url(#barGrad)"/>
+        <text x="353" y="38" text-anchor="middle" fill="#00e5ff" font-size="10" font-weight="700">16</text>
+        <text x="353" y="87" text-anchor="middle" fill="#6b7a99" font-size="8">2⁴</text>
+        <text x="353" y="98" text-anchor="middle" fill="#6b7a99" font-size="7">pos 4</text>
+        <!-- 2^5 = 32 -->
+        <rect x="394" y="10" width="74" height="66" rx="2" fill="url(#barGrad)" opacity="0.85"/>
+        <text x="431" y="7" text-anchor="middle" fill="#00e5ff" font-size="10" font-weight="700">32</text>
+        <text x="431" y="87" text-anchor="middle" fill="#6b7a99" font-size="8">2⁵</text>
+        <text x="431" y="98" text-anchor="middle" fill="#6b7a99" font-size="7">pos 5</text>
+        <!-- 2^6 = 64, cap -->
+        <rect x="472" y="4" width="74" height="72" rx="2" fill="#00e5ff" opacity="0.22"/>
+        <text x="509" y="20" text-anchor="middle" fill="#00e5ff" font-size="10" font-weight="700">64</text>
+        <text x="509" y="87" text-anchor="middle" fill="#6b7a99" font-size="8">2⁶</text>
+        <text x="509" y="98" text-anchor="middle" fill="#6b7a99" font-size="7">pos 6</text>
+        <!-- 2^7 = 128 -->
+        <rect x="550" y="4" width="74" height="72" rx="2" fill="#00e5ff" opacity="0.3"/>
+        <text x="587" y="20" text-anchor="middle" fill="#00e5ff" font-size="10" font-weight="700">128</text>
+        <text x="587" y="87" text-anchor="middle" fill="#6b7a99" font-size="8">2⁷</text>
+        <text x="587" y="98" text-anchor="middle" fill="#6b7a99" font-size="7">pos 7</text>
+        <!-- 2^8 = 256 -->
+        <rect x="628" y="4" width="74" height="72" rx="2" fill="#00e5ff" opacity="0.38"/>
+        <text x="665" y="20" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">256</text>
+        <text x="665" y="87" text-anchor="middle" fill="#6b7a99" font-size="8">2⁸</text>
+        <text x="665" y="98" text-anchor="middle" fill="#6b7a99" font-size="7">pos 8</text>
+      </g>
+    </svg>
+  </div>
+  <p class="text-muted" style="text-align:center; margin-top:-0.5rem;">Truco: cada valor es el <strong>doble</strong> del anterior. ¡Solo tienes que multiplicar por 2!</p>
+
+  <!-- CONVERSIÓN DECIMAL A BINARIO -->
+  <h3 class="sub-title">Conversión: Decimal → Binario</h3>
+  <div class="callout callout-orange">
+    <div class="callout-icon"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#ff6b35" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+    <div class="callout-text"><strong>Regla de oro:</strong> Divide repetidamente entre 2 y anota los residuos de <strong>abajo hacia arriba</strong>.</div>
+  </div>
+
+  <!-- Ejemplo 1: 13 a binario SVG -->
+  <div class="ex-card">
+    <div class="ex-header">
+      <span class="ex-badge ex-badge-bin">Decimal → Binario</span>
+      <span class="ex-title">Ejemplo 1 — Convertir 13 a binario</span>
+    </div>
+    <div class="ex-body">
+      <!-- SVG de divisiones -->
+      <div style="overflow-x:auto; margin-bottom:1rem;">
+        <svg viewBox="0 0 460 220" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:460px;height:auto;">
+          <defs>
+            <marker id="arr" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#6b7a99"/></marker>
+            <marker id="arr-cyan" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#00e5ff"/></marker>
+          </defs>
+          <g font-family="Space Mono,monospace">
+            <!-- Fila 1: 13 ÷ 2 = 6 R 1 -->
+            <text x="30" y="40" fill="#cdd6f4" font-size="16" font-weight="700">13</text>
+            <text x="68" y="40" fill="#6b7a99" font-size="13">÷ 2 =</text>
+            <text x="118" y="40" fill="#cdd6f4" font-size="16" font-weight="700">6</text>
+            <text x="148" y="40" fill="#6b7a99" font-size="11">resto</text>
+            <rect x="196" y="22" width="30" height="24" rx="5" fill="rgba(0,229,255,0.1)" stroke="rgba(0,229,255,0.3)" stroke-width="1"/>
+            <text x="211" y="39" text-anchor="middle" fill="#00e5ff" font-size="16" font-weight="700">1</text>
+            <!-- Fila 2: 6 ÷ 2 = 3 R 0 -->
+            <text x="30" y="80" fill="#cdd6f4" font-size="16" font-weight="700">6</text>
+            <text x="68" y="80" fill="#6b7a99" font-size="13">÷ 2 =</text>
+            <text x="118" y="80" fill="#cdd6f4" font-size="16" font-weight="700">3</text>
+            <text x="148" y="80" fill="#6b7a99" font-size="11">resto</text>
+            <rect x="196" y="62" width="30" height="24" rx="5" fill="rgba(0,229,255,0.05)" stroke="rgba(0,229,255,0.2)" stroke-width="1"/>
+            <text x="211" y="79" text-anchor="middle" fill="#00e5ff" font-size="16" font-weight="700">0</text>
+            <!-- Fila 3: 3 ÷ 2 = 1 R 1 -->
+            <text x="30" y="120" fill="#cdd6f4" font-size="16" font-weight="700">3</text>
+            <text x="68" y="120" fill="#6b7a99" font-size="13">÷ 2 =</text>
+            <text x="118" y="120" fill="#cdd6f4" font-size="16" font-weight="700">1</text>
+            <text x="148" y="120" fill="#6b7a99" font-size="11">resto</text>
+            <rect x="196" y="102" width="30" height="24" rx="5" fill="rgba(0,229,255,0.1)" stroke="rgba(0,229,255,0.3)" stroke-width="1"/>
+            <text x="211" y="119" text-anchor="middle" fill="#00e5ff" font-size="16" font-weight="700">1</text>
+            <!-- Fila 4: 1 ÷ 2 = 0 R 1 -->
+            <text x="30" y="160" fill="#cdd6f4" font-size="16" font-weight="700">1</text>
+            <text x="68" y="160" fill="#6b7a99" font-size="13">÷ 2 =</text>
+            <text x="118" y="160" fill="#6b7a99" font-size="16">0</text>
+            <text x="148" y="160" fill="#6b7a99" font-size="11">resto</text>
+            <rect x="196" y="142" width="30" height="24" rx="5" fill="rgba(0,229,255,0.15)" stroke="rgba(0,229,255,0.5)" stroke-width="1.5"/>
+            <text x="211" y="159" text-anchor="middle" fill="#00e5ff" font-size="16" font-weight="700">1</text>
+            <!-- Flecha leyendo de abajo hacia arriba -->
+            <path d="M240 165 L240 35" stroke="#00e5ff" stroke-width="1.5" marker-end="url(#arr-cyan)" stroke-dasharray="4 3"/>
+            <text x="250" y="105" fill="#00e5ff" font-size="9" transform="rotate(90 250 105)">Lee de aquí hacia arriba</text>
+            <!-- Resultado -->
+            <rect x="300" y="60" width="140" height="80" rx="12" fill="rgba(0,229,255,0.08)" stroke="rgba(0,229,255,0.3)" stroke-width="1"/>
+            <text x="370" y="90" text-anchor="middle" fill="#6b7a99" font-size="10">Resultado</text>
+            <text x="370" y="120" text-anchor="middle" fill="#00e5ff" font-size="28" font-weight="700">1101</text>
+            <text x="370" y="138" text-anchor="middle" fill="#6b7a99" font-size="9">₂ (base 2)</text>
+          </g>
+        </svg>
+      </div>
+      <div class="callout callout-green" style="margin-top:0.5rem;">
+        <div class="callout-icon"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#00ff9d" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div>
+        <div class="callout-text"><strong>Verificación:</strong> 1×8 + 1×4 + 0×2 + 1×1 = 8 + 4 + 0 + 1 = <strong>13 ✓</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ejemplo 2: 25 -->
+  <div class="ex-card">
+    <div class="ex-header">
+      <span class="ex-badge ex-badge-bin">Decimal → Binario</span>
+      <span class="ex-title">Ejemplo 2 — Convertir 25 a binario</span>
+    </div>
+    <div class="ex-body">
+      <div class="code-block">
+<span class="c-yellow">25</span> ÷ 2 = <span class="c-muted">12</span>   residuo → <span class="c-cyan">1</span>
+<span class="c-yellow">12</span> ÷ 2 = <span class="c-muted"> 6</span>   residuo → <span class="c-cyan">0</span>
+<span class="c-yellow"> 6</span> ÷ 2 = <span class="c-muted"> 3</span>   residuo → <span class="c-cyan">0</span>
+<span class="c-yellow"> 3</span> ÷ 2 = <span class="c-muted"> 1</span>   residuo → <span class="c-cyan">1</span>
+<span class="c-yellow"> 1</span> ÷ 2 = <span class="c-muted"> 0</span>   residuo → <span class="c-cyan">1</span>
+                          <span class="c-muted">↑ leer de aquí</span>
+      </div>
+      <p><strong>Resultado:</strong> <span class="num-yellow">25₁₀</span> = <span class="num-cyan">11001₂</span></p>
+      <div class="callout callout-green" style="margin-top:0.8rem;">
+        <div class="callout-icon"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#00ff9d" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 012-2V5a2 2 0 012-2h11"/></svg></div>
+        <div class="callout-text">1×16 + 1×8 + 0×4 + 0×2 + 1×1 = 16 + 8 + 0 + 0 + 1 = <strong>25 ✓</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONVERSIÓN BINARIO A DECIMAL -->
+  <h3 class="sub-title">Conversión: Binario → Decimal</h3>
+  <div class="callout callout-orange">
+    <div class="callout-icon"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#ff6b35" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+    <div class="callout-text"><strong>Regla de oro:</strong> Multiplica cada dígito binario por su potencia de 2 según su posición (contando de <strong>derecha a izquierda desde 0</strong>), luego suma todo.</div>
+  </div>
+
+  <!-- Ejemplo visual Binario → Decimal -->
+  <div class="ex-card">
+    <div class="ex-header">
+      <span class="ex-badge ex-badge-dec">Binario → Decimal</span>
+      <span class="ex-title">Ejemplo 3 — Convertir 10110₂ a decimal</span>
+    </div>
+    <div class="ex-body">
+      <div style="overflow-x:auto;">
+        <svg viewBox="0 0 480 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:480px;height:auto;">
+          <g font-family="Space Mono,monospace">
+            <!-- 5 dígitos: 1 0 1 1 0 -->
+            <!-- Posición 4: 1 -->
+            <rect x="10" y="10" width="80" height="65" rx="9" fill="rgba(0,229,255,0.12)" stroke="rgba(0,229,255,0.4)" stroke-width="1.5"/>
+            <text x="50" y="46" text-anchor="middle" fill="#00e5ff" font-size="28" font-weight="700">1</text>
+            <text x="50" y="63" text-anchor="middle" fill="#6b7a99" font-size="9">posición 4</text>
+            <text x="50" y="90" text-anchor="middle" fill="#00e5ff" font-size="10">2⁴ = 16</text>
+            <text x="50" y="108" text-anchor="middle" fill="#00e5ff" font-size="11" font-weight="700">1×16=16</text>
+
+            <!-- Posición 3: 0 -->
+            <rect x="98" y="10" width="80" height="65" rx="9" fill="rgba(255,255,255,0.03)" stroke="rgba(107,122,153,0.25)" stroke-width="1"/>
+            <text x="138" y="46" text-anchor="middle" fill="#6b7a99" font-size="28" font-weight="700">0</text>
+            <text x="138" y="63" text-anchor="middle" fill="#6b7a99" font-size="9">posición 3</text>
+            <text x="138" y="90" text-anchor="middle" fill="#6b7a99" font-size="10">2³ = 8</text>
+            <text x="138" y="108" text-anchor="middle" fill="#6b7a99" font-size="11">0×8 = 0</text>
+
+            <!-- Posición 2: 1 -->
+            <rect x="186" y="10" width="80" height="65" rx="9" fill="rgba(0,229,255,0.12)" stroke="rgba(0,229,255,0.4)" stroke-width="1.5"/>
+            <text x="226" y="46" text-anchor="middle" fill="#00e5ff" font-size="28" font-weight="700">1</text>
+            <text x="226" y="63" text-anchor="middle" fill="#6b7a99" font-size="9">posición 2</text>
+            <text x="226" y="90" text-anchor="middle" fill="#00e5ff" font-size="10">2² = 4</text>
+            <text x="226" y="108" text-anchor="middle" fill="#00e5ff" font-size="11" font-weight="700">1×4 = 4</text>
+
+            <!-- Posición 1: 1 -->
+            <rect x="274" y="10" width="80" height="65" rx="9" fill="rgba(0,229,255,0.12)" stroke="rgba(0,229,255,0.4)" stroke-width="1.5"/>
+            <text x="314" y="46" text-anchor="middle" fill="#00e5ff" font-size="28" font-weight="700">1</text>
+            <text x="314" y="63" text-anchor="middle" fill="#6b7a99" font-size="9">posición 1</text>
+            <text x="314" y="90" text-anchor="middle" fill="#00e5ff" font-size="10">2¹ = 2</text>
+            <text x="314" y="108" text-anchor="middle" fill="#00e5ff" font-size="11" font-weight="700">1×2 = 2</text>
+
+            <!-- Posición 0: 0 -->
+            <rect x="362" y="10" width="80" height="65" rx="9" fill="rgba(255,255,255,0.03)" stroke="rgba(107,122,153,0.25)" stroke-width="1"/>
+            <text x="402" y="46" text-anchor="middle" fill="#6b7a99" font-size="28" font-weight="700">0</text>
+            <text x="402" y="63" text-anchor="middle" fill="#6b7a99" font-size="9">posición 0</text>
+            <text x="402" y="90" text-anchor="middle" fill="#6b7a99" font-size="10">2⁰ = 1</text>
+            <text x="402" y="108" text-anchor="middle" fill="#6b7a99" font-size="11">0×1 = 0</text>
+
+            <!-- Suma final -->
+            <text x="240" y="132" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">16 + 0 + 4 + 2 + 0 = 22</text>
+          </g>
+        </svg>
+      </div>
+      <p style="margin-top:0.5rem;"><strong>Resultado:</strong> <span class="num-cyan">10110₂</span> = <span class="num-yellow">22₁₀</span> ✓</p>
+    </div>
+  </div>
+
+  <!-- El byte máximo -->
+  <div class="ex-card">
+    <div class="ex-header">
+      <span class="ex-badge ex-badge-dec">Binario → Decimal</span>
+      <span class="ex-title">Ejemplo 4 — El byte máximo: 11111111₂</span>
+    </div>
+    <div class="ex-body">
+      <div class="code-block">
+<span class="c-muted">Posición: </span> <span class="c-yellow"> 7    6    5    4    3    2    1    0</span>
+<span class="c-muted">Potencia: </span> <span class="c-cyan">128   64   32   16    8    4    2    1</span>
+<span class="c-muted">Dígito:   </span>   1    1    1    1    1    1    1    1
+
+128 + 64 + 32 + 16 + 8 + 4 + 2 + 1 = <span class="c-green">255</span>
+      </div>
+      <div class="callout callout-cyan">
+        <div class="callout-icon"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#00e5ff" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+        <div class="callout-text">Un byte tiene 8 bits y puede representar valores del 0 al <strong>255</strong>. Por eso los colores RGB van de 0 a 255 en Photoshop o Canva.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Serie de ejercicios binarios -->
+  <h3 class="sub-title">Ejercicios resueltos paso a paso</h3>
+
+  <div class="ex-card">
+    <div class="ex-header"><span class="ex-badge ex-badge-bin">Serie A</span><span class="ex-title">Decimal → Binario</span></div>
+    <div class="ex-body">
+      <div class="two-col">
+        <div>
+          <p style="color:var(--muted);font-size:0.82rem;margin-bottom:0.5rem;"><strong style="color:#fff;">A1:</strong> Convertir 7</p>
+          <div class="code-block" style="font-size:0.75rem;padding:0.8rem 1rem;">
+7÷2=3 R <span class="c-cyan">1</span>
+3÷2=1 R <span class="c-cyan">1</span>
+1÷2=0 R <span class="c-cyan">1</span>
+→ <span class="c-green">111₂</span></div>
+        </div>
+        <div>
+          <p style="color:var(--muted);font-size:0.82rem;margin-bottom:0.5rem;"><strong style="color:#fff;">A2:</strong> Convertir 18</p>
+          <div class="code-block" style="font-size:0.75rem;padding:0.8rem 1rem;">
+18÷2= 9 R <span class="c-cyan">0</span>
+ 9÷2= 4 R <span class="c-cyan">1</span>
+ 4÷2= 2 R <span class="c-cyan">0</span>
+ 2÷2= 1 R <span class="c-cyan">0</span>
+ 1÷2= 0 R <span class="c-cyan">1</span>
+→ <span class="c-green">10010₂</span></div>
+        </div>
+      </div>
+      <p style="color:var(--muted);font-size:0.82rem;margin: 0.8rem 0 0.5rem;"><strong style="color:#fff;">A3:</strong> Convertir 45</p>
+      <div class="code-block" style="font-size:0.75rem;padding:0.8rem 1rem;">
+45÷2=22 R <span class="c-cyan">1</span>  22÷2=11 R <span class="c-cyan">0</span>  11÷2=5 R <span class="c-cyan">1</span>
+ 5÷2= 2 R <span class="c-cyan">1</span>   2÷2= 1 R <span class="c-cyan">0</span>   1÷2=0 R <span class="c-cyan">1</span>
+→ <span class="c-green">101101₂</span></div>
+    </div>
+  </div>
+
+  <div class="ex-card">
+    <div class="ex-header"><span class="ex-badge ex-badge-dec">Serie B</span><span class="ex-title">Binario → Decimal</span></div>
+    <div class="ex-body">
+      <div class="two-col">
+        <div>
+          <p style="color:var(--muted);font-size:0.82rem;margin-bottom:0.5rem;"><strong style="color:#fff;">B1:</strong> 1010₂</p>
+          <div class="code-block" style="font-size:0.75rem;padding:0.8rem 1rem;">
+1×8+0×4+1×2+0×1
+= 8+0+2+0
+= <span class="c-yellow">10₁₀</span></div>
+        </div>
+        <div>
+          <p style="color:var(--muted);font-size:0.82rem;margin-bottom:0.5rem;"><strong style="color:#fff;">B2:</strong> 110011₂</p>
+          <div class="code-block" style="font-size:0.75rem;padding:0.8rem 1rem;">
+1×32+1×16+0×8
++0×4+1×2+1×1
+= 32+16+0+0+2+1
+= <span class="c-yellow">51₁₀</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ TABLA MAESTRA ═══════════════ -->
+<section id="tabla">
+  <div class="sec-tag">Recurso central</div>
+  <h2 class="sec-title">Tabla Maestra de Conversiones</h2>
+  <p class="text-muted">Referencia para toda la clase. Imprimible o proyectable durante la sesión.</p>
+
+  <div class="master-table-wrap">
+    <table class="master-table">
+      <thead>
+        <tr>
+          <th>Decimal</th>
+          <th>Binario</th>
+          <th>Octal</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="td-dec">0</td><td class="td-bin">0000</td><td class="td-oct">0</td></tr>
+        <tr><td class="td-dec">1</td><td class="td-bin">0001</td><td class="td-oct">1</td></tr>
+        <tr><td class="td-dec">2</td><td class="td-bin">0010</td><td class="td-oct">2</td></tr>
+        <tr><td class="td-dec">3</td><td class="td-bin">0011</td><td class="td-oct">3</td></tr>
+        <tr><td class="td-dec">4</td><td class="td-bin">0100</td><td class="td-oct">4</td></tr>
+        <tr><td class="td-dec">5</td><td class="td-bin">0101</td><td class="td-oct">5</td></tr>
+        <tr><td class="td-dec">6</td><td class="td-bin">0110</td><td class="td-oct">6</td></tr>
+        <tr class="hl-row"><td class="td-dec">7</td><td class="td-bin">0111</td><td class="td-oct">7</td></tr>
+        <tr class="hl-row"><td class="td-dec">8</td><td class="td-bin">1000</td><td class="td-oct">10</td></tr>
+        <tr><td class="td-dec">9</td><td class="td-bin">1001</td><td class="td-oct">11</td></tr>
+        <tr><td class="td-dec">10</td><td class="td-bin">1010</td><td class="td-oct">12</td></tr>
+        <tr><td class="td-dec">11</td><td class="td-bin">1011</td><td class="td-oct">13</td></tr>
+        <tr><td class="td-dec">12</td><td class="td-bin">1100</td><td class="td-oct">14</td></tr>
+        <tr><td class="td-dec">13</td><td class="td-bin">1101</td><td class="td-oct">15</td></tr>
+        <tr><td class="td-dec">14</td><td class="td-bin">1110</td><td class="td-oct">16</td></tr>
+        <tr class="hl-row"><td class="td-dec">15</td><td class="td-bin">1111</td><td class="td-oct">17</td></tr>
+        <tr class="hl-row"><td class="td-dec">16</td><td class="td-bin">10000</td><td class="td-oct">20</td></tr>
+        <tr><td class="td-dec">20</td><td class="td-bin">10100</td><td class="td-oct">24</td></tr>
+        <tr><td class="td-dec">24</td><td class="td-bin">11000</td><td class="td-oct">30</td></tr>
+        <tr class="hl-row"><td class="td-dec">32</td><td class="td-bin">100000</td><td class="td-oct">40</td></tr>
+        <tr class="hl-row"><td class="td-dec">64</td><td class="td-bin">1000000</td><td class="td-oct">100</td></tr>
+        <tr class="hl-row"><td class="td-dec">128</td><td class="td-bin">10000000</td><td class="td-oct">200</td></tr>
+        <tr class="hl-row"><td class="td-dec">255</td><td class="td-bin">11111111</td><td class="td-oct">377</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout callout-yellow">
+    <div class="callout-icon"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#ffd60a" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></div>
+    <div class="callout-text"><strong>Actividad rápida (5 min):</strong> ¿Ves el patrón en la columna octal cuando el decimal salta de 7 a 8? ¿Por qué el 8 decimal se escribe "10" en octal?</div>
+  </div>
+</section>
+
+<!-- ═══════════════ DESCANSO 1 ═══════════════ -->
+<section id="descanso1" style="padding-top:1rem; padding-bottom:1rem;">
+  <div class="break-section">
+    <!-- SVG decorativo de descanso -->
+    <div class="timer-svg-wrap">
+      <svg viewBox="0 0 200 160" xmlns="http://www.w3.org/2000/svg" style="width:200px; height:160px;">
+        <defs>
+          <radialGradient id="glow1" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#ffd60a" stop-opacity="0.3"/>
+            <stop offset="100%" stop-color="#ffd60a" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <circle cx="100" cy="80" r="70" fill="url(#glow1)"/>
+        <!-- Reloj base -->
+        <circle cx="100" cy="80" r="55" fill="#111e35" stroke="#ffd60a" stroke-width="2.5" stroke-opacity="0.5"/>
+        <!-- Marcas de hora -->
+        <line x1="100" y1="28" x2="100" y2="36" stroke="#ffd60a" stroke-width="2.5" stroke-opacity="0.8"/>
+        <line x1="152" y1="80" x2="144" y2="80" stroke="#ffd60a" stroke-width="2" stroke-opacity="0.5"/>
+        <line x1="48" y1="80" x2="56" y2="80" stroke="#ffd60a" stroke-width="2" stroke-opacity="0.5"/>
+        <line x1="100" y1="132" x2="100" y2="124" stroke="#ffd60a" stroke-width="2" stroke-opacity="0.5"/>
+        <!-- Manecillas: marcando las 12:15 (~15min) -->
+        <line x1="100" y1="80" x2="100" y2="40" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+        <line x1="100" y1="80" x2="122" y2="82" stroke="#ffd60a" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="100" cy="80" r="5" fill="#ffd60a"/>
+        <!-- Número 15 en el centro -->
+        <text x="100" y="118" text-anchor="middle" fill="#ffd60a" font-family="Space Mono,monospace" font-size="13" font-weight="700">15 min</text>
+        <!-- Zzz decorativos -->
+        <text x="148" y="48" fill="#ffd60a" font-family="Space Mono,monospace" font-size="11" opacity="0.6">z</text>
+        <text x="158" y="36" fill="#ffd60a" font-family="Space Mono,monospace" font-size="14" opacity="0.5">z</text>
+        <text x="168" y="22" fill="#ffd60a" font-family="Space Mono,monospace" font-size="17" opacity="0.4">z</text>
+      </svg>
+    </div>
+
+    <div class="break-title">Descanso — 15 minutos</div>
+    <p class="break-sub">Han pasado 2 horas de trabajo intenso. ¡Es hora de recargar energías!</p>
+
+    <div style="display:flex; flex-wrap:wrap; gap:0.6rem; justify-content:center; margin-top:1rem;">
+      <span class="pill pill-yellow">Estira el cuello y brazos</span>
+      <span class="pill pill-yellow">Toma agua</span>
+      <span class="pill pill-yellow">Aléjate de la pantalla</span>
+    </div>
+
+    <div style="margin-top:1.5rem; padding:1rem 1.5rem; background:rgba(255,214,10,0.06); border-radius:10px; border:1px solid rgba(255,214,10,0.15); text-align:left; max-width:480px; margin-left:auto; margin-right:auto;">
+      <p style="font-family:var(--font-mono); font-size:0.72rem; color:var(--yellow); margin-bottom:0.4rem; text-transform:uppercase; letter-spacing:0.1em;">Para el docente — Al regresar (3 min)</p>
+      <p style="font-size:0.88rem; color:var(--text); margin:0;">Pide a un voluntario que convierta el número <strong>20</strong> a binario usando divisiones, de memoria. El resto del grupo verifica.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ OCTAL ═══════════════ -->
+<section id="octal">
+  <div class="sec-tag">Bloque 3 · 70 min</div>
+  <h2 class="sec-title">El Sistema Octal</h2>
+
+  <p>El sistema octal usa <strong>8 como base</strong> y únicamente emplea los dígitos del <span class="num-green">0 al 7</span>. El dígito 8 y el 9 <strong>no existen</strong> en octal.</p>
+
+  <div class="callout callout-green">
+    <div class="callout-icon"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#00ff9d" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+    <div class="callout-text"><strong>Uso real hoy:</strong> cuando ves <code style="background:var(--bg3);padding:0.1rem 0.4rem;border-radius:4px;font-family:var(--font-mono);font-size:0.82rem;color:var(--green);">chmod 755</code> en Linux, esos tres números son octales y controlan los permisos de un archivo.</div>
+  </div>
+
+  <!-- Conversión DECIMAL → OCTAL -->
+  <h3 class="sub-title">Conversión: Decimal → Octal</h3>
+  <div class="callout callout-orange">
+    <div class="callout-icon"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#ff6b35" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+    <div class="callout-text"><strong>¡Mismo método que binario!</strong> Divide entre <strong>8</strong> (no entre 2) y lee los residuos de abajo hacia arriba.</div>
+  </div>
+
+  <div class="ex-card">
+    <div class="ex-header"><span class="ex-badge ex-badge-oct">Decimal → Octal</span><span class="ex-title">Ejemplo 5 — Convertir 58 a octal</span></div>
+    <div class="ex-body">
+      <div style="overflow-x:auto;">
+        <svg viewBox="0 0 380 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:380px;height:auto;">
+          <defs><marker id="arr2" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#00ff9d"/></marker></defs>
+          <g font-family="Space Mono,monospace">
+            <text x="30" y="46" fill="#cdd6f4" font-size="18" font-weight="700">58</text>
+            <text x="72" y="46" fill="#6b7a99" font-size="13">÷ 8 =</text>
+            <text x="130" y="46" fill="#cdd6f4" font-size="18" font-weight="700">7</text>
+            <text x="155" y="46" fill="#6b7a99" font-size="11">R</text>
+            <rect x="170" y="28" width="32" height="26" rx="6" fill="rgba(0,255,157,0.12)" stroke="rgba(0,255,157,0.4)" stroke-width="1.5"/>
+            <text x="186" y="46" text-anchor="middle" fill="#00ff9d" font-size="18" font-weight="700">2</text>
+
+            <text x="30" y="90" fill="#cdd6f4" font-size="18" font-weight="700">7</text>
+            <text x="72" y="90" fill="#6b7a99" font-size="13">÷ 8 =</text>
+            <text x="130" y="90" fill="#6b7a99" font-size="18">0</text>
+            <text x="155" y="90" fill="#6b7a99" font-size="11">R</text>
+            <rect x="170" y="72" width="32" height="26" rx="6" fill="rgba(0,255,157,0.18)" stroke="rgba(0,255,157,0.6)" stroke-width="1.5"/>
+            <text x="186" y="90" text-anchor="middle" fill="#00ff9d" font-size="18" font-weight="700">7</text>
+
+            <path d="M215 92 L215 38" stroke="#00ff9d" stroke-width="1.5" marker-end="url(#arr2)" stroke-dasharray="4 3"/>
+            <text x="225" y="68" fill="#00ff9d" font-size="9" transform="rotate(90 225 68)">leer ↑</text>
+
+            <rect x="265" y="45" width="100" height="54" rx="10" fill="rgba(0,255,157,0.08)" stroke="rgba(0,255,157,0.3)" stroke-width="1.5"/>
+            <text x="315" y="72" text-anchor="middle" fill="#6b7a99" font-size="9">Resultado</text>
+            <text x="315" y="90" text-anchor="middle" fill="#00ff9d" font-size="28" font-weight="700">72₈</text>
+          </g>
+        </svg>
+      </div>
+      <div class="callout callout-green" style="margin-top:0.5rem;">
+        <div class="callout-icon"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#00ff9d" stroke-width="2"><path d="M9 11l3 3L22 4"/></svg></div>
+        <div class="callout-text">Verificación: 7×8¹ + 2×8⁰ = 56 + 2 = <strong>58 ✓</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ex-card">
+    <div class="ex-header"><span class="ex-badge ex-badge-oct">Decimal → Octal</span><span class="ex-title">Ejemplo 6 — Convertir 200 a octal</span></div>
+    <div class="ex-body">
+      <div class="code-block">
+<span class="c-yellow">200</span> ÷ 8 = <span class="c-muted">25</span>  residuo → <span class="c-green">0</span>
+<span class="c-yellow"> 25</span> ÷ 8 = <span class="c-muted"> 3</span>  residuo → <span class="c-green">1</span>
+<span class="c-yellow">  3</span> ÷ 8 = <span class="c-muted"> 0</span>  residuo → <span class="c-green">3</span>
+                        <span class="c-muted">↑ leer de aquí</span>
+→ <span class="c-green">310₈</span>
+      </div>
+      <p>Verificación: 3×64 + 1×8 + 0×1 = 192 + 8 + 0 = <strong>200 ✓</strong></p>
+    </div>
+  </div>
+
+  <!-- OCTAL → DECIMAL -->
+  <h3 class="sub-title">Conversión: Octal → Decimal</h3>
+
+  <div class="ex-card">
+    <div class="ex-header"><span class="ex-badge ex-badge-dec">Octal → Decimal</span><span class="ex-title">Ejemplo 7 — Convertir 135₈ a decimal</span></div>
+    <div class="ex-body">
+      <div style="overflow-x:auto; margin-bottom:0.8rem;">
+        <svg viewBox="0 0 360 110" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:360px;height:auto;">
+          <g font-family="Space Mono,monospace">
+            <rect x="10" y="10" width="90" height="60" rx="9" fill="rgba(0,255,157,0.1)" stroke="rgba(0,255,157,0.35)" stroke-width="1.5"/>
+            <text x="55" y="44" text-anchor="middle" fill="#00ff9d" font-size="28" font-weight="700">1</text>
+            <text x="55" y="62" text-anchor="middle" fill="#6b7a99" font-size="9">posición 2</text>
+            <text x="55" y="82" text-anchor="middle" fill="#00ff9d" font-size="10">8² = 64</text>
+            <text x="55" y="98" text-anchor="middle" fill="#00ff9d" font-size="11" font-weight="700">1×64=64</text>
+
+            <rect x="115" y="10" width="90" height="60" rx="9" fill="rgba(0,255,157,0.1)" stroke="rgba(0,255,157,0.35)" stroke-width="1.5"/>
+            <text x="160" y="44" text-anchor="middle" fill="#00ff9d" font-size="28" font-weight="700">3</text>
+            <text x="160" y="62" text-anchor="middle" fill="#6b7a99" font-size="9">posición 1</text>
+            <text x="160" y="82" text-anchor="middle" fill="#00ff9d" font-size="10">8¹ = 8</text>
+            <text x="160" y="98" text-anchor="middle" fill="#00ff9d" font-size="11" font-weight="700">3×8=24</text>
+
+            <rect x="220" y="10" width="90" height="60" rx="9" fill="rgba(0,255,157,0.1)" stroke="rgba(0,255,157,0.35)" stroke-width="1.5"/>
+            <text x="265" y="44" text-anchor="middle" fill="#00ff9d" font-size="28" font-weight="700">5</text>
+            <text x="265" y="62" text-anchor="middle" fill="#6b7a99" font-size="9">posición 0</text>
+            <text x="265" y="82" text-anchor="middle" fill="#00ff9d" font-size="10">8⁰ = 1</text>
+            <text x="265" y="98" text-anchor="middle" fill="#00ff9d" font-size="11" font-weight="700">5×1=5</text>
+
+            <text x="180" y="108" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">64 + 24 + 5 = 93</text>
+          </g>
+        </svg>
+      </div>
+      <p><strong>Resultado:</strong> <span class="num-green">135₈</span> = <span class="num-yellow">93₁₀</span> ✓</p>
+    </div>
+  </div>
+
+  <!-- TRUCO BINARIO ↔ OCTAL -->
+  <h3 class="sub-title">Binario ↔ Octal — El Truco de los Grupos de 3</h3>
+
+  <div class="callout callout-pink">
+    <div class="callout-icon"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#ff3d7f" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+    <div class="callout-text"><strong>El secreto:</strong> Cada dígito octal equivale exactamente a <strong>3 bits</strong> (porque 2³ = 8). ¡Sin divisiones, sin multiplicaciones, solo agrupar!</div>
+  </div>
+
+  <!-- Mini-tabla de grupos de 3 -->
+  <div style="display:flex; justify-content:center; margin: 1.5rem 0; overflow-x:auto;">
+    <svg viewBox="0 0 460 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:460px;height:auto;">
+      <g font-family="Space Mono,monospace">
+        <text x="230" y="22" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">Tabla de equivalencias (¡memorízala!)</text>
+        <!-- Headers -->
+        <text x="100" y="46" text-anchor="middle" fill="#00ff9d" font-size="10" text-decoration="underline">Octal</text>
+        <text x="330" y="46" text-anchor="middle" fill="#00e5ff" font-size="10" text-decoration="underline">Binario 3 bits</text>
+        <!-- Línea divisoria -->
+        <line x1="210" y1="30" x2="210" y2="200" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+        <!-- Filas -->
+        <text x="100" y="68" text-anchor="middle" fill="#00ff9d" font-size="18" font-weight="700">0</text>
+        <text x="330" y="68" text-anchor="middle" fill="#00e5ff" font-size="16" font-weight="700">000</text>
+        <text x="100" y="92" text-anchor="middle" fill="#00ff9d" font-size="18" font-weight="700">1</text>
+        <text x="330" y="92" text-anchor="middle" fill="#00e5ff" font-size="16" font-weight="700">001</text>
+        <text x="100" y="116" text-anchor="middle" fill="#00ff9d" font-size="18" font-weight="700">2</text>
+        <text x="330" y="116" text-anchor="middle" fill="#00e5ff" font-size="16" font-weight="700">010</text>
+        <text x="100" y="140" text-anchor="middle" fill="#00ff9d" font-size="18" font-weight="700">3</text>
+        <text x="330" y="140" text-anchor="middle" fill="#00e5ff" font-size="16" font-weight="700">011</text>
+        <text x="100" y="164" text-anchor="middle" fill="#00ff9d" font-size="18" font-weight="700">4</text>
+        <text x="330" y="164" text-anchor="middle" fill="#00e5ff" font-size="16" font-weight="700">100</text>
+        <text x="100" y="188" text-anchor="middle" fill="#00ff9d" font-size="18" font-weight="700">5</text>
+        <text x="330" y="188" text-anchor="middle" fill="#00e5ff" font-size="16" font-weight="700">101</text>
+      </g>
+    </svg>
+    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:200px;height:auto;">
+      <g font-family="Space Mono,monospace">
+        <!-- Filas 6 y 7 -->
+        <text x="100" y="68" text-anchor="middle" fill="#00ff9d" font-size="18" font-weight="700">6</text>
+        <text x="100" y="92" text-anchor="middle" fill="#00e5ff" font-size="16" font-weight="700">110</text>
+        <rect x="10" y="100" width="180" height="2" rx="1" fill="rgba(0,229,255,0.15)"/>
+        <text x="100" y="136" text-anchor="middle" fill="#00ff9d" font-size="18" font-weight="700">7</text>
+        <text x="100" y="160" text-anchor="middle" fill="#00e5ff" font-size="16" font-weight="700">111</text>
+        <text x="100" y="185" text-anchor="middle" fill="#6b7a99" font-size="8">máximo de 3 bits</text>
+      </g>
+    </svg>
+  </div>
+
+  <!-- Ejemplo Binario → Octal -->
+  <div class="ex-card">
+    <div class="ex-header"><span class="ex-badge ex-badge-oct">Truco grupos 3</span><span class="ex-title">Ejemplo 8 — Convertir 110101₂ a octal</span></div>
+    <div class="ex-body">
+      <div style="overflow-x:auto;">
+        <svg viewBox="0 0 440 130" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:440px;height:auto;">
+          <g font-family="Space Mono,monospace">
+            <!-- Título paso 1 -->
+            <text x="10" y="22" fill="#6b7a99" font-size="10">Paso 1: Agrupa de 3 en 3 desde la derecha</text>
+            <!-- Grupo izquierdo: 110 -->
+            <rect x="10" y="32" width="100" height="44" rx="10" fill="rgba(0,229,255,0.1)" stroke="rgba(0,229,255,0.4)" stroke-width="1.5"/>
+            <text x="60" y="62" text-anchor="middle" fill="#00e5ff" font-size="26" font-weight="700" letter-spacing="6">110</text>
+            <!-- Grupo derecho: 101 -->
+            <rect x="118" y="32" width="100" height="44" rx="10" fill="rgba(0,229,255,0.1)" stroke="rgba(0,229,255,0.4)" stroke-width="1.5"/>
+            <text x="168" y="62" text-anchor="middle" fill="#00e5ff" font-size="26" font-weight="700" letter-spacing="6">101</text>
+            <!-- Flecha -->
+            <path d="M250 54 L290 54" stroke="#6b7a99" stroke-width="1.5" marker-end="url(#arr)"/>
+            <!-- Paso 2 resultado -->
+            <text x="300" y="38" fill="#6b7a99" font-size="10">Paso 2: convierte</text>
+            <rect x="300" y="42" width="60" height="36" rx="8" fill="rgba(0,255,157,0.12)" stroke="rgba(0,255,157,0.4)" stroke-width="1.5"/>
+            <text x="330" y="66" text-anchor="middle" fill="#00ff9d" font-size="22" font-weight="700">6</text>
+            <rect x="368" y="42" width="60" height="36" rx="8" fill="rgba(0,255,157,0.12)" stroke="rgba(0,255,157,0.4)" stroke-width="1.5"/>
+            <text x="398" y="66" text-anchor="middle" fill="#00ff9d" font-size="22" font-weight="700">5</text>
+            <!-- labels -->
+            <text x="60" y="90" text-anchor="middle" fill="#6b7a99" font-size="9">110 → 6</text>
+            <text x="168" y="90" text-anchor="middle" fill="#6b7a99" font-size="9">101 → 5</text>
+            <!-- resultado final -->
+            <text x="220" y="120" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">110101₂ = 65₈</text>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ejemplo Octal → Binario -->
+  <div class="ex-card">
+    <div class="ex-header"><span class="ex-badge ex-badge-bin">Truco grupos 3</span><span class="ex-title">Ejemplo 9 — Convertir 537₈ a binario</span></div>
+    <div class="ex-body">
+      <div style="overflow-x:auto;">
+        <svg viewBox="0 0 440 120" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:440px;height:auto;">
+          <g font-family="Space Mono,monospace">
+            <text x="10" y="22" fill="#6b7a99" font-size="10">Cada dígito octal se expande a exactamente 3 bits</text>
+            <!-- Dígitos octales -->
+            <rect x="10" y="32" width="60" height="44" rx="10" fill="rgba(0,255,157,0.12)" stroke="rgba(0,255,157,0.4)" stroke-width="1.5"/>
+            <text x="40" y="62" text-anchor="middle" fill="#00ff9d" font-size="28" font-weight="700">5</text>
+            <rect x="80" y="32" width="60" height="44" rx="10" fill="rgba(0,255,157,0.12)" stroke="rgba(0,255,157,0.4)" stroke-width="1.5"/>
+            <text x="110" y="62" text-anchor="middle" fill="#00ff9d" font-size="28" font-weight="700">3</text>
+            <rect x="150" y="32" width="60" height="44" rx="10" fill="rgba(0,255,157,0.12)" stroke="rgba(0,255,157,0.4)" stroke-width="1.5"/>
+            <text x="180" y="62" text-anchor="middle" fill="#00ff9d" font-size="28" font-weight="700">7</text>
+            <!-- flecha -->
+            <path d="M225 54 L255 54" stroke="#6b7a99" stroke-width="1.5" marker-end="url(#arr)"/>
+            <!-- Resultado binario -->
+            <rect x="265" y="32" width="165" height="44" rx="10" fill="rgba(0,229,255,0.08)" stroke="rgba(0,229,255,0.3)" stroke-width="1.5"/>
+            <text x="347" y="60" text-anchor="middle" fill="#00e5ff" font-size="19" font-weight="700" letter-spacing="4">101 011 111</text>
+            <!-- Etiquetas -->
+            <text x="40" y="90" text-anchor="middle" fill="#6b7a99" font-size="9">5→101</text>
+            <text x="110" y="90" text-anchor="middle" fill="#6b7a99" font-size="9">3→011</text>
+            <text x="180" y="90" text-anchor="middle" fill="#6b7a99" font-size="9">7→111</text>
+            <text x="347" y="105" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">537₈ = 101011111₂</text>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ejercicios Octal -->
+  <h3 class="sub-title">Ejercicios resueltos — Octal</h3>
+
+  <div class="ex-card">
+    <div class="ex-header"><span class="ex-badge ex-badge-oct">Serie C</span><span class="ex-title">Decimal → Octal</span></div>
+    <div class="ex-body">
+      <div class="two-col">
+        <div>
+          <p style="color:var(--muted);font-size:0.82rem;margin-bottom:0.5rem;"><strong style="color:#fff;">C1:</strong> Convertir 33</p>
+          <div class="code-block" style="font-size:0.75rem;padding:0.8rem 1rem;">
+33÷8= 4 R <span class="c-green">1</span>
+ 4÷8= 0 R <span class="c-green">4</span>
+→ <span class="c-green">41₈</span></div>
+        </div>
+        <div>
+          <p style="color:var(--muted);font-size:0.82rem;margin-bottom:0.5rem;"><strong style="color:#fff;">C2:</strong> Convertir 150</p>
+          <div class="code-block" style="font-size:0.75rem;padding:0.8rem 1rem;">
+150÷8=18 R <span class="c-green">6</span>
+ 18÷8= 2 R <span class="c-green">2</span>
+  2÷8= 0 R <span class="c-green">2</span>
+→ <span class="c-green">226₈</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ex-card">
+    <div class="ex-header"><span class="ex-badge ex-badge-bin">Serie D</span><span class="ex-title">Binario ↔ Octal (truco)</span></div>
+    <div class="ex-body">
+      <div class="two-col">
+        <div>
+          <p style="color:var(--muted);font-size:0.82rem;margin-bottom:0.5rem;"><strong style="color:#fff;">D1:</strong> 111000₂ → octal</p>
+          <div class="code-block" style="font-size:0.75rem;padding:0.8rem 1rem;">
+<span class="c-cyan">111</span> <span class="c-cyan">000</span>
+ ↓    ↓
+<span class="c-green"> 7    0</span>
+→ <span class="c-green">70₈</span></div>
+        </div>
+        <div>
+          <p style="color:var(--muted);font-size:0.82rem;margin-bottom:0.5rem;"><strong style="color:#fff;">D2:</strong> 62₈ → binario</p>
+          <div class="code-block" style="font-size:0.75rem;padding:0.8rem 1rem;">
+<span class="c-green">6</span>→<span class="c-cyan">110</span>
+<span class="c-green">2</span>→<span class="c-cyan">010</span>
+→ <span class="c-cyan">110010₂</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ DESCANSO 2 ═══════════════ -->
+<section id="descanso2" style="padding-top:1rem; padding-bottom:1rem;">
+  <div class="break-section">
+    <div class="timer-svg-wrap">
+      <svg viewBox="0 0 200 160" xmlns="http://www.w3.org/2000/svg" style="width:200px;height:160px;">
+        <defs>
+          <radialGradient id="glow2" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#a855f7" stop-opacity="0.3"/>
+            <stop offset="100%" stop-color="#a855f7" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <circle cx="100" cy="80" r="70" fill="url(#glow2)"/>
+        <circle cx="100" cy="80" r="55" fill="#111e35" stroke="#a855f7" stroke-width="2.5" stroke-opacity="0.5"/>
+        <line x1="100" y1="28" x2="100" y2="36" stroke="#a855f7" stroke-width="2.5" stroke-opacity="0.8"/>
+        <line x1="152" y1="80" x2="144" y2="80" stroke="#a855f7" stroke-width="2" stroke-opacity="0.5"/>
+        <line x1="48" y1="80" x2="56" y2="80" stroke="#a855f7" stroke-width="2" stroke-opacity="0.5"/>
+        <line x1="100" y1="132" x2="100" y2="124" stroke="#a855f7" stroke-width="2" stroke-opacity="0.5"/>
+        <line x1="100" y1="80" x2="100" y2="40" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+        <line x1="100" y1="80" x2="122" y2="82" stroke="#a855f7" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="100" cy="80" r="5" fill="#a855f7"/>
+        <text x="100" y="118" text-anchor="middle" fill="#a855f7" font-family="Space Mono,monospace" font-size="13" font-weight="700">15 min</text>
+        <!-- Robot icon -->
+        <text x="52" y="56" fill="#a855f7" font-family="sans-serif" font-size="20" opacity="0.7">🤖</text>
+      </svg>
+    </div>
+
+    <div class="break-title" style="color:var(--purple);">Descanso — 15 minutos</div>
+    <p class="break-sub">¡Excelente trabajo! Dominaron dos sistemas numéricos. Ahora viene la parte más divertida...</p>
+
+    <div style="display:flex; flex-wrap:wrap; gap:0.6rem; justify-content:center; margin-top:1rem;">
+      <span class="pill" style="background:rgba(168,85,247,0.1);color:var(--purple);border:1px solid rgba(168,85,247,0.2);">Mueve el cuerpo</span>
+      <span class="pill" style="background:rgba(168,85,247,0.1);color:var(--purple);border:1px solid rgba(168,85,247,0.2);">Toma agua</span>
+      <span class="pill" style="background:rgba(168,85,247,0.1);color:var(--purple);border:1px solid rgba(168,85,247,0.2);">¡Prepárate para el juego! 🎮</span>
+    </div>
+
+    <div style="margin-top:1.5rem; padding:1rem 1.5rem; background:rgba(168,85,247,0.06); border-radius:10px; border:1px solid rgba(168,85,247,0.15); text-align:left; max-width:480px; margin-left:auto; margin-right:auto;">
+      <p style="font-family:var(--font-mono); font-size:0.72rem; color:var(--purple); margin-bottom:0.4rem; text-transform:uppercase; letter-spacing:0.1em;">Para el docente — Al regresar (3 min)</p>
+      <p style="font-size:0.88rem; color:var(--text); margin:0;">Pide a dos estudiantes convertir el número <strong>37</strong> a binario usando primero el truco octal → grupos de 3. Genera debate si los resultados difieren.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ PRÁCTICA INDIVIDUAL ═══════════════ -->
+<section id="practica">
+  <div class="sec-tag">Bloque final · Parte 1</div>
+  <h2 class="sec-title">Práctica Individual</h2>
+
+  <div class="callout callout-cyan" style="margin-bottom:1.5rem;">
+    <div class="callout-icon"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#00e5ff" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+    <div class="callout-text"><strong>Para el docente:</strong> Camina por el salón y observa los <strong>procesos</strong>, no solo las respuestas. Un error en el método dice más que un error en el resultado.</div>
+  </div>
+
+  <!-- Nivel 1 -->
+  <h3 class="sub-title">Nivel 1 — Calentamiento</h3>
+  <div class="practice-grid">
+    <div class="prac-item"><div class="prac-num">01</div><div class="prac-q">Convertir <strong>9₁₀</strong> a binario</div><span class="prac-type" style="background:rgba(0,229,255,0.1);color:var(--cyan);border:1px solid rgba(0,229,255,0.2);">Dec → Bin</span></div>
+    <div class="prac-item"><div class="prac-num">02</div><div class="prac-q">Convertir <strong>1111₂</strong> a decimal</div><span class="prac-type" style="background:rgba(255,214,10,0.1);color:var(--yellow);border:1px solid rgba(255,214,10,0.2);">Bin → Dec</span></div>
+    <div class="prac-item"><div class="prac-num">03</div><div class="prac-q">Convertir <strong>15₁₀</strong> a octal</div><span class="prac-type" style="background:rgba(0,255,157,0.1);color:var(--green);border:1px solid rgba(0,255,157,0.2);">Dec → Oct</span></div>
+    <div class="prac-item"><div class="prac-num">04</div><div class="prac-q">Convertir <strong>17₈</strong> a decimal</div><span class="prac-type" style="background:rgba(255,214,10,0.1);color:var(--yellow);border:1px solid rgba(255,214,10,0.2);">Oct → Dec</span></div>
+  </div>
+
+  <!-- Nivel 2 -->
+  <h3 class="sub-title">Nivel 2 — En Marcha</h3>
+  <div class="practice-grid">
+    <div class="prac-item"><div class="prac-num">05</div><div class="prac-q">Convertir <strong>53₁₀</strong> a binario</div><span class="prac-type" style="background:rgba(0,229,255,0.1);color:var(--cyan);border:1px solid rgba(0,229,255,0.2);">Dec → Bin</span></div>
+    <div class="prac-item"><div class="prac-num">06</div><div class="prac-q">Convertir <strong>101010₂</strong> a decimal</div><span class="prac-type" style="background:rgba(255,214,10,0.1);color:var(--yellow);border:1px solid rgba(255,214,10,0.2);">Bin → Dec</span></div>
+    <div class="prac-item"><div class="prac-num">07</div><div class="prac-q">Convertir <strong>100₁₀</strong> a octal</div><span class="prac-type" style="background:rgba(0,255,157,0.1);color:var(--green);border:1px solid rgba(0,255,157,0.2);">Dec → Oct</span></div>
+    <div class="prac-item"><div class="prac-num">08</div><div class="prac-q">Convertir <strong>111₂</strong> a octal usando grupos de 3</div><span class="prac-type" style="background:rgba(0,255,157,0.1);color:var(--green);border:1px solid rgba(0,255,157,0.2);">Bin → Oct</span></div>
+  </div>
+
+  <!-- Nivel 3 -->
+  <h3 class="sub-title">Nivel 3 — Desafío</h3>
+  <div class="practice-grid">
+    <div class="prac-item"><div class="prac-num">09</div><div class="prac-q">Convertir <strong>255₁₀</strong> a binario Y a octal</div><span class="prac-type" style="background:rgba(255,107,53,0.1);color:var(--orange);border:1px solid rgba(255,107,53,0.2);">Doble conv.</span></div>
+    <div class="prac-item"><div class="prac-num">10</div><div class="prac-q">¿Cuál es mayor: <strong>11001₂</strong> o <strong>30₈</strong>? Justifica.</div><span class="prac-type" style="background:rgba(255,107,53,0.1);color:var(--orange);border:1px solid rgba(255,107,53,0.2);">Comparación</span></div>
+    <div class="prac-item"><div class="prac-num">11</div><div class="prac-q">Permiso Linux <strong>101 111 101₂</strong> → ¿código octal?</div><span class="prac-type" style="background:rgba(255,107,53,0.1);color:var(--orange);border:1px solid rgba(255,107,53,0.2);">Aplicación</span></div>
+    <div class="prac-item"><div class="prac-num">12</div><div class="prac-q">Convertir <strong>1011010110₂</strong> a octal con grupos de 3</div><span class="prac-type" style="background:rgba(255,107,53,0.1);color:var(--orange);border:1px solid rgba(255,107,53,0.2);">Desafío</span></div>
+  </div>
+
+  <!-- Respuestas colapsadas -->
+  <details style="margin-top:1.5rem;">
+    <summary style="cursor:pointer; padding:1rem 1.2rem; background:var(--bg3); border:1px solid var(--border); border-radius:10px; font-family:var(--font-mono); font-size:0.8rem; color:var(--cyan); list-style:none; display:flex; align-items:center; gap:0.5rem; user-select:none;">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Respuestas — (Solo para el docente)
+    </summary>
+    <div style="padding:1.2rem; background:var(--bg2); border:1px solid var(--border); border-top:none; border-radius:0 0 10px 10px;">
+      <div class="table-wrap" style="margin:0;">
+        <table>
+          <thead><tr><th>#</th><th>Respuesta</th><th>Proceso clave</th></tr></thead>
+          <tbody>
+            <tr><td class="td-bin">01</td><td class="td-bin">1001₂</td><td>4 divisiones entre 2</td></tr>
+            <tr><td class="td-bin">02</td><td class="td-dec">15₁₀</td><td>8+4+2+1</td></tr>
+            <tr><td class="td-bin">03</td><td class="td-oct">17₈</td><td>1 división, residuos 7 y 1</td></tr>
+            <tr><td class="td-bin">04</td><td class="td-dec">15₁₀</td><td>1×8 + 7×1</td></tr>
+            <tr><td class="td-bin">05</td><td class="td-bin">110101₂</td><td>6 divisiones</td></tr>
+            <tr><td class="td-bin">06</td><td class="td-dec">42₁₀</td><td>32+0+8+0+2+0</td></tr>
+            <tr><td class="td-bin">07</td><td class="td-oct">144₈</td><td>3 divisiones entre 8</td></tr>
+            <tr><td class="td-bin">08</td><td class="td-oct">7₈</td><td>grupo 111 → 7</td></tr>
+            <tr><td class="td-bin">09</td><td><span class="td-bin">11111111₂</span> / <span class="td-oct">377₈</span></td><td>Ambas conversiones correctas</td></tr>
+            <tr><td class="td-bin">10</td><td>Son iguales (ambos = 25₁₀)</td><td>Convertir ambos a decimal</td></tr>
+            <tr><td class="td-bin">11</td><td class="td-oct">575₈</td><td>101→5, 111→7, 101→5</td></tr>
+            <tr><td class="td-bin">12</td><td class="td-oct">1326₈</td><td>grupos 001·011·010·110</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </details>
+
+  <!-- Rúbrica -->
+  <h3 class="sub-title">Rúbrica de Seguimiento Docente</h3>
+  <div class="rubric-wrap">
+    <table class="rubric-table">
+      <thead>
+        <tr>
+          <th>Criterio</th>
+          <th>Excelente (4)</th>
+          <th>Bueno (3)</th>
+          <th>En Proceso (2)</th>
+          <th>Necesita Apoyo (1)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Método de división</td>
+          <td style="color:#4ade80;font-size:0.8rem;">Divisiones correctas sin errores</td>
+          <td style="color:var(--cyan);font-size:0.8rem;">Pequeños errores aritméticos</td>
+          <td style="color:var(--yellow);font-size:0.8rem;">Confunde la dirección de lectura</td>
+          <td style="color:var(--pink);font-size:0.8rem;">No recuerda el método</td>
+        </tr>
+        <tr>
+          <td>Lectura residuos</td>
+          <td style="color:#4ade80;font-size:0.8rem;">Lee siempre de abajo ↑ arriba</td>
+          <td style="color:var(--cyan);font-size:0.8rem;">1 error de dirección</td>
+          <td style="color:var(--yellow);font-size:0.8rem;">Confunde regularmente</td>
+          <td style="color:var(--pink);font-size:0.8rem;">Dirección incorrecta siempre</td>
+        </tr>
+        <tr>
+          <td>Truco Bin ↔ Oct</td>
+          <td style="color:#4ade80;font-size:0.8rem;">Aplica grupos de 3 sin ayuda</td>
+          <td style="color:var(--cyan);font-size:0.8rem;">Necesita la mini-tabla</td>
+          <td style="color:var(--yellow);font-size:0.8rem;">Confunde el tamaño del grupo</td>
+          <td style="color:var(--pink);font-size:0.8rem;">No comprende el truco</td>
+        </tr>
+        <tr>
+          <td>Verificación</td>
+          <td style="color:#4ade80;font-size:0.8rem;">Verifica espontáneamente</td>
+          <td style="color:var(--cyan);font-size:0.8rem;">Verifica si se le pide</td>
+          <td style="color:var(--yellow);font-size:0.8rem;">Verifica con ayuda</td>
+          <td style="color:var(--pink);font-size:0.8rem;">No verifica</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══════════════ JUEGO DE ROLES ═══════════════ -->
+<section id="juego">
+  <div class="sec-tag">Bloque final · Parte 2 · 30 min</div>
+  <h2 class="sec-title">La Computadora Humana</h2>
+
+  <!-- SVG decorativo del juego -->
+  <div style="margin: 1rem 0 2rem; display:flex; justify-content:center;">
+    <svg viewBox="0 0 500 120" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:500px;height:auto;">
+      <defs>
+        <marker id="flow" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="rgba(0,229,255,0.6)"/>
+        </marker>
+      </defs>
+      <g font-family="Space Mono,monospace">
+        <!-- Generador -->
+        <rect x="5" y="30" width="80" height="50" rx="10" fill="#111e35" stroke="rgba(255,214,10,0.5)" stroke-width="1.5"/>
+        <text x="45" y="50" text-anchor="middle" fill="#ffd60a" font-size="8">GENERADOR</text>
+        <text x="45" y="65" text-anchor="middle" fill="#ffd60a" font-size="16" font-weight="700">42</text>
+        <text x="45" y="80" text-anchor="middle" fill="#6b7a99" font-size="7">entrada dec</text>
+        <!-- Flecha -->
+        <line x1="85" y1="55" x2="105" y2="55" stroke="rgba(0,229,255,0.5)" stroke-width="1.5" marker-end="url(#flow)"/>
+        <!-- Divisor -->
+        <rect x="108" y="30" width="80" height="50" rx="10" fill="#111e35" stroke="rgba(0,229,255,0.5)" stroke-width="1.5"/>
+        <text x="148" y="50" text-anchor="middle" fill="#00e5ff" font-size="8">DIVISOR</text>
+        <text x="148" y="68" text-anchor="middle" fill="#00e5ff" font-size="12">42÷2</text>
+        <text x="148" y="82" text-anchor="middle" fill="#6b7a99" font-size="7">divide</text>
+        <!-- Flecha -->
+        <line x1="188" y1="55" x2="208" y2="55" stroke="rgba(0,229,255,0.5)" stroke-width="1.5" marker-end="url(#flow)"/>
+        <!-- Lector -->
+        <rect x="211" y="30" width="80" height="50" rx="10" fill="#111e35" stroke="rgba(0,255,157,0.5)" stroke-width="1.5"/>
+        <text x="251" y="50" text-anchor="middle" fill="#00ff9d" font-size="8">LECTOR</text>
+        <text x="251" y="67" text-anchor="middle" fill="#00ff9d" font-size="10" letter-spacing="2">101010</text>
+        <text x="251" y="82" text-anchor="middle" fill="#6b7a99" font-size="7">lee bits</text>
+        <!-- Flecha -->
+        <line x1="291" y1="55" x2="311" y2="55" stroke="rgba(0,229,255,0.5)" stroke-width="1.5" marker-end="url(#flow)"/>
+        <!-- Agrupador -->
+        <rect x="314" y="30" width="80" height="50" rx="10" fill="#111e35" stroke="rgba(255,107,53,0.5)" stroke-width="1.5"/>
+        <text x="354" y="47" text-anchor="middle" fill="#ff6b35" font-size="7">AGRUPADOR</text>
+        <text x="354" y="63" text-anchor="middle" fill="#ff6b35" font-size="10">52₈</text>
+        <text x="354" y="77" text-anchor="middle" fill="#6b7a99" font-size="7">grupos 3</text>
+        <!-- Flecha -->
+        <line x1="394" y1="55" x2="414" y2="55" stroke="rgba(0,229,255,0.5)" stroke-width="1.5" marker-end="url(#flow)"/>
+        <!-- Verificador -->
+        <rect x="417" y="25" width="80" height="60" rx="10" fill="#111e35" stroke="rgba(0,255,157,0.8)" stroke-width="2"/>
+        <text x="457" y="46" text-anchor="middle" fill="#00ff9d" font-size="7">VERIFICADOR</text>
+        <path d="M440 62 L452 74 L474 50" stroke="#00ff9d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <text x="457" y="85" text-anchor="middle" fill="#00ff9d" font-size="7" font-weight="700">OK ✓</text>
+        <!-- Texto debajo -->
+        <text x="250" y="108" text-anchor="middle" fill="#6b7a99" font-size="9">42₁₀ → 101010₂ → 52₈</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="callout callout-yellow" style="margin-bottom:1.5rem;">
+    <div class="callout-icon"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#ffd60a" stroke-width="2"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/><path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/><path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"/><path d="M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z"/><path d="M14 14.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5z"/><path d="M15.5 19H14v1.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5-.67-1.5-1.5-1.5z"/><path d="M10 9.5C10 8.67 9.33 8 8.5 8h-5C2.67 8 2 8.67 2 9.5S2.67 11 3.5 11h5c.83 0 1.5-.67 1.5-1.5z"/><path d="M8.5 5H10V3.5C10 2.67 9.33 2 8.5 2S7 2.67 7 3.5 7.67 5 8.5 5z"/></svg></div>
+    <div class="callout-text"><strong>Contexto del juego:</strong> El año es 1960. Los transistores no llegan a tiempo para construir el procesador. Ustedes <em>son</em> el procesador. La misión: convertir números sin errores o el cohete espacial se pierde. 🚀</div>
+  </div>
+
+  <!-- Los roles -->
+  <h3 class="sub-title">Los 5 Roles</h3>
+  <div class="role-grid">
+    <!-- Rol 1 -->
+    <div class="role-card" style="border-color:rgba(255,214,10,0.3);">
+      <div class="role-icon-wrap" style="background:rgba(255,214,10,0.1);">
+        <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="#ffd60a" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      </div>
+      <div class="role-num">ROL 1</div>
+      <div class="role-name" style="color:var(--yellow)">Generador de Entrada</div>
+      <div class="role-desc">Escribe en una tarjeta el número decimal que la "computadora" debe procesar. Solo puede usar números del 0 al 127.</div>
+      <div class="role-phrase">"Número ingresado al sistema."</div>
+    </div>
+
+    <!-- Rol 2 -->
+    <div class="role-card" style="border-color:rgba(0,229,255,0.3);">
+      <div class="role-icon-wrap" style="background:rgba(0,229,255,0.1);">
+        <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="#00e5ff" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 12h6M9 15h4"/></svg>
+      </div>
+      <div class="role-num">ROL 2</div>
+      <div class="role-name" style="color:var(--cyan)">El Divisor</div>
+      <div class="role-desc">Aplica el método de divisiones sucesivas entre 2. Entrega una hoja con todas las divisiones y residuos anotados.</div>
+      <div class="role-phrase">"Procesando… división completada."</div>
+    </div>
+
+    <!-- Rol 3 -->
+    <div class="role-card" style="border-color:rgba(0,255,157,0.3);">
+      <div class="role-icon-wrap" style="background:rgba(0,255,157,0.1);">
+        <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="#00ff9d" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="role-num">ROL 3</div>
+      <div class="role-name" style="color:var(--green)">Lector de Bits</div>
+      <div class="role-desc">Lee los residuos de abajo hacia arriba y escribe el número binario en una tarjeta grande para el grupo.</div>
+      <div class="role-phrase">"Bits leídos. Transmitiendo señal binaria."</div>
+    </div>
+
+    <!-- Rol 4 -->
+    <div class="role-card" style="border-color:rgba(255,107,53,0.3);">
+      <div class="role-icon-wrap" style="background:rgba(255,107,53,0.1);">
+        <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="#ff6b35" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      </div>
+      <div class="role-num">ROL 4</div>
+      <div class="role-name" style="color:var(--orange)">Agrupador Octal</div>
+      <div class="role-desc">Toma el número binario, agrupa en bloques de 3 desde la derecha y convierte cada grupo a su dígito octal.</div>
+      <div class="role-phrase">"Comprimiendo a octal. Compresión exitosa."</div>
+    </div>
+
+    <!-- Rol 5 -->
+    <div class="role-card" style="border-color:rgba(168,85,247,0.3);">
+      <div class="role-icon-wrap" style="background:rgba(168,85,247,0.1);">
+        <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="#a855f7" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      </div>
+      <div class="role-num">ROL 5</div>
+      <div class="role-name" style="color:var(--purple)">El Verificador</div>
+      <div class="role-desc">Comprueba con la Tabla Maestra que la cadena sea correcta. Si detecta error, activa la alarma: <em>"¡ERROR DE SISTEMA!"</em> y el proceso se reinicia.</div>
+      <div class="role-phrase">"Verificación completa. Sistema operativo." ✓</div>
+    </div>
+  </div>
+
+  <!-- Rondas -->
+  <h3 class="sub-title">Las 4 Rondas</h3>
+  <div class="round-grid">
+    <div class="round-card" style="border-color:rgba(0,229,255,0.2);">
+      <div class="round-name">Ronda 1 · 5 min</div>
+      <div class="round-desc">Entrenamiento guiado por el docente con el número <strong>42</strong>. Cada rol practica en voz alta.</div>
+    </div>
+    <div class="round-card" style="border-color:rgba(0,255,157,0.2);">
+      <div class="round-name">Ronda 2 · 8 min</div>
+      <div class="round-desc">Primera misión real. El Generador crea un número y cada rol ejecuta su función. Victoria: cero errores.</div>
+    </div>
+    <div class="round-card" style="border-color:rgba(255,107,53,0.2);">
+      <div class="round-name">Ronda 3 · 8 min</div>
+      <div class="round-desc">Misión inversa: el Generador escribe un número <strong>octal</strong>. El proceso se invierte: Oct → Bin → Dec.</div>
+    </div>
+    <div class="round-card" style="border-color:rgba(255,214,10,0.2);">
+      <div class="round-name">Ronda 4 · 7 min</div>
+      <div class="round-desc">Torneo: dos grupos compiten con el mismo número. Gana quien llegue al resultado correcto primero.</div>
+    </div>
+  </div>
+
+  <!-- Puntuación -->
+  <h3 class="sub-title">Sistema de Puntuación</h3>
+  <div class="score-grid">
+    <div class="score-row"><div class="score-label">Completar la cadena sin errores</div><div class="score-pts">10 pts</div></div>
+    <div class="score-row"><div class="score-label">Verificador detecta un error real</div><div class="score-pts">5 pts</div></div>
+    <div class="score-row"><div class="score-label">Completar más rápido que el grupo rival</div><div class="score-pts">+3 pts</div></div>
+    <div class="score-row"><div class="score-label">Corregir el error y recomenzar exitosamente</div><div class="score-pts">5 pts</div></div>
+    <div class="score-row"><div class="score-label">Todos los miembros pueden explicar su rol</div><div class="score-pts">10 pts</div></div>
+  </div>
+
+  <!-- Reflexión post-juego -->
+  <h3 class="sub-title">Reflexión Post-Juego (5 min)</h3>
+  <div class="card card-accent-purple">
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">¿Qué rol fue más difícil?</div>
+          <div class="step-body">¿Por qué? Discutan en grupo las dificultades de cada posición.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">¿Qué pasó cuando el Verificador encontró un error?</div>
+          <div class="step-body">¿Cómo se sintió el equipo? ¿Quién fue responsable?</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">Conexión con la realidad</div>
+          <div class="step-body">En una CPU real, si un bit llega incorrecto, todo el cálculo falla. ¿Cómo manejan esto las computadoras reales? <em>(Pista: bits de paridad, checksums)</em></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <div class="step-title">¿Cuál fue el número más difícil?</div>
+          <div class="step-body">¿Por qué algunos números son más fáciles de convertir que otros?</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ CIERRE ═══════════════ -->
+<section id="cierre">
+  <div class="sec-tag">Resumen final · 10 min</div>
+  <h2 class="sec-title">Resumen y Cierre</h2>
+
+  <!-- Mapa conceptual SVG -->
+  <div style="margin: 1.5rem 0; overflow-x:auto;">
+    <svg viewBox="0 0 700 340" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:700px;height:auto;">
+      <defs>
+        <marker id="mArr" markerWidth="7" markerHeight="5" refX="5" refY="2.5" orient="auto">
+          <polygon points="0 0, 7 2.5, 0 5" fill="rgba(0,229,255,0.4)"/>
+        </marker>
+      </defs>
+      <g font-family="Space Mono,monospace">
+        <!-- Centro -->
+        <ellipse cx="350" cy="170" rx="80" ry="42" fill="#111e35" stroke="rgba(0,229,255,0.5)" stroke-width="2"/>
+        <text x="350" y="165" text-anchor="middle" fill="#00e5ff" font-size="11" font-weight="700">SISTEMAS</text>
+        <text x="350" y="180" text-anchor="middle" fill="#00e5ff" font-size="11" font-weight="700">NUMÉRICOS</text>
+
+        <!-- Decimal -->
+        <rect x="20" y="10" width="145" height="80" rx="12" fill="#111e35" stroke="rgba(255,214,10,0.4)" stroke-width="1.5"/>
+        <text x="92" y="36" text-anchor="middle" fill="#ffd60a" font-size="11" font-weight="700">DECIMAL</text>
+        <text x="92" y="52" text-anchor="middle" fill="#6b7a99" font-size="8">Base 10</text>
+        <text x="92" y="64" text-anchor="middle" fill="#6b7a99" font-size="8">Dígitos: 0–9</text>
+        <text x="92" y="76" text-anchor="middle" fill="#6b7a99" font-size="8">Uso: vida cotidiana</text>
+        <line x1="165" y1="50" x2="272" y2="148" stroke="rgba(0,229,255,0.3)" stroke-width="1.2" marker-end="url(#mArr)"/>
+
+        <!-- Binario -->
+        <rect x="535" y="10" width="145" height="95" rx="12" fill="#111e35" stroke="rgba(0,229,255,0.4)" stroke-width="1.5"/>
+        <text x="607" y="36" text-anchor="middle" fill="#00e5ff" font-size="11" font-weight="700">BINARIO</text>
+        <text x="607" y="52" text-anchor="middle" fill="#6b7a99" font-size="8">Base 2</text>
+        <text x="607" y="64" text-anchor="middle" fill="#6b7a99" font-size="8">Dígitos: 0, 1</text>
+        <text x="607" y="76" text-anchor="middle" fill="#6b7a99" font-size="8">Uso: circuitos, CPU</text>
+        <text x="607" y="88" text-anchor="middle" fill="#00e5ff" font-size="8">1 bit = 0 ó 1</text>
+        <line x1="535" y1="57" x2="428" y2="145" stroke="rgba(0,229,255,0.3)" stroke-width="1.2" marker-end="url(#mArr)"/>
+
+        <!-- Octal -->
+        <rect x="535" y="240" width="145" height="95" rx="12" fill="#111e35" stroke="rgba(0,255,157,0.4)" stroke-width="1.5"/>
+        <text x="607" y="266" text-anchor="middle" fill="#00ff9d" font-size="11" font-weight="700">OCTAL</text>
+        <text x="607" y="282" text-anchor="middle" fill="#6b7a99" font-size="8">Base 8</text>
+        <text x="607" y="294" text-anchor="middle" fill="#6b7a99" font-size="8">Dígitos: 0–7</text>
+        <text x="607" y="306" text-anchor="middle" fill="#6b7a99" font-size="8">Uso: permisos Unix</text>
+        <text x="607" y="318" text-anchor="middle" fill="#00ff9d" font-size="8">3 bits = 1 dígito oct</text>
+        <line x1="535" y1="287" x2="428" y2="200" stroke="rgba(0,229,255,0.3)" stroke-width="1.2" marker-end="url(#mArr)"/>
+
+        <!-- Métodos -->
+        <rect x="20" y="250" width="145" height="80" rx="12" fill="#111e35" stroke="rgba(255,107,53,0.4)" stroke-width="1.5"/>
+        <text x="92" y="272" text-anchor="middle" fill="#ff6b35" font-size="11" font-weight="700">MÉTODOS</text>
+        <text x="92" y="288" text-anchor="middle" fill="#6b7a99" font-size="8">Divisiones sucesivas</text>
+        <text x="92" y="300" text-anchor="middle" fill="#6b7a99" font-size="8">Potencias posición</text>
+        <text x="92" y="312" text-anchor="middle" fill="#6b7a99" font-size="8">Grupos de 3 bits</text>
+        <line x1="165" y1="290" x2="272" y2="197" stroke="rgba(0,229,255,0.3)" stroke-width="1.2" marker-end="url(#mArr)"/>
+
+        <!-- Título del mapa -->
+        <text x="350" y="330" text-anchor="middle" fill="#6b7a99" font-size="9">Mapa conceptual de lo aprendido hoy</text>
+      </g>
+    </svg>
+  </div>
+
+  <!-- Las 5 reglas de oro -->
+  <h3 class="sub-title">Las 5 Reglas de Oro</h3>
+  <div class="card">
+    <div class="steps">
+      <div class="step">
+        <div class="step-num" style="background:rgba(0,229,255,0.15);border-color:rgba(0,229,255,0.4);color:var(--cyan);">1</div>
+        <div class="step-content">
+          <div class="step-title">Regla del 0 y el 1</div>
+          <div class="step-body">Todo en una computadora es binario. El resto de sistemas son solo formas más cómodas de leerlo.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num" style="background:rgba(0,255,157,0.15);border-color:rgba(0,255,157,0.4);color:var(--green);">2</div>
+        <div class="step-content">
+          <div class="step-title">Regla de las Divisiones</div>
+          <div class="step-body">Para convertir decimal a cualquier base, divide entre esa base y lee los residuos de <strong>abajo hacia arriba</strong>.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num" style="background:rgba(255,214,10,0.15);border-color:rgba(255,214,10,0.4);color:var(--yellow);">3</div>
+        <div class="step-content">
+          <div class="step-title">Regla de las Potencias</div>
+          <div class="step-body">Para convertir a decimal, multiplica cada dígito por su potencia de posición (contando de derecha a izquierda desde 0) y suma.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num" style="background:rgba(255,107,53,0.15);border-color:rgba(255,107,53,0.4);color:var(--orange);">4</div>
+        <div class="step-content">
+          <div class="step-title">Regla de los Grupos de 3</div>
+          <div class="step-body">Para convertir entre binario y octal, agrupa de 3 en 3 desde la derecha. Un dígito octal = 3 bits exactos.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num" style="background:rgba(168,85,247,0.15);border-color:rgba(168,85,247,0.4);color:var(--purple);">5</div>
+        <div class="step-content">
+          <div class="step-title">Regla de la Verificación</div>
+          <div class="step-body">Siempre verifica tu respuesta convirtiendo de regreso al número original. Si no coincide, hay un error en el proceso.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Conexión vida real -->
+  <h3 class="sub-title">¿Dónde Ves Esto en el Mundo Real?</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>¿Dónde lo ves?</th><th>Sistema</th><th>Ejemplo</th></tr></thead>
+      <tbody>
+        <tr><td>Colores en CSS / Diseño</td><td><span class="pill pill-orange">Hex</span></td><td style="font-family:var(--font-mono);font-size:0.8rem;">#FF5733</td></tr>
+        <tr><td>Permisos de archivos Linux</td><td><span class="pill pill-green">Octal</span></td><td style="font-family:var(--font-mono);font-size:0.8rem;">chmod 755</td></tr>
+        <tr><td>Almacenamiento: 1 GB = 1024 MB</td><td><span class="pill pill-cyan">Binario</span></td><td style="font-family:var(--font-mono);font-size:0.8rem;">2¹⁰ = 1024</td></tr>
+        <tr><td>Dirección IP</td><td><span class="pill pill-yellow">Decimal</span></td><td style="font-family:var(--font-mono);font-size:0.8rem;">192.168.1.1</td></tr>
+        <tr><td>Código ASCII de la letra 'A'</td><td><span class="pill pill-cyan">Binario</span></td><td style="font-family:var(--font-mono);font-size:0.8rem;">65 = 01000001₂</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Autoevaluación -->
+  <h3 class="sub-title">Autoevaluación — ¿Cómo te fue hoy?</h3>
+  <div class="eval-grid">
+    <div class="eval-row">
+      <div class="eval-q">¿Puedo convertir de decimal a binario?</div>
+      <div class="eval-opt" title="Aún no">😕</div>
+      <div class="eval-opt" title="Más o menos">🤔</div>
+      <div class="eval-opt" title="Sí lo entiendo">😊</div>
+    </div>
+    <div class="eval-row">
+      <div class="eval-q">¿Puedo convertir de binario a decimal?</div>
+      <div class="eval-opt">😕</div>
+      <div class="eval-opt">🤔</div>
+      <div class="eval-opt">😊</div>
+    </div>
+    <div class="eval-row">
+      <div class="eval-q">¿Puedo convertir de decimal a octal?</div>
+      <div class="eval-opt">😕</div>
+      <div class="eval-opt">🤔</div>
+      <div class="eval-opt">😊</div>
+    </div>
+    <div class="eval-row">
+      <div class="eval-q">¿Entiendo el truco de grupos de 3 bits?</div>
+      <div class="eval-opt">😕</div>
+      <div class="eval-opt">🤔</div>
+      <div class="eval-opt">😊</div>
+    </div>
+    <div class="eval-row">
+      <div class="eval-q">¿Podría explicarle esto a alguien más?</div>
+      <div class="eval-opt">😕</div>
+      <div class="eval-opt">🤔</div>
+      <div class="eval-opt">😊</div>
+    </div>
+  </div>
+
+  <!-- Glosario -->
+  <h3 class="sub-title">Glosario</h3>
+  <div class="glossary-grid">
+    <div class="gloss-item"><div class="gloss-term">Bit</div><div class="gloss-def">Dígito binario. Unidad mínima de información digital (0 o 1).</div></div>
+    <div class="gloss-item"><div class="gloss-term">Byte</div><div class="gloss-def">Grupo de 8 bits. Puede representar 256 valores (0 a 255).</div></div>
+    <div class="gloss-item"><div class="gloss-term">Nibble</div><div class="gloss-def">Grupo de 4 bits. La mitad de un byte.</div></div>
+    <div class="gloss-item"><div class="gloss-term">Base</div><div class="gloss-def">Cantidad de símbolos distintos que usa un sistema numérico.</div></div>
+    <div class="gloss-item"><div class="gloss-term">Sistema posicional</div><div class="gloss-def">Sistema donde el valor de un dígito depende de su posición en el número.</div></div>
+    <div class="gloss-item"><div class="gloss-term">Transistor</div><div class="gloss-def">Componente electrónico que actúa como interruptor. Base del hardware digital.</div></div>
+    <div class="gloss-item"><div class="gloss-term">Residuo</div><div class="gloss-def">Lo que sobra después de una división entera.</div></div>
+    <div class="gloss-item"><div class="gloss-term">Binario</div><div class="gloss-def">Sistema de base 2. Solo usa 0 y 1. El lenguaje nativo de las computadoras.</div></div>
+    <div class="gloss-item"><div class="gloss-term">Octal</div><div class="gloss-def">Sistema de base 8. Usa dígitos del 0 al 7. Muy relacionado con el binario.</div></div>
+  </div>
+
+  <!-- Footer de la página -->
+  <div style="margin-top:4rem; padding:2rem; text-align:center; border-top:1px solid var(--border);">
+    <p style="font-family:var(--font-mono);font-size:0.72rem;color:var(--muted);">Material educativo de libre uso · Sistemas Digitales · Nivel secundaria · 15–16 años</p>
+    <p style="font-family:var(--font-mono);font-size:0.68rem;color:var(--border);margin-top:0.4rem;">Publicable en GitHub Pages · Archivo único HTML</p>
+  </div>
+</section>
+
+</div><!-- fin .page -->
+
+<script>
+  // Eval interactivo simple
+  document.querySelectorAll('.eval-opt').forEach(opt => {
+    opt.addEventListener('click', function() {
+      const row = this.closest('.eval-row');
+      row.querySelectorAll('.eval-opt').forEach(o => {
+        o.style.background = '';
+        o.style.borderColor = '';
+        o.style.transform = '';
+      });
+      this.style.background = 'rgba(0,229,255,0.15)';
+      this.style.borderColor = 'var(--cyan)';
+      this.style.transform = 'scale(1.2)';
+    });
+  });
+
+  // Nav highlight básico
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-links a');
+
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(sec => {
+      if (window.scrollY >= sec.offsetTop - 80) current = sec.id;
+    });
+    navLinks.forEach(a => {
+      a.style.color = a.getAttribute('href') === '#' + current ? 'var(--cyan)' : '';
+    });
+  });
+</script>
+
+</body>
+</html>
