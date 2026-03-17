@@ -1,0 +1,1823 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Decimal y Hexadecimal — El Lenguaje del Color Digital</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:ital,wght@0,300;0,400;0,700;1,400&family=Fraunces:ital,wght@0,300;0,700;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #08080f;
+  --bg2:      #0f0f1a;
+  --bg3:      #151525;
+  --bg4:      #1a1a2e;
+  --orange:   #ff6b35;
+  --magenta:  #ff2d78;
+  --violet:   #7c3aed;
+  --violet2:  #a855f7;
+  --gold:     #f59e0b;
+  --cyan:     #06b6d4;
+  --green:    #10b981;
+  --red:      #ef4444;
+  --text:     #e2e0ff;
+  --muted:    #6b6a8a;
+  --border:   rgba(124,58,237,0.18);
+  --border2:  rgba(255,107,53,0.18);
+  --fhead:    'Fraunces', serif;
+  --fmono:    'JetBrains Mono', monospace;
+  --fbody:    'Outfit', sans-serif;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--fbody);
+  font-size: 16px;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* diagonal stripes bg */
+body::before {
+  content:'';
+  position:fixed; inset:0;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 60px,
+    rgba(124,58,237,0.018) 60px,
+    rgba(124,58,237,0.018) 61px
+  );
+  pointer-events:none; z-index:0;
+}
+
+/* ── NAV ── */
+nav {
+  position:fixed; top:0; left:0; right:0; z-index:200;
+  background: rgba(8,8,15,0.94);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  height:54px;
+  display:flex; align-items:center;
+  padding: 0 1.5rem;
+  gap:0;
+}
+
+.nav-brand {
+  font-family: var(--fmono);
+  font-size:0.72rem;
+  color: var(--orange);
+  white-space:nowrap;
+  margin-right:1.5rem;
+  flex-shrink:0;
+  letter-spacing:0.05em;
+}
+
+.nav-links {
+  display:flex; list-style:none;
+  gap:0.1rem;
+  overflow-x:auto;
+  scrollbar-width:none;
+  flex-shrink:0;
+}
+.nav-links::-webkit-scrollbar{display:none;}
+.nav-links a {
+  display:block;
+  padding:0.3rem 0.65rem;
+  font-family:var(--fmono);
+  font-size:0.65rem;
+  color:var(--muted);
+  text-decoration:none;
+  border-radius:5px;
+  white-space:nowrap;
+  transition: color .2s, background .2s;
+}
+.nav-links a:hover, .nav-links a.active { color:var(--orange); background:rgba(255,107,53,0.07); }
+
+/* ── PAGE WRAP ── */
+.page { position:relative; z-index:1; }
+
+section {
+  max-width:940px;
+  margin:0 auto;
+  padding:4.5rem 1.8rem 2.5rem;
+}
+
+/* ── HERO ── */
+#hero {
+  min-height:100vh;
+  display:flex; flex-direction:column;
+  justify-content:center;
+  padding-top:7rem;
+  max-width:940px; margin:0 auto;
+  padding-left:1.8rem; padding-right:1.8rem;
+}
+
+.hero-eyebrow {
+  display:inline-flex; align-items:center; gap:0.6rem;
+  background:rgba(255,107,53,0.08);
+  border:1px solid rgba(255,107,53,0.22);
+  border-radius:100px;
+  padding:0.3rem 1rem;
+  font-family:var(--fmono);
+  font-size:0.7rem;
+  color:var(--orange);
+  margin-bottom:2rem;
+  animation:fadeUp .5s ease both;
+}
+.hero-eyebrow .blink {
+  width:5px;height:5px;
+  background:var(--orange);
+  border-radius:50%;
+  animation:blink 1.4s ease infinite;
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+
+h1.hero-title {
+  font-family:var(--fhead);
+  font-size:clamp(3rem,8vw,6rem);
+  font-weight:700;
+  line-height:.95;
+  letter-spacing:-.02em;
+  margin-bottom:1.5rem;
+  animation:fadeUp .5s .08s ease both;
+}
+.hero-title .t1{display:block;color:#fff;}
+.hero-title .t2{
+  display:block;
+  background:linear-gradient(90deg,var(--orange),var(--magenta),var(--violet2));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+
+.hero-desc {
+  font-size:1.05rem;
+  color:var(--muted);
+  max-width:500px;
+  margin-bottom:2.5rem;
+  animation:fadeUp .5s .16s ease both;
+  line-height:1.8;
+}
+
+.hero-chips {
+  display:flex; flex-wrap:wrap; gap:.7rem;
+  animation:fadeUp .5s .24s ease both;
+}
+.chip {
+  display:flex; align-items:center; gap:.45rem;
+  padding:.42rem 1rem;
+  border:1px solid var(--border);
+  border-radius:8px;
+  font-family:var(--fmono);
+  font-size:0.72rem;
+  background:var(--bg2);
+  color:var(--text);
+}
+
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(18px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* color strip strip decoration */
+.color-strip {
+  display:flex; gap:4px;
+  margin-top:3rem;
+  animation:fadeUp .5s .32s ease both;
+}
+.cs-swatch {
+  height:6px;
+  border-radius:3px;
+  transition:flex .3s;
+  cursor:default;
+}
+.cs-swatch:hover{flex:4!important;}
+
+/* ── SECTION LABELS ── */
+.sec-label {
+  font-family:var(--fmono);
+  font-size:.68rem;
+  color:var(--orange);
+  text-transform:uppercase;
+  letter-spacing:.18em;
+  display:flex; align-items:center; gap:.5rem;
+  margin-bottom:.7rem;
+}
+.sec-label::before{
+  content:'';display:inline-block;
+  width:20px;height:1px;background:var(--orange);
+}
+
+h2.sec-title {
+  font-family:var(--fhead);
+  font-size:clamp(1.8rem,4vw,2.6rem);
+  font-weight:700;
+  line-height:1.1;
+  color:#fff;
+  margin-bottom:1.4rem;
+}
+
+h3.sub {
+  font-family:var(--fbody);
+  font-size:1.1rem;
+  font-weight:700;
+  color:var(--orange);
+  margin:2rem 0 .8rem;
+}
+
+p { color:var(--text); font-size:.94rem; margin-bottom:.8rem; }
+p:last-child{margin-bottom:0;}
+strong{color:#fff;font-weight:600;}
+
+/* ── CARDS ── */
+.card {
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:1.6rem 1.8rem;
+  margin-bottom:1.1rem;
+  position:relative; overflow:hidden;
+  transition:border-color .25s, transform .2s;
+}
+.card:hover{border-color:rgba(255,107,53,.3);transform:translateY(-2px);}
+.card::after{
+  content:'';position:absolute;
+  top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--orange),transparent);
+  opacity:0;transition:opacity .3s;
+}
+.card:hover::after{opacity:1;}
+
+.card-orange{border-left:3px solid var(--orange);}
+.card-magenta{border-left:3px solid var(--magenta);}
+.card-violet{border-left:3px solid var(--violet2);}
+.card-gold{border-left:3px solid var(--gold);}
+.card-cyan{border-left:3px solid var(--cyan);}
+.card-green{border-left:3px solid var(--green);}
+
+/* ── CODE BLOCKS ── */
+.code {
+  background:#040407;
+  border:1px solid rgba(124,58,237,.15);
+  border-radius:11px;
+  padding:1.2rem 1.5rem;
+  font-family:var(--fmono);
+  font-size:.8rem;
+  line-height:2;
+  color:#c4b5fd;
+  margin:.9rem 0;
+  overflow-x:auto;
+  position:relative;
+}
+.code .tag{
+  position:absolute;top:.5rem;right:.9rem;
+  font-size:.6rem;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.1em;
+}
+.co{color:var(--orange);}
+.cm{color:var(--magenta);}
+.cv{color:var(--violet2);}
+.cg{color:var(--gold);}
+.cc{color:var(--cyan);}
+.cgr{color:var(--green);}
+.cx{color:var(--muted);}
+
+/* ── TABLES ── */
+.tbl-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--border);margin:1.1rem 0;}
+table{width:100%;border-collapse:collapse;font-size:.87rem;}
+thead tr{background:var(--bg3);}
+th{
+  font-family:var(--fmono);font-size:.68rem;
+  text-transform:uppercase;letter-spacing:.1em;
+  color:var(--orange);
+  padding:.9rem 1.1rem;text-align:left;
+  border-bottom:1px solid var(--border);
+}
+td{
+  padding:.65rem 1.1rem;
+  border-bottom:1px solid rgba(255,255,255,.035);
+  font-family:var(--fmono);font-size:.82rem;
+}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover{background:rgba(255,107,53,.03);}
+.td-dec{color:var(--gold);}
+.td-hex{color:var(--orange);}
+.td-bin{color:var(--cyan);}
+.td-oct{color:var(--green);}
+.td-hl td{background:rgba(255,107,53,.05);}
+
+/* ── CALLOUTS ── */
+.callout{
+  display:flex;gap:.9rem;
+  padding:1rem 1.3rem;
+  border-radius:10px;
+  margin:.9rem 0;
+  border:1px solid transparent;
+  font-size:.9rem;
+}
+.call-orange{background:rgba(255,107,53,.07);border-color:rgba(255,107,53,.25);}
+.call-violet{background:rgba(168,85,247,.07);border-color:rgba(168,85,247,.25);}
+.call-gold{background:rgba(245,158,11,.07);border-color:rgba(245,158,11,.25);}
+.call-cyan{background:rgba(6,182,212,.07);border-color:rgba(6,182,212,.25);}
+.call-green{background:rgba(16,185,129,.07);border-color:rgba(16,185,129,.25);}
+.call-magenta{background:rgba(255,45,120,.07);border-color:rgba(255,45,120,.25);}
+.cicon{flex-shrink:0;margin-top:.15rem;}
+.cbody strong{color:#fff;}
+
+/* ── STEPS ── */
+.steps{display:flex;flex-direction:column;gap:0;}
+.step{display:flex;gap:1.1rem;padding:1rem 0;}
+.step+.step{border-top:1px solid rgba(255,255,255,.04);}
+.step-n{
+  flex-shrink:0;width:30px;height:30px;
+  border-radius:8px;
+  background:var(--bg3);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--fmono);font-size:.72rem;color:var(--orange);
+  margin-top:.1rem;
+}
+.step-t{font-weight:600;color:#fff;margin-bottom:.2rem;font-size:.92rem;}
+.step-b{font-size:.85rem;color:var(--muted);}
+
+/* ── PILL ── */
+.pill{
+  display:inline-block;
+  font-family:var(--fmono);font-size:.68rem;
+  padding:.18rem .65rem;border-radius:100px;
+  margin:.1rem;
+}
+.pill-o{background:rgba(255,107,53,.12);color:var(--orange);border:1px solid rgba(255,107,53,.25);}
+.pill-m{background:rgba(255,45,120,.12);color:var(--magenta);border:1px solid rgba(255,45,120,.25);}
+.pill-v{background:rgba(168,85,247,.12);color:var(--violet2);border:1px solid rgba(168,85,247,.25);}
+.pill-g{background:rgba(245,158,11,.12);color:var(--gold);border:1px solid rgba(245,158,11,.25);}
+.pill-c{background:rgba(6,182,212,.12);color:var(--cyan);border:1px solid rgba(6,182,212,.25);}
+.pill-gr{background:rgba(16,185,129,.12);color:var(--green);border:1px solid rgba(16,185,129,.25);}
+
+/* ── BREAK SECTION ── */
+.break-box{
+  background:linear-gradient(135deg,var(--bg2),var(--bg3));
+  border:1px solid rgba(245,158,11,.28);
+  border-radius:20px;
+  padding:2.8rem 2rem;
+  text-align:center;
+  position:relative;overflow:hidden;
+  margin:2.5rem 0;
+}
+.break-box::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 50% 0%,rgba(245,158,11,.07) 0%,transparent 65%);
+  pointer-events:none;
+}
+.break-title{
+  font-family:var(--fhead);
+  font-size:2rem;font-weight:700;
+  color:var(--gold);margin:.8rem 0 .4rem;
+}
+.break-sub{font-size:.95rem;color:var(--muted);margin-bottom:1.2rem;}
+
+/* ── EX CARD ── */
+.ex-card{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:12px;
+  overflow:hidden;
+  margin-bottom:.9rem;
+}
+.ex-head{
+  background:var(--bg3);
+  padding:.65rem 1.1rem;
+  display:flex;align-items:center;gap:.6rem;
+  border-bottom:1px solid var(--border);
+}
+.ex-badge{
+  font-family:var(--fmono);font-size:.62rem;
+  padding:.18rem .55rem;border-radius:4px;
+  text-transform:uppercase;letter-spacing:.07em;
+}
+.badge-dec{background:rgba(245,158,11,.15);color:var(--gold);}
+.badge-hex{background:rgba(255,107,53,.15);color:var(--orange);}
+.badge-bin{background:rgba(6,182,212,.15);color:var(--cyan);}
+.badge-rgb{background:rgba(255,45,120,.15);color:var(--magenta);}
+.ex-label{font-family:var(--fmono);font-size:.78rem;color:var(--text);}
+.ex-body{padding:1.2rem;}
+
+/* ── TWO COL ── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+@media(max-width:580px){.two-col{grid-template-columns:1fr;}}
+
+/* ── GLOSS GRID ── */
+.gloss-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:.7rem;margin:1rem 0;}
+.gloss-item{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:10px;padding:.9rem 1.1rem;
+}
+.gloss-term{
+  font-family:var(--fmono);font-size:.77rem;color:var(--orange);
+  margin-bottom:.3rem;display:flex;align-items:center;gap:.45rem;
+}
+.gloss-term::before{
+  content:'';width:5px;height:5px;
+  background:var(--orange);border-radius:50%;flex-shrink:0;
+}
+.gloss-def{font-size:.81rem;color:var(--muted);line-height:1.55;}
+
+/* ── TALLER / PRACTICE ── */
+.prac-item{
+  display:grid;grid-template-columns:2rem 1fr auto;
+  align-items:center;gap:.9rem;
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:8px;padding:.75rem 1rem;
+  font-size:.86rem;margin-bottom:.5rem;
+}
+.prac-n{font-family:var(--fmono);font-size:.7rem;color:var(--muted);}
+.prac-q{color:var(--text);}
+
+/* ── COLOR SWATCH CARDS ── */
+.swatch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:.7rem;margin:1rem 0;}
+.swatch-card{
+  border-radius:12px;overflow:hidden;
+  border:1px solid rgba(255,255,255,.07);
+  cursor:default;transition:transform .2s;
+}
+.swatch-card:hover{transform:scale(1.04);}
+.swatch-color{height:56px;}
+.swatch-info{
+  background:var(--bg3);
+  padding:.55rem .75rem;
+}
+.swatch-hex{font-family:var(--fmono);font-size:.72rem;color:var(--orange);}
+.swatch-name{font-size:.74rem;color:var(--muted);margin-top:.1rem;}
+
+/* ── TIME MAP ── */
+.time-row{
+  display:grid;grid-template-columns:28px 1fr auto;
+  align-items:center;gap:.9rem;
+  padding:.65rem .9rem;border-radius:8px;
+  font-size:.86rem;transition:background .15s;
+}
+.time-row:hover{background:var(--bg3);}
+.time-row.tr-break{
+  background:rgba(245,158,11,.06);
+  border:1px solid rgba(245,158,11,.18);
+}
+.tr-icon{display:flex;align-items:center;justify-content:center;}
+.tr-label{color:var(--text);}
+.tr-dur{font-family:var(--fmono);font-size:.72rem;color:var(--muted);white-space:nowrap;}
+
+/* ── SCORE GRID ── */
+.score-row-wrap{
+  display:grid;grid-template-columns:1fr auto;
+  border:1px solid var(--border);border-radius:11px;overflow:hidden;margin:.9rem 0;
+}
+.score-row-wrap .sr{display:contents;}
+.score-row-wrap .sr>div{
+  padding:.65rem 1rem;border-bottom:1px solid rgba(255,255,255,.04);
+  font-size:.85rem;
+}
+.score-row-wrap .sr:last-child>div{border-bottom:none;}
+.score-row-wrap .sr:nth-child(even)>div{background:rgba(255,107,53,.02);}
+.sr-label{color:var(--text);}
+.sr-pts{font-family:var(--fmono);font-weight:700;color:var(--gold);text-align:right;white-space:nowrap;}
+
+/* ── EVAL GRID ── */
+.eval-row{
+  display:grid;grid-template-columns:1fr repeat(3,2.2rem);
+  align-items:center;gap:.5rem;
+  padding:.65rem .9rem;background:var(--bg3);border-radius:8px;
+  margin-bottom:.4rem;font-size:.86rem;
+}
+.eval-opt{
+  width:2rem;height:2rem;border-radius:50%;
+  border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.85rem;cursor:pointer;transition:all .2s;
+}
+.eval-opt:hover{border-color:var(--orange);background:rgba(255,107,53,.12);transform:scale(1.12);}
+
+/* ── SECTION DIVIDER ── */
+.sdiv{
+  border:none;
+  border-top:1px solid var(--border);
+  margin:2rem 0;
+}
+
+/* ── MASTER TABLE tweaks ── */
+.master-tbl-wrap{overflow-x:auto;border-radius:16px;border:1px solid var(--border);margin:1.4rem 0;}
+.master-tbl{width:100%;border-collapse:collapse;}
+.master-tbl thead tr{background:var(--bg3);}
+.master-tbl th{
+  font-family:var(--fmono);font-size:.72rem;
+  text-transform:uppercase;letter-spacing:.12em;
+  padding:.9rem 1.3rem;text-align:center;
+  border-bottom:2px solid var(--border);
+}
+.master-tbl th:nth-child(1){color:var(--gold);}
+.master-tbl th:nth-child(2){color:var(--orange);}
+.master-tbl th:nth-child(3){color:var(--cyan);}
+.master-tbl th:nth-child(4){color:var(--green);}
+.master-tbl td{
+  padding:.55rem 1.3rem;text-align:center;
+  font-family:var(--fmono);font-size:.82rem;
+  border-bottom:1px solid rgba(255,255,255,.025);
+}
+.master-tbl tr:hover td{background:rgba(255,107,53,.03);}
+.master-tbl tr:last-child td{border-bottom:none;}
+
+/* ── RUBRIC TABLE ── */
+.rub-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--border);margin:1rem 0;}
+.rub-tbl{width:100%;border-collapse:collapse;min-width:600px;}
+.rub-tbl th{
+  background:var(--bg3);
+  font-family:var(--fmono);font-size:.65rem;
+  text-transform:uppercase;letter-spacing:.07em;
+  padding:.8rem .9rem;text-align:left;
+  border-bottom:1px solid var(--border);
+}
+.rub-tbl th:nth-child(2){color:#4ade80;}
+.rub-tbl th:nth-child(3){color:var(--cyan);}
+.rub-tbl th:nth-child(4){color:var(--gold);}
+.rub-tbl th:nth-child(5){color:var(--magenta);}
+.rub-tbl td{
+  padding:.7rem .9rem;font-size:.79rem;
+  border-bottom:1px solid rgba(255,255,255,.04);
+  vertical-align:top;
+}
+.rub-tbl tr:last-child td{border-bottom:none;}
+.rub-tbl td:first-child{font-weight:700;color:#fff;font-size:.82rem;}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:640px){
+  section{padding:3rem 1.1rem 2rem;}
+  #hero{padding:5.5rem 1.1rem 2rem;}
+  .gloss-grid{grid-template-columns:1fr;}
+  .eval-row{grid-template-columns:1fr;gap:.3rem;}
+  .swatch-grid{grid-template-columns:repeat(3,1fr);}
+}
+
+/* small mono inline */
+.mono{font-family:var(--fmono);color:var(--orange);}
+.mono-c{font-family:var(--fmono);color:var(--cyan);}
+.mono-v{font-family:var(--fmono);color:var(--violet2);}
+.mono-g{font-family:var(--fmono);color:var(--gold);}
+.mono-m{font-family:var(--fmono);color:var(--magenta);}
+.mono-gr{font-family:var(--fmono);color:var(--green);}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <span class="nav-brand">HEX:COLOR_v1</span>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#hero">Inicio</a></li>
+    <li><a href="#intro">¿Por qué Hex?</a></li>
+    <li><a href="#decimal">Decimal</a></li>
+    <li><a href="#hexsystem">Sistema Hex</a></li>
+    <li><a href="#tabla">Tabla</a></li>
+    <li><a href="#dec2hex">Dec → Hex</a></li>
+    <li><a href="#hex2dec">Hex → Dec</a></li>
+    <li><a href="#descanso1">Descanso 1</a></li>
+    <li><a href="#cruzadas">Cruzadas</a></li>
+    <li><a href="#interpretacion">Formatos</a></li>
+    <li><a href="#descanso2">Descanso 2</a></li>
+    <li><a href="#taller">Taller</a></li>
+    <li><a href="#cierre">Cierre</a></li>
+  </ul>
+</nav>
+
+<div class="page">
+
+<!-- ══════════════════════ HERO ══════════════════════ -->
+<section id="hero">
+  <div class="hero-eyebrow"><span class="blink"></span>Módulo 2 · Clase interactiva · Sistemas Digitales</div>
+
+  <h1 class="hero-title">
+    <span class="t1">El Lenguaje</span>
+    <span class="t2">del Color<br>Digital</span>
+  </h1>
+
+  <p class="hero-desc">
+    Descubre por qué <strong>#FF6B35</strong> es naranja, <strong>#FF00FF</strong> es magenta
+    y <strong>DEAD₁₆</strong> es una dirección de memoria válida.
+    Hoy dominarás el hexadecimal — el sistema que hablan los diseñadores, los programadores y las pantallas.
+  </p>
+
+  <div class="hero-chips">
+    <div class="chip">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>4 horas
+    </div>
+    <div class="chip">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>15–16 años
+    </div>
+    <div class="chip">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Decimal &amp; Hexadecimal
+    </div>
+    <div class="chip">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>Taller práctico incluido
+    </div>
+  </div>
+
+  <!-- color strip interactivo -->
+  <div class="color-strip" id="colorStrip">
+    <div class="cs-swatch" style="flex:3;background:#ff0000;" title="#FF0000"></div>
+    <div class="cs-swatch" style="flex:3;background:#ff6b35;" title="#FF6B35"></div>
+    <div class="cs-swatch" style="flex:3;background:#f59e0b;" title="#F59E0B"></div>
+    <div class="cs-swatch" style="flex:3;background:#10b981;" title="#10B981"></div>
+    <div class="cs-swatch" style="flex:3;background:#06b6d4;" title="#06B6D4"></div>
+    <div class="cs-swatch" style="flex:3;background:#7c3aed;" title="#7C3AED"></div>
+    <div class="cs-swatch" style="flex:3;background:#ff2d78;" title="#FF2D78"></div>
+    <div class="cs-swatch" style="flex:3;background:#ffffff;" title="#FFFFFF"></div>
+    <div class="cs-swatch" style="flex:3;background:#000000;border:1px solid #333;" title="#000000"></div>
+  </div>
+  <p style="font-family:var(--fmono);font-size:.65rem;color:var(--muted);margin-top:.5rem;">Pasa el cursor sobre los colores — todos son códigos hexadecimales que aprenderás a leer hoy</p>
+</section>
+
+<!-- ══════════════════════ GUÍA DE TIEMPOS ══════════════════════ -->
+<section id="intro">
+  <div class="sec-label">Planificación de la sesión</div>
+  <h2 class="sec-title">Guía de Tiempos</h2>
+
+  <!-- SVG barra de tiempo -->
+  <div style="overflow-x:auto;margin:1.5rem 0;">
+    <svg viewBox="0 0 860 88" xmlns="http://www.w3.org/2000/svg" style="width:100%;min-width:580px;height:auto;display:block;">
+      <defs>
+        <linearGradient id="gO" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#ff6b35" stop-opacity=".9"/><stop offset="100%" stop-color="#ff6b35" stop-opacity=".5"/></linearGradient>
+        <linearGradient id="gG" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#f59e0b" stop-opacity=".9"/><stop offset="100%" stop-color="#f59e0b" stop-opacity=".5"/></linearGradient>
+        <linearGradient id="gV" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#a855f7" stop-opacity=".9"/><stop offset="100%" stop-color="#a855f7" stop-opacity=".5"/></linearGradient>
+      </defs>
+      <!-- Bloque 1: 120min -->
+      <rect x="0" y="18" width="432" height="42" rx="8" fill="url(#gO)" opacity=".16"/>
+      <rect x="0" y="18" width="432" height="3" rx="1" fill="url(#gO)"/>
+      <text x="216" y="44" text-anchor="middle" fill="#ff6b35" font-family="JetBrains Mono,monospace" font-size="10.5" font-weight="700">Intro + Decimal + Hex + Dec↔Hex + Ejemplos</text>
+      <text x="216" y="58" text-anchor="middle" fill="#6b6a8a" font-family="JetBrains Mono,monospace" font-size="9">120 minutos</text>
+      <!-- Descanso 1: 15min = 54px -->
+      <rect x="434" y="18" width="54" height="42" rx="8" fill="url(#gG)" opacity=".18"/>
+      <rect x="434" y="18" width="54" height="3" rx="1" fill="url(#gG)"/>
+      <text x="461" y="42" text-anchor="middle" fill="#f59e0b" font-family="JetBrains Mono,monospace" font-size="8.5" font-weight="700">Descanso</text>
+      <text x="461" y="56" text-anchor="middle" fill="#6b6a8a" font-family="JetBrains Mono,monospace" font-size="8">15 min</text>
+      <!-- Bloque 2: 65min -->
+      <rect x="490" y="18" width="234" height="42" rx="8" fill="url(#gO)" opacity=".16"/>
+      <rect x="490" y="18" width="234" height="3" rx="1" fill="url(#gO)"/>
+      <text x="607" y="44" text-anchor="middle" fill="#ff6b35" font-family="JetBrains Mono,monospace" font-size="10.5" font-weight="700">Cruzadas + Interpretación</text>
+      <text x="607" y="58" text-anchor="middle" fill="#6b6a8a" font-family="JetBrains Mono,monospace" font-size="9">65 minutos</text>
+      <!-- Descanso 2: 15min -->
+      <rect x="726" y="18" width="54" height="42" rx="8" fill="url(#gG)" opacity=".18"/>
+      <rect x="726" y="18" width="54" height="3" rx="1" fill="url(#gG)"/>
+      <text x="753" y="42" text-anchor="middle" fill="#f59e0b" font-family="JetBrains Mono,monospace" font-size="8.5" font-weight="700">Descanso</text>
+      <text x="753" y="56" text-anchor="middle" fill="#6b6a8a" font-family="JetBrains Mono,monospace" font-size="8">15 min</text>
+      <!-- Bloque 3: 70min -->
+      <rect x="782" y="18" width="78" height="42" rx="8" fill="url(#gV)" opacity=".18"/>
+      <rect x="782" y="18" width="78" height="3" rx="1" fill="url(#gV)"/>
+      <text x="821" y="42" text-anchor="middle" fill="#a855f7" font-family="JetBrains Mono,monospace" font-size="9" font-weight="700">Taller</text>
+      <text x="821" y="56" text-anchor="middle" fill="#6b6a8a" font-family="JetBrains Mono,monospace" font-size="8">70 min</text>
+      <!-- Línea base -->
+      <line x1="0" y1="70" x2="860" y2="70" stroke="#1a1a2e" stroke-width="1"/>
+      <text x="0" y="82" fill="#6b6a8a" font-family="JetBrains Mono,monospace" font-size="8">0:00</text>
+      <text x="416" y="82" fill="#6b6a8a" font-family="JetBrains Mono,monospace" font-size="8">2:00h</text>
+      <text x="476" y="82" fill="#6b6a8a" font-family="JetBrains Mono,monospace" font-size="8">2:15h</text>
+      <text x="712" y="82" fill="#6b6a8a" font-family="JetBrains Mono,monospace" font-size="8">3:20h</text>
+      <text x="770" y="82" fill="#6b6a8a" font-family="JetBrains Mono,monospace" font-size="8">3:35h</text>
+      <text x="843" y="82" fill="#6b6a8a" font-family="JetBrains Mono,monospace" font-size="8">4:45h</text>
+    </svg>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:.3rem;">
+    <div class="time-row"><div class="tr-icon"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#ff6b35" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 12l2 2 4-4"/></svg></div><div class="tr-label">Introducción + ¿Por qué el hexadecimal?</div><div class="tr-dur">20 min</div></div>
+    <div class="time-row"><div class="tr-icon"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#ff6b35" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 12l2 2 4-4"/></svg></div><div class="tr-label">Sistema Hexadecimal — teoría y tabla maestra</div><div class="tr-dur">30 min</div></div>
+    <div class="time-row"><div class="tr-icon"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#ff6b35" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 12l2 2 4-4"/></svg></div><div class="tr-label">Conversión Decimal → Hexadecimal</div><div class="tr-dur">30 min</div></div>
+    <div class="time-row"><div class="tr-icon"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#ff6b35" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 12l2 2 4-4"/></svg></div><div class="tr-label">Conversión Hexadecimal → Decimal + práctica guiada</div><div class="tr-dur">40 min</div></div>
+    <div class="time-row tr-break"><div class="tr-icon"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#f59e0b" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div><div class="tr-label" style="color:var(--gold);font-weight:600;">DESCANSO 1 — Activación: decodificar #FF6B35</div><div class="tr-dur" style="color:var(--gold);">15 min</div></div>
+    <div class="time-row"><div class="tr-icon"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#06b6d4" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 12l2 2 4-4"/></svg></div><div class="tr-label">Conversiones cruzadas Binario ↔ Hexadecimal</div><div class="tr-dur">35 min</div></div>
+    <div class="time-row"><div class="tr-icon"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#06b6d4" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 12l2 2 4-4"/></svg></div><div class="tr-label">Interpretación de valores en distintos formatos</div><div class="tr-dur">30 min</div></div>
+    <div class="time-row tr-break"><div class="tr-icon"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#f59e0b" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div><div class="tr-label" style="color:var(--gold);font-weight:600;">DESCANSO 2 — Pregunta gancho: ¿de qué color es #FF00FF?</div><div class="tr-dur" style="color:var(--gold);">15 min</div></div>
+    <div class="time-row"><div class="tr-icon"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#a855f7" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 12l2 2 4-4"/></svg></div><div class="tr-label">Taller práctico: Individual + Parejas + Desafíos</div><div class="tr-dur">45 min</div></div>
+    <div class="time-row"><div class="tr-icon"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#a855f7" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 12l2 2 4-4"/></svg></div><div class="tr-label">Socialización, corrección y cierre</div><div class="tr-dur">25 min</div></div>
+  </div>
+
+  <hr class="sdiv">
+
+  <!-- ¿Por qué hex? -->
+  <h2 class="sec-title" style="margin-top:1rem;">¿Por qué necesitamos el hexadecimal?</h2>
+  <p>Imagina que eres diseñador y necesitas el rojo exacto de la camiseta de tu equipo. En digital, ese rojo es <strong>tres valores entre 0 y 255</strong>. El problema: 255 en binario es <span class="mono-c">11111111</span>. Tres de esos, para cada color, en cada píxel de una imagen 4K: miles de millones de unos y ceros.</p>
+  <p>La solución que inventaron los ingenieros en los años 60: el hexadecimal. Con él, <span class="mono-c">11111111</span> binario se convierte en <span class="mono">FF</span> — dos caracteres en lugar de ocho.</p>
+
+  <h3 class="sub">El hexadecimal está en todas partes</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Donde lo ves</th><th>Ejemplo real</th></tr></thead>
+      <tbody>
+        <tr><td>Colores en páginas web</td><td class="td-hex">#FF5733</td></tr>
+        <tr><td>Direcciones de memoria RAM</td><td class="td-hex">0x7FFF5FBD</td></tr>
+        <tr><td>Direcciones MAC de red</td><td class="td-hex">A4:C3:F0:85:AC:2D</td></tr>
+        <tr><td>Códigos de error Windows</td><td class="td-hex">0x0000007E</td></tr>
+        <tr><td>Huellas digitales de archivos</td><td class="td-hex" style="font-size:.72rem;">5d41402abc4b2a76b9719d911017c592</td></tr>
+        <tr><td>Texto en editor hexadecimal</td><td class="td-hex">48 65 6C 6C 6F = "Hello"</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout call-orange">
+    <div class="cicon"><svg width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="var(--orange)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+    <div class="cbody"><strong>Reto de apertura (5 min):</strong> ¿Alguien sabe qué color es <span class="mono">#1A237E</span>? ¿Y <span class="mono">#FFFFFF</span>? ¿Y <span class="mono">#000000</span>? — Respuestas: azul oscuro · blanco · negro.</div>
+  </div>
+</section>
+
+<!-- ══════════════════════ DECIMAL ══════════════════════ -->
+<section id="decimal">
+  <div class="sec-label">Repaso</div>
+  <h2 class="sec-title">El Sistema Decimal</h2>
+  <p>El sistema decimal usa <strong>potencias de 10</strong>. Antes de aprender hexadecimal hay que dominar este puente: en cualquier sistema posicional, cada posición vale (base)^posición. Solo cambia la base.</p>
+
+  <!-- SVG posicional decimal 2748 -->
+  <div style="overflow-x:auto;margin:1.5rem 0;display:flex;justify-content:center;">
+    <svg viewBox="0 0 520 128" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:520px;height:auto;">
+      <g font-family="JetBrains Mono,monospace">
+        <!-- Millares -->
+        <rect x="8" y="8" width="112" height="68" rx="10" fill="rgba(245,158,11,0.1)" stroke="rgba(245,158,11,0.4)" stroke-width="1.5"/>
+        <text x="64" y="48" text-anchor="middle" fill="#f59e0b" font-size="30" font-weight="700">2</text>
+        <text x="64" y="66" text-anchor="middle" fill="#6b6a8a" font-size="9">10³ = 1000</text>
+        <text x="64" y="92" text-anchor="middle" fill="#6b6a8a" font-size="9">Miles</text>
+        <text x="64" y="114" text-anchor="middle" fill="#f59e0b" font-size="10" font-weight="700">2×1000=2000</text>
+        <!-- Centenas -->
+        <rect x="134" y="8" width="112" height="68" rx="10" fill="rgba(255,107,53,0.1)" stroke="rgba(255,107,53,0.4)" stroke-width="1.5"/>
+        <text x="190" y="48" text-anchor="middle" fill="#ff6b35" font-size="30" font-weight="700">7</text>
+        <text x="190" y="66" text-anchor="middle" fill="#6b6a8a" font-size="9">10² = 100</text>
+        <text x="190" y="92" text-anchor="middle" fill="#6b6a8a" font-size="9">Cientos</text>
+        <text x="190" y="114" text-anchor="middle" fill="#ff6b35" font-size="10" font-weight="700">7×100=700</text>
+        <!-- Decenas -->
+        <rect x="260" y="8" width="112" height="68" rx="10" fill="rgba(6,182,212,0.1)" stroke="rgba(6,182,212,0.4)" stroke-width="1.5"/>
+        <text x="316" y="48" text-anchor="middle" fill="#06b6d4" font-size="30" font-weight="700">4</text>
+        <text x="316" y="66" text-anchor="middle" fill="#6b6a8a" font-size="9">10¹ = 10</text>
+        <text x="316" y="92" text-anchor="middle" fill="#6b6a8a" font-size="9">Decenas</text>
+        <text x="316" y="114" text-anchor="middle" fill="#06b6d4" font-size="10" font-weight="700">4×10=40</text>
+        <!-- Unidades -->
+        <rect x="386" y="8" width="112" height="68" rx="10" fill="rgba(168,85,247,0.1)" stroke="rgba(168,85,247,0.4)" stroke-width="1.5"/>
+        <text x="442" y="48" text-anchor="middle" fill="#a855f7" font-size="30" font-weight="700">8</text>
+        <text x="442" y="66" text-anchor="middle" fill="#6b6a8a" font-size="9">10⁰ = 1</text>
+        <text x="442" y="92" text-anchor="middle" fill="#6b6a8a" font-size="9">Unidades</text>
+        <text x="442" y="114" text-anchor="middle" fill="#a855f7" font-size="10" font-weight="700">8×1=8</text>
+      </g>
+    </svg>
+  </div>
+  <div class="code">
+    <span class="tag">Verificación</span>
+    (<span class="cg">2</span>×1000) + (<span class="co">7</span>×100) + (<span class="cc">4</span>×10) + (<span class="cv">8</span>×1)<br>
+    = <span class="cg">2000</span> + <span class="co">700</span> + <span class="cc">40</span> + <span class="cv">8</span> = <span class="cgr">2,748</span>
+  </div>
+</section>
+
+<!-- ══════════════════════ SISTEMA HEX ══════════════════════ -->
+<section id="hexsystem">
+  <div class="sec-label">Bloque central</div>
+  <h2 class="sec-title">El Sistema Hexadecimal</h2>
+  <p>Base <strong>16</strong>. Con los dígitos 0–9 solo tenemos 10 símbolos, pero necesitamos 16. La solución: incorporar las primeras seis letras del abecedario.</p>
+
+  <!-- SVG tabla de 16 símbolos -->
+  <div style="overflow-x:auto;margin:1.5rem 0;display:flex;justify-content:center;">
+    <svg viewBox="0 0 700 240" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:700px;height:auto;">
+      <defs>
+        <linearGradient id="hexGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#ff6b35"/>
+          <stop offset="100%" stop-color="#ff2d78"/>
+        </linearGradient>
+      </defs>
+      <g font-family="JetBrains Mono,monospace">
+        <!-- Títulos -->
+        <text x="88" y="22" text-anchor="middle" fill="#f59e0b" font-size="9" font-weight="700" text-decoration="underline">DECIMAL</text>
+        <text x="220" y="22" text-anchor="middle" fill="#ff6b35" font-size="9" font-weight="700" text-decoration="underline">HEX</text>
+        <text x="352" y="22" text-anchor="middle" fill="#f59e0b" font-size="9" font-weight="700" text-decoration="underline">DECIMAL</text>
+        <text x="500" y="22" text-anchor="middle" fill="#ff6b35" font-size="9" font-weight="700" text-decoration="underline">HEX</text>
+        <text x="620" y="22" text-anchor="middle" fill="#6b6a8a" font-size="9">Nombre</text>
+        <!-- Fila 0 -->
+        <text x="88" y="50" text-anchor="middle" fill="#f59e0b" font-size="18" font-weight="700">0</text>
+        <text x="220" y="50" text-anchor="middle" fill="#ff6b35" font-size="18" font-weight="700">0</text>
+        <text x="352" y="50" text-anchor="middle" fill="#f59e0b" font-size="18" font-weight="700">8</text>
+        <text x="500" y="50" text-anchor="middle" fill="#ff6b35" font-size="18" font-weight="700">8</text>
+        <text x="620" y="50" text-anchor="middle" fill="#6b6a8a" font-size="9">Ocho</text>
+        <line x1="10" y1="58" x2="690" y2="58" stroke="rgba(255,255,255,.04)" stroke-width="1"/>
+        <!-- Fila 1 -->
+        <text x="88" y="78" text-anchor="middle" fill="#f59e0b" font-size="18" font-weight="700">1</text>
+        <text x="220" y="78" text-anchor="middle" fill="#ff6b35" font-size="18" font-weight="700">1</text>
+        <text x="352" y="78" text-anchor="middle" fill="#f59e0b" font-size="18" font-weight="700">9</text>
+        <text x="500" y="78" text-anchor="middle" fill="#ff6b35" font-size="18" font-weight="700">9</text>
+        <text x="620" y="78" text-anchor="middle" fill="#6b6a8a" font-size="9">Nueve</text>
+        <line x1="10" y1="86" x2="690" y2="86" stroke="rgba(255,255,255,.04)" stroke-width="1"/>
+        <!-- Filas 2–7 colapsadas -->
+        <text x="88" y="106" text-anchor="middle" fill="#f59e0b" font-size="14">2 · 3 · 4</text>
+        <text x="220" y="106" text-anchor="middle" fill="#ff6b35" font-size="14">2 · 3 · 4</text>
+        <text x="352" y="106" text-anchor="middle" fill="#f59e0b" font-size="14">5 · 6 · 7</text>
+        <text x="500" y="106" text-anchor="middle" fill="#ff6b35" font-size="14">5 · 6 · 7</text>
+        <text x="620" y="106" text-anchor="middle" fill="#6b6a8a" font-size="9">igual</text>
+        <line x1="10" y1="116" x2="690" y2="116" stroke="rgba(255,255,255,.08)" stroke-width="1"/>
+        <!-- Filas A-F: las importantes -->
+        <!-- HIGHLIGHT -->
+        <rect x="10" y="120" width="680" height="112" rx="8" fill="rgba(255,107,53,.04)" stroke="rgba(255,107,53,.2)" stroke-width="1"/>
+        <text x="350" y="138" text-anchor="middle" fill="#ff6b35" font-size="8" font-weight="700" letter-spacing="2">AQUI EMPIEZA LO NUEVO</text>
+        <!-- A -->
+        <text x="88" y="158" text-anchor="middle" fill="#f59e0b" font-size="18" font-weight="700">10</text>
+        <rect x="195" y="142" width="50" height="28" rx="6" fill="rgba(255,107,53,.15)" stroke="rgba(255,107,53,.4)" stroke-width="1.5"/>
+        <text x="220" y="162" text-anchor="middle" fill="#ff6b35" font-size="20" font-weight="700">A</text>
+        <text x="352" y="158" text-anchor="middle" fill="#f59e0b" font-size="18" font-weight="700">13</text>
+        <rect x="475" y="142" width="50" height="28" rx="6" fill="rgba(168,85,247,.15)" stroke="rgba(168,85,247,.4)" stroke-width="1.5"/>
+        <text x="500" y="162" text-anchor="middle" fill="#a855f7" font-size="20" font-weight="700">D</text>
+        <text x="620" y="158" text-anchor="middle" fill="#6b6a8a" font-size="9">Diez · Trece</text>
+        <!-- B, C, E, F -->
+        <text x="88" y="192" text-anchor="middle" fill="#f59e0b" font-size="16">11 · 12</text>
+        <text x="220" y="192" text-anchor="middle" fill="#ff6b35" font-size="18" font-weight="700">B · C</text>
+        <text x="352" y="192" text-anchor="middle" fill="#f59e0b" font-size="16">14 · 15</text>
+        <text x="500" y="192" text-anchor="middle" fill="#a855f7" font-size="18" font-weight="700">E · F</text>
+        <text x="620" y="192" text-anchor="middle" fill="#6b6a8a" font-size="9">Once·Doce · 14·15</text>
+        <!-- Nota -->
+        <text x="350" y="222" text-anchor="middle" fill="#6b6a8a" font-size="8">A=10 · B=11 · C=12 · D=13 · E=14 · F=15 — son dígitos, no letras</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="callout call-orange">
+    <div class="cicon"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="var(--orange)" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+    <div class="cbody"><strong>¡Atención!</strong> Las letras A–F son <em>dígitos</em>. <span class="mono">1F</span> no es "uno F": es un número de dos dígitos cuyo segundo dígito vale 15.</div>
+  </div>
+
+  <h3 class="sub">Las Potencias de 16</h3>
+  <!-- SVG potencias de 16 en barras -->
+  <div style="overflow-x:auto;margin:1rem 0;display:flex;justify-content:center;">
+    <svg viewBox="0 0 560 110" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:560px;height:auto;">
+      <defs>
+        <linearGradient id="barHex" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#ff6b35" stop-opacity=".8"/>
+          <stop offset="100%" stop-color="#ff6b35" stop-opacity=".15"/>
+        </linearGradient>
+      </defs>
+      <g font-family="JetBrains Mono,monospace">
+        <!-- 16^0=1 -->
+        <rect x="4" y="86" width="84" height="4" rx="2" fill="url(#barHex)"/>
+        <text x="46" y="82" text-anchor="middle" fill="#ff6b35" font-size="11" font-weight="700">1</text>
+        <text x="46" y="100" text-anchor="middle" fill="#6b6a8a" font-size="8">16⁰</text>
+        <text x="46" y="110" text-anchor="middle" fill="#6b6a8a" font-size="7">pos 0</text>
+        <!-- 16^1=16 -->
+        <rect x="98" y="78" width="84" height="12" rx="2" fill="url(#barHex)"/>
+        <text x="140" y="74" text-anchor="middle" fill="#ff6b35" font-size="11" font-weight="700">16</text>
+        <text x="140" y="100" text-anchor="middle" fill="#6b6a8a" font-size="8">16¹</text>
+        <text x="140" y="110" text-anchor="middle" fill="#6b6a8a" font-size="7">pos 1</text>
+        <!-- 16^2=256 -->
+        <rect x="192" y="46" width="84" height="44" rx="2" fill="url(#barHex)" opacity=".9"/>
+        <text x="234" y="42" text-anchor="middle" fill="#ff6b35" font-size="11" font-weight="700">256</text>
+        <text x="234" y="100" text-anchor="middle" fill="#6b6a8a" font-size="8">16²</text>
+        <text x="234" y="110" text-anchor="middle" fill="#6b6a8a" font-size="7">pos 2</text>
+        <!-- 16^3=4096 -->
+        <rect x="286" y="8" width="84" height="82" rx="2" fill="#ff6b35" opacity=".28"/>
+        <text x="328" y="20" text-anchor="middle" fill="#ff6b35" font-size="11" font-weight="700">4,096</text>
+        <text x="328" y="100" text-anchor="middle" fill="#6b6a8a" font-size="8">16³</text>
+        <text x="328" y="110" text-anchor="middle" fill="#6b6a8a" font-size="7">pos 3</text>
+        <!-- 16^4=65536 -->
+        <rect x="380" y="8" width="84" height="82" rx="2" fill="#ff6b35" opacity=".38"/>
+        <text x="422" y="20" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">65,536</text>
+        <text x="422" y="100" text-anchor="middle" fill="#6b6a8a" font-size="8">16⁴</text>
+        <text x="422" y="110" text-anchor="middle" fill="#6b6a8a" font-size="7">pos 4</text>
+        <!-- nota byte -->
+        <text x="234" y="66" text-anchor="middle" fill="#f59e0b" font-size="8">= 1 byte</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="callout call-violet">
+    <div class="cicon"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="var(--violet2)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+    <div class="cbody"><strong>Clave:</strong> 16² = 256 = 2⁸. Un byte puede almacenar valores de 0 a 255, que en hexadecimal son de 00 a FF. Por eso <strong>1 byte = exactamente 2 dígitos hex</strong>. No es coincidencia: fue diseñado así.</div>
+  </div>
+</section>
+
+<!-- ══════════════════════ TABLA MAESTRA ══════════════════════ -->
+<section id="tabla">
+  <div class="sec-label">Recurso de referencia</div>
+  <h2 class="sec-title">Tabla Maestra de Conversiones</h2>
+  <p style="color:var(--muted);">Mantener visible durante toda la clase. Los valores resaltados son los más estratégicos.</p>
+
+  <div class="master-tbl-wrap">
+    <table class="master-tbl">
+      <thead><tr><th>Decimal</th><th>Hexadecimal</th><th>Binario</th><th>Octal</th></tr></thead>
+      <tbody>
+        <tr><td class="td-dec">0</td><td class="td-hex">0</td><td class="td-bin">0000</td><td class="td-oct">0</td></tr>
+        <tr><td class="td-dec">1</td><td class="td-hex">1</td><td class="td-bin">0001</td><td class="td-oct">1</td></tr>
+        <tr><td class="td-dec">5</td><td class="td-hex">5</td><td class="td-bin">0101</td><td class="td-oct">5</td></tr>
+        <tr><td class="td-dec">9</td><td class="td-hex">9</td><td class="td-bin">1001</td><td class="td-oct">11</td></tr>
+        <tr class="td-hl"><td class="td-dec">10</td><td class="td-hex">A</td><td class="td-bin">1010</td><td class="td-oct">12</td></tr>
+        <tr class="td-hl"><td class="td-dec">11</td><td class="td-hex">B</td><td class="td-bin">1011</td><td class="td-oct">13</td></tr>
+        <tr class="td-hl"><td class="td-dec">12</td><td class="td-hex">C</td><td class="td-bin">1100</td><td class="td-oct">14</td></tr>
+        <tr class="td-hl"><td class="td-dec">13</td><td class="td-hex">D</td><td class="td-bin">1101</td><td class="td-oct">15</td></tr>
+        <tr class="td-hl"><td class="td-dec">14</td><td class="td-hex">E</td><td class="td-bin">1110</td><td class="td-oct">16</td></tr>
+        <tr class="td-hl"><td class="td-dec">15</td><td class="td-hex">F</td><td class="td-bin">1111</td><td class="td-oct">17</td></tr>
+        <tr><td class="td-dec">16</td><td class="td-hex">10</td><td class="td-bin">0001 0000</td><td class="td-oct">20</td></tr>
+        <tr><td class="td-dec">31</td><td class="td-hex">1F</td><td class="td-bin">0001 1111</td><td class="td-oct">37</td></tr>
+        <tr><td class="td-dec">32</td><td class="td-hex">20</td><td class="td-bin">0010 0000</td><td class="td-oct">40</td></tr>
+        <tr><td class="td-dec">64</td><td class="td-hex">40</td><td class="td-bin">0100 0000</td><td class="td-oct">100</td></tr>
+        <tr class="td-hl"><td class="td-dec">100</td><td class="td-hex">64</td><td class="td-bin">0110 0100</td><td class="td-oct">144</td></tr>
+        <tr><td class="td-dec">127</td><td class="td-hex">7F</td><td class="td-bin">0111 1111</td><td class="td-oct">177</td></tr>
+        <tr><td class="td-dec">128</td><td class="td-hex">80</td><td class="td-bin">1000 0000</td><td class="td-oct">200</td></tr>
+        <tr><td class="td-dec">160</td><td class="td-hex">A0</td><td class="td-bin">1010 0000</td><td class="td-oct">240</td></tr>
+        <tr><td class="td-dec">192</td><td class="td-hex">C0</td><td class="td-bin">1100 0000</td><td class="td-oct">300</td></tr>
+        <tr><td class="td-dec">200</td><td class="td-hex">C8</td><td class="td-bin">1100 1000</td><td class="td-oct">310</td></tr>
+        <tr class="td-hl"><td class="td-dec">255</td><td class="td-hex">FF</td><td class="td-bin">1111 1111</td><td class="td-oct">377</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout call-gold">
+    <div class="cicon"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="var(--gold)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></div>
+    <div class="cbody"><strong>Discutir en clase:</strong> ¿Por qué el 16 decimal se escribe "10" en hex? ¿Por qué 255 es "FF"? ¿Por qué los programadores aman el 255 y el 256?</div>
+  </div>
+</section>
+
+<!-- ══════════════════════ DEC → HEX ══════════════════════ -->
+<section id="dec2hex">
+  <div class="sec-label">Conversión · 30 min</div>
+  <h2 class="sec-title">Decimal → Hexadecimal</h2>
+
+  <div class="callout call-orange">
+    <div class="cicon"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="var(--orange)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+    <div class="cbody"><strong>Regla de oro:</strong> Divide entre 16 (no entre 2 ni entre 8). Lee los residuos de <strong>abajo hacia arriba</strong>. Si el residuo es 10–15, escribe su letra: A B C D E F.</div>
+  </div>
+
+  <!-- Ejemplo 1: 75 → 4B SVG diagrama -->
+  <div class="ex-card">
+    <div class="ex-head"><span class="ex-badge badge-hex">Dec → Hex</span><span class="ex-label">Ejemplo 1 — Convertir 75 a hexadecimal</span></div>
+    <div class="ex-body">
+      <div style="overflow-x:auto;">
+        <svg viewBox="0 0 460 160" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:460px;height:auto;">
+          <defs>
+            <marker id="arrUp" markerWidth="7" markerHeight="5" refX="5" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#ff6b35"/></marker>
+          </defs>
+          <g font-family="JetBrains Mono,monospace">
+            <!-- Fila 1: 75 ÷ 16 = 4 R11(B) -->
+            <text x="28" y="44" fill="#e2e0ff" font-size="18" font-weight="700">75</text>
+            <text x="68" y="44" fill="#6b6a8a" font-size="13">÷ 16 =</text>
+            <text x="136" y="44" fill="#e2e0ff" font-size="18" font-weight="700">4</text>
+            <text x="160" y="44" fill="#6b6a8a" font-size="11">R</text>
+            <rect x="174" y="26" width="30" height="26" rx="6" fill="rgba(255,107,53,.12)" stroke="rgba(255,107,53,.4)" stroke-width="1.5"/>
+            <text x="189" y="44" text-anchor="middle" fill="#ff6b35" font-size="16" font-weight="700">11</text>
+            <text x="215" y="44" fill="#6b6a8a" font-size="11">→</text>
+            <rect x="230" y="26" width="30" height="26" rx="6" fill="rgba(255,107,53,.2)" stroke="rgba(255,107,53,.6)" stroke-width="1.5"/>
+            <text x="245" y="44" text-anchor="middle" fill="#ff6b35" font-size="20" font-weight="700">B</text>
+            <!-- Fila 2: 4 ÷ 16 = 0 R4 -->
+            <text x="28" y="94" fill="#e2e0ff" font-size="18" font-weight="700">4</text>
+            <text x="68" y="94" fill="#6b6a8a" font-size="13">÷ 16 =</text>
+            <text x="136" y="94" fill="#6b6a8a" font-size="18">0</text>
+            <text x="160" y="94" fill="#6b6a8a" font-size="11">R</text>
+            <rect x="174" y="76" width="30" height="26" rx="6" fill="rgba(245,158,11,.15)" stroke="rgba(245,158,11,.5)" stroke-width="1.5"/>
+            <text x="189" y="94" text-anchor="middle" fill="#f59e0b" font-size="16" font-weight="700">4</text>
+            <text x="215" y="94" fill="#6b6a8a" font-size="11">→</text>
+            <rect x="230" y="76" width="30" height="26" rx="6" fill="rgba(245,158,11,.2)" stroke="rgba(245,158,11,.5)" stroke-width="1.5"/>
+            <text x="245" y="94" text-anchor="middle" fill="#f59e0b" font-size="20" font-weight="700">4</text>
+            <!-- Flecha de lectura -->
+            <path d="M278 96 L278 38" stroke="#ff6b35" stroke-width="1.5" marker-end="url(#arrUp)" stroke-dasharray="4 3"/>
+            <text x="288" y="72" fill="#ff6b35" font-size="8.5" transform="rotate(90 288 72)">leer de aquí</text>
+            <!-- Resultado -->
+            <rect x="316" y="46" width="128" height="60" rx="12" fill="rgba(255,107,53,.08)" stroke="rgba(255,107,53,.3)" stroke-width="1.5"/>
+            <text x="380" y="72" text-anchor="middle" fill="#6b6a8a" font-size="9">Resultado</text>
+            <text x="380" y="98" text-anchor="middle" fill="#ff6b35" font-size="30" font-weight="700">4B</text>
+            <!-- Subíndice -->
+            <text x="420" y="130" fill="#6b6a8a" font-size="9">₁₆</text>
+            <!-- Labels fila -->
+            <text x="28" y="130" fill="#6b6a8a" font-size="8">Verificación: 4×16 + 11×1 = 64+11 = 75 ✓</text>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ejemplo 2: 200 → C8 -->
+  <div class="ex-card">
+    <div class="ex-head"><span class="ex-badge badge-hex">Dec → Hex</span><span class="ex-label">Ejemplo 2 — Convertir 200 a hexadecimal</span></div>
+    <div class="ex-body">
+      <div class="code">
+<span class="cg">200</span> ÷ 16 = <span class="cx">12</span>  residuo → <span class="co">8</span>  → <span class="co">8</span>
+<span class="cg"> 12</span> ÷ 16 = <span class="cx"> 0</span>  residuo → <span class="co">12</span> → <span class="co">C</span>
+                       <span class="cx">↑ leer de aquí</span>
+      </div>
+      <p><strong>Resultado:</strong> <span class="mono-g">200₁₀</span> = <span class="mono">C8₁₆</span></p>
+      <div class="callout call-green" style="margin-top:.7rem;">
+        <div class="cicon"><svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="var(--green)" stroke-width="2"><path d="M9 11l3 3L22 4"/></svg></div>
+        <div class="cbody">C×16 + 8×1 = 12×16 + 8 = 192 + 8 = <strong>200 ✓</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ejemplo 3: 3500 → DAC -->
+  <div class="ex-card">
+    <div class="ex-head"><span class="ex-badge badge-hex">Dec → Hex</span><span class="ex-label">Ejemplo 3 — Convertir 3,500 (número grande)</span></div>
+    <div class="ex-body">
+      <div class="code">
+<span class="cg">3500</span> ÷ 16 = <span class="cx">218</span>  residuo → <span class="co">12</span> → <span class="co">C</span>
+<span class="cg"> 218</span> ÷ 16 = <span class="cx"> 13</span>  residuo → <span class="co">10</span> → <span class="co">A</span>
+<span class="cg">  13</span> ÷ 16 = <span class="cx">  0</span>  residuo → <span class="co">13</span> → <span class="co">D</span>
+                        <span class="cx">↑ leer de aquí</span>
+      </div>
+      <p><strong>Resultado:</strong> <span class="mono-g">3500₁₀</span> = <span class="mono">DAC₁₆</span></p>
+      <div class="callout call-green" style="margin-top:.7rem;">
+        <div class="cicon"><svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="var(--green)" stroke-width="2"><path d="M9 11l3 3L22 4"/></svg></div>
+        <div class="cbody">D×256 + A×16 + C×1 = 13×256 + 10×16 + 12 = 3328 + 160 + 12 = <strong>3500 ✓</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ejemplo 4: FF y FFFF -->
+  <div class="ex-card">
+    <div class="ex-head"><span class="ex-badge badge-hex">Dec → Hex</span><span class="ex-label">Ejemplo 4 — 255 y 65,535: los más importantes</span></div>
+    <div class="ex-body">
+      <div class="two-col">
+        <div>
+          <p style="font-size:.82rem;color:var(--muted);margin-bottom:.4rem;"><strong style="color:#fff;">255 → hex</strong></p>
+          <div class="code" style="font-size:.75rem;padding:.8rem 1rem;">
+255÷16=15 R <span class="co">15→F</span>
+ 15÷16= 0 R <span class="co">15→F</span>
+→ <span class="co">FF₁₆</span></div>
+        </div>
+        <div>
+          <p style="font-size:.82rem;color:var(--muted);margin-bottom:.4rem;"><strong style="color:#fff;">65,535 → hex</strong></p>
+          <div class="code" style="font-size:.75rem;padding:.8rem 1rem;">
+65535÷16=4095 R <span class="co">F</span>
+ 4095÷16= 255 R <span class="co">F</span>
+  255÷16=  15 R <span class="co">F</span>
+   15÷16=   0 R <span class="co">F</span>
+→ <span class="co">FFFF₁₆</span></div>
+        </div>
+      </div>
+      <div class="callout call-magenta" style="margin-top:.8rem;">
+        <div class="cicon"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="var(--magenta)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+        <div class="cbody"><strong>FF</strong> = máximo de 1 byte (8 bits). <strong>FFFF</strong> = máximo de 2 bytes (16 bits) = 65,535. Por eso el tipo <span class="mono-m">unsigned short</span> en C/C++ va de 0 a 65,535.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════ HEX → DEC ══════════════════════ -->
+<section id="hex2dec">
+  <div class="sec-label">Conversión inversa · 40 min</div>
+  <h2 class="sec-title">Hexadecimal → Decimal</h2>
+
+  <div class="callout call-orange">
+    <div class="cicon"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="var(--orange)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+    <div class="cbody"><strong>Regla de oro:</strong> Multiplica cada dígito hex por su potencia de 16 según su posición (derecha a izquierda desde 0). Recuerda: A=10, B=11, C=12, D=13, E=14, F=15. Luego suma.</div>
+  </div>
+
+  <!-- Ejemplo 5: 2F → 47 SVG posicional -->
+  <div class="ex-card">
+    <div class="ex-head"><span class="ex-badge badge-dec">Hex → Dec</span><span class="ex-label">Ejemplo 5 — Convertir 2F₁₆ a decimal</span></div>
+    <div class="ex-body">
+      <div style="overflow-x:auto;">
+        <svg viewBox="0 0 340 115" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:340px;height:auto;">
+          <g font-family="JetBrains Mono,monospace">
+            <rect x="8" y="8" width="140" height="62" rx="10" fill="rgba(245,158,11,.1)" stroke="rgba(245,158,11,.4)" stroke-width="1.5"/>
+            <text x="78" y="44" text-anchor="middle" fill="#f59e0b" font-size="30" font-weight="700">2</text>
+            <text x="78" y="62" text-anchor="middle" fill="#6b6a8a" font-size="9">posición 1 → 16¹=16</text>
+            <text x="78" y="82" text-anchor="middle" fill="#f59e0b" font-size="10" font-weight="700">2×16=32</text>
+
+            <rect x="168" y="8" width="140" height="62" rx="10" fill="rgba(255,107,53,.1)" stroke="rgba(255,107,53,.4)" stroke-width="1.5"/>
+            <text x="238" y="44" text-anchor="middle" fill="#ff6b35" font-size="30" font-weight="700">F</text>
+            <text x="238" y="62" text-anchor="middle" fill="#6b6a8a" font-size="9">posición 0 → 16⁰=1</text>
+            <text x="238" y="82" text-anchor="middle" fill="#ff6b35" font-size="10" font-weight="700">F(15)×1=15</text>
+
+            <text x="170" y="108" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">32 + 15 = 47₁₀</text>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ejemplos 6-8 -->
+  <div class="two-col" style="margin-top:.8rem;">
+    <div class="ex-card">
+      <div class="ex-head"><span class="ex-badge badge-dec">Hex → Dec</span><span class="ex-label">A3₁₆</span></div>
+      <div class="ex-body">
+        <div class="code" style="font-size:.76rem;padding:.8rem 1rem;">
+A×16¹ + 3×16⁰
+= 10×16 + 3×1
+= 160   + 3
+= <span class="cg">163₁₀</span></div>
+      </div>
+    </div>
+    <div class="ex-card">
+      <div class="ex-head"><span class="ex-badge badge-dec">Hex → Dec</span><span class="ex-label">1B4₁₆</span></div>
+      <div class="ex-body">
+        <div class="code" style="font-size:.76rem;padding:.8rem 1rem;">
+1×256 + B×16 + 4×1
+= 256 + 11×16 + 4
+= 256 + 176 + 4
+= <span class="cg">436₁₀</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ejemplo especial DEAD -->
+  <div class="ex-card" style="margin-top:.8rem;">
+    <div class="ex-head"><span class="ex-badge badge-dec">Hex → Dec</span><span class="ex-label">Ejemplo especial — DEAD₁₆ (clásico de programación)</span></div>
+    <div class="ex-body">
+      <div class="code">
+D×16³  + E×16²  + A×16¹  + D×16⁰
+= 13×4096 + 14×256 + 10×16 + 13×1
+= <span class="co">53248</span>  + <span class="cm">3584</span>  + <span class="cc">160</span>  + <span class="cv">13</span>
+= <span class="cg">57005₁₀</span>
+      </div>
+      <div class="callout call-violet" style="margin-top:.7rem;">
+        <div class="cicon"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="var(--violet2)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+        <div class="cbody"><strong>Nota curiosa:</strong> Los programadores usan DEAD, BEEF, CAFE, BABE como marcadores en memoria. Son fáciles de identificar en un volcado hexadecimal cuando algo falla.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Práctica guiada G3-G5 -->
+  <h3 class="sub">Práctica guiada</h3>
+  <div class="two-col">
+    <div>
+      <p style="font-size:.82rem;color:var(--muted);margin-bottom:.4rem;"><strong style="color:#fff;">G3:</strong> 3C₁₆ → decimal</p>
+      <div class="code" style="font-size:.76rem;padding:.8rem 1rem;">
+3×16 + C×1
+= 3×16 + 12
+= 48 + 12
+= <span class="cg">60₁₀</span> ✓</div>
+    </div>
+    <div>
+      <p style="font-size:.82rem;color:var(--muted);margin-bottom:.4rem;"><strong style="color:#fff;">G4:</strong> B0₁₆ → decimal</p>
+      <div class="code" style="font-size:.76rem;padding:.8rem 1rem;">
+B×16 + 0×1
+= 11×16 + 0
+= 176 + 0
+= <span class="cg">176₁₀</span> ✓</div>
+    </div>
+  </div>
+  <p style="font-size:.82rem;color:var(--muted);margin:.8rem 0 .4rem;"><strong style="color:#fff;">G5:</strong> 7FF₁₆ → decimal</p>
+  <div class="code" style="font-size:.76rem;padding:.8rem 1rem;">
+7×256 + F×16 + F×1 = 7×256 + 15×16 + 15 = 1792 + 240 + 15 = <span class="cg">2047₁₀</span> ✓
+  </div>
+</section>
+
+<!-- ══════════════════════ DESCANSO 1 ══════════════════════ -->
+<section id="descanso1" style="padding-top:1rem;padding-bottom:1rem;">
+  <div class="break-box">
+    <div style="display:flex;justify-content:center;">
+      <svg viewBox="0 0 200 165" xmlns="http://www.w3.org/2000/svg" style="width:200px;height:165px;">
+        <defs><radialGradient id="glowG" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#f59e0b" stop-opacity=".3"/><stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/></radialGradient></defs>
+        <circle cx="100" cy="88" r="72" fill="url(#glowG)"/>
+        <circle cx="100" cy="88" r="56" fill="#0f0f1a" stroke="#f59e0b" stroke-width="2.5" stroke-opacity=".5"/>
+        <!-- marcas -->
+        <line x1="100" y1="35" x2="100" y2="43" stroke="#f59e0b" stroke-width="2.5" stroke-opacity=".8"/>
+        <line x1="153" y1="88" x2="145" y2="88" stroke="#f59e0b" stroke-width="2" stroke-opacity=".5"/>
+        <line x1="47" y1="88" x2="55" y2="88" stroke="#f59e0b" stroke-width="2" stroke-opacity=".5"/>
+        <line x1="100" y1="141" x2="100" y2="133" stroke="#f59e0b" stroke-width="2" stroke-opacity=".5"/>
+        <!-- manecillas -->
+        <line x1="100" y1="88" x2="100" y2="48" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+        <line x1="100" y1="88" x2="124" y2="90" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="100" cy="88" r="5" fill="#f59e0b"/>
+        <text x="100" y="122" text-anchor="middle" fill="#f59e0b" font-family="JetBrains Mono,monospace" font-size="13" font-weight="700">15 min</text>
+        <!-- color swatches decorativos -->
+        <rect x="28" y="30" width="12" height="12" rx="3" fill="#ff6b35" opacity=".7"/>
+        <rect x="44" y="22" width="10" height="10" rx="3" fill="#ff2d78" opacity=".5"/>
+        <rect x="58" y="16" width="8" height="8" rx="2" fill="#a855f7" opacity=".4"/>
+      </svg>
+    </div>
+    <div class="break-title">Descanso — 15 minutos</div>
+    <p class="break-sub">Dos horas de conversiones. ¡Hora de desconectar y recargar!</p>
+    <div style="display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin-top:1rem;">
+      <span class="pill pill-g">Estira el cuello</span>
+      <span class="pill pill-g">Toma agua</span>
+      <span class="pill pill-g">Aléjate del cuaderno</span>
+    </div>
+    <div style="margin-top:1.5rem;padding:1rem 1.4rem;background:rgba(245,158,11,.06);border-radius:10px;border:1px solid rgba(245,158,11,.18);text-align:left;max-width:500px;margin-left:auto;margin-right:auto;">
+      <p style="font-family:var(--fmono);font-size:.7rem;color:var(--gold);margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.1em;">Para el docente — Activación al regresar</p>
+      <p style="font-size:.87rem;margin:0;">Escribe en el tablero <span class="mono">#FF6B35</span> y pide a parejas que descifren los tres componentes RGB. Respuestas: <strong>FF=255 · 6B=107 · 35=53</strong> → naranja.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════ CONVERSIONES CRUZADAS ══════════════════════ -->
+<section id="cruzadas">
+  <div class="sec-label">Truco avanzado · 35 min</div>
+  <h2 class="sec-title">Conversiones Cruzadas Binario ↔ Hex</h2>
+  <p>Esta es la razón más poderosa por la que el hex existe: convertir entre binario y hex es <strong>casi inmediato</strong>, sin divisiones.</p>
+
+  <div class="callout call-magenta">
+    <div class="cicon"><svg width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="var(--magenta)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+    <div class="cbody"><strong>El secreto:</strong> Cada dígito hexadecimal equivale exactamente a <strong>4 bits</strong> (porque 2⁴ = 16). 1 dígito hex = 1 nibble = 4 bits. Nunca más, nunca menos.</div>
+  </div>
+
+  <!-- Mini-tabla grupos de 4 SVG -->
+  <div style="overflow-x:auto;margin:1.5rem 0;display:flex;justify-content:center;">
+    <svg viewBox="0 0 620 210" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:620px;height:auto;">
+      <g font-family="JetBrains Mono,monospace">
+        <text x="310" y="22" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">Tabla de equivalencias — 1 dígito HEX = 4 bits exactos</text>
+        <!-- Headers -->
+        <text x="90" y="46" text-anchor="middle" fill="#ff6b35" font-size="10" font-weight="700">HEX</text>
+        <text x="230" y="46" text-anchor="middle" fill="#06b6d4" font-size="10" font-weight="700">BINARIO</text>
+        <text x="400" y="46" text-anchor="middle" fill="#ff6b35" font-size="10" font-weight="700">HEX</text>
+        <text x="540" y="46" text-anchor="middle" fill="#06b6d4" font-size="10" font-weight="700">BINARIO</text>
+        <line x1="10" y1="52" x2="610" y2="52" stroke="rgba(255,255,255,.06)" stroke-width="1"/>
+        <!-- Col 1: 0-7 -->
+        <text x="90" y="74" text-anchor="middle" fill="#ff6b35" font-size="18" font-weight="700">0</text><text x="230" y="74" text-anchor="middle" fill="#06b6d4" font-size="16" font-weight="700">0000</text>
+        <text x="90" y="100" text-anchor="middle" fill="#ff6b35" font-size="18" font-weight="700">1</text><text x="230" y="100" text-anchor="middle" fill="#06b6d4" font-size="16" font-weight="700">0001</text>
+        <text x="90" y="126" text-anchor="middle" fill="#ff6b35" font-size="18" font-weight="700">2</text><text x="230" y="126" text-anchor="middle" fill="#06b6d4" font-size="16" font-weight="700">0010</text>
+        <text x="90" y="152" text-anchor="middle" fill="#ff6b35" font-size="18" font-weight="700">3</text><text x="230" y="152" text-anchor="middle" fill="#06b6d4" font-size="16" font-weight="700">0011</text>
+        <text x="90" y="178" text-anchor="middle" fill="#ff6b35" font-size="18" font-weight="700">4</text><text x="230" y="178" text-anchor="middle" fill="#06b6d4" font-size="16" font-weight="700">0100</text>
+        <text x="90" y="204" text-anchor="middle" fill="#ff6b35" font-size="18" font-weight="700">5</text><text x="230" y="204" text-anchor="middle" fill="#06b6d4" font-size="16" font-weight="700">0101</text>
+        <!-- Divisor vertical -->
+        <line x1="310" y1="52" x2="310" y2="210" stroke="rgba(255,255,255,.06)" stroke-width="1"/>
+        <!-- Col 2: 6-F con highlight en A-F -->
+        <text x="400" y="74" text-anchor="middle" fill="#ff6b35" font-size="18" font-weight="700">6</text><text x="540" y="74" text-anchor="middle" fill="#06b6d4" font-size="16" font-weight="700">0110</text>
+        <text x="400" y="100" text-anchor="middle" fill="#ff6b35" font-size="18" font-weight="700">7</text><text x="540" y="100" text-anchor="middle" fill="#06b6d4" font-size="16" font-weight="700">0111</text>
+        <!-- Highlight A-F -->
+        <rect x="328" y="108" width="292" height="100" rx="7" fill="rgba(255,107,53,.04)" stroke="rgba(255,107,53,.18)" stroke-width="1"/>
+        <text x="400" y="126" text-anchor="middle" fill="#ff6b35" font-size="18" font-weight="700">A</text><text x="540" y="126" text-anchor="middle" fill="#06b6d4" font-size="16" font-weight="700">1010</text>
+        <text x="400" y="152" text-anchor="middle" fill="#ff6b35" font-size="18" font-weight="700">C</text><text x="540" y="152" text-anchor="middle" fill="#06b6d4" font-size="16" font-weight="700">1100</text>
+        <text x="400" y="178" text-anchor="middle" fill="#ff6b35" font-size="18" font-weight="700">E</text><text x="540" y="178" text-anchor="middle" fill="#06b6d4" font-size="16" font-weight="700">1110</text>
+        <text x="400" y="204" text-anchor="middle" fill="#ff6b35" font-size="18" font-weight="700">F</text><text x="540" y="204" text-anchor="middle" fill="#06b6d4" font-size="16" font-weight="700">1111</text>
+        <text x="619" y="160" fill="#ff6b35" font-size="8" transform="rotate(90 619 160)">letras nuevas</text>
+      </g>
+    </svg>
+  </div>
+
+  <!-- Ejemplo Bin → Hex -->
+  <div class="ex-card">
+    <div class="ex-head"><span class="ex-badge badge-hex">Bin → Hex</span><span class="ex-label">Ejemplo — Convertir 11010110₂ a hex</span></div>
+    <div class="ex-body">
+      <div style="overflow-x:auto;">
+        <svg viewBox="0 0 500 120" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:500px;height:auto;">
+          <defs><marker id="arrH" markerWidth="7" markerHeight="5" refX="5" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#6b6a8a"/></marker></defs>
+          <g font-family="JetBrains Mono,monospace">
+            <text x="10" y="22" fill="#6b6a8a" font-size="10">Paso 1: agrupa de 4 en 4 desde la derecha</text>
+            <!-- Grupo izq: 1101 -->
+            <rect x="8" y="30" width="110" height="44" rx="10" fill="rgba(6,182,212,.1)" stroke="rgba(6,182,212,.4)" stroke-width="1.5"/>
+            <text x="63" y="60" text-anchor="middle" fill="#06b6d4" font-size="22" font-weight="700" letter-spacing="5">1101</text>
+            <!-- Grupo der: 0110 -->
+            <rect x="126" y="30" width="110" height="44" rx="10" fill="rgba(6,182,212,.1)" stroke="rgba(6,182,212,.4)" stroke-width="1.5"/>
+            <text x="181" y="60" text-anchor="middle" fill="#06b6d4" font-size="22" font-weight="700" letter-spacing="5">0110</text>
+            <!-- Flecha -->
+            <path d="M260 52 L292 52" stroke="#6b6a8a" stroke-width="1.5" marker-end="url(#arrH)"/>
+            <text x="272" y="47" text-anchor="middle" fill="#6b6a8a" font-size="8">convierte</text>
+            <!-- Resultados -->
+            <rect x="298" y="30" width="70" height="44" rx="10" fill="rgba(255,107,53,.12)" stroke="rgba(255,107,53,.4)" stroke-width="1.5"/>
+            <text x="333" y="60" text-anchor="middle" fill="#ff6b35" font-size="26" font-weight="700">D</text>
+            <rect x="376" y="30" width="70" height="44" rx="10" fill="rgba(255,107,53,.12)" stroke="rgba(255,107,53,.4)" stroke-width="1.5"/>
+            <text x="411" y="60" text-anchor="middle" fill="#ff6b35" font-size="26" font-weight="700">6</text>
+            <!-- Labels -->
+            <text x="63" y="90" text-anchor="middle" fill="#6b6a8a" font-size="9">1101 → D</text>
+            <text x="181" y="90" text-anchor="middle" fill="#6b6a8a" font-size="9">0110 → 6</text>
+            <text x="380" y="110" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">11010110₂ = D6₁₆</text>
+          </g>
+        </svg>
+      </div>
+      <div class="callout call-green" style="margin-top:.6rem;">
+        <div class="cicon"><svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="var(--green)" stroke-width="2"><path d="M9 11l3 3L22 4"/></svg></div>
+        <div class="cbody">Verificación cruzada: D6₁₆ = 13×16+6 = 214₁₀ · en binario: 128+64+16+4+2 = 214₁₀ ✓</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ejemplo Hex → Bin -->
+  <div class="ex-card">
+    <div class="ex-head"><span class="ex-badge badge-bin">Hex → Bin</span><span class="ex-label">Ejemplo — Convertir 5A₁₆ a binario</span></div>
+    <div class="ex-body">
+      <div style="overflow-x:auto;">
+        <svg viewBox="0 0 440 110" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:440px;height:auto;">
+          <g font-family="JetBrains Mono,monospace">
+            <text x="10" y="22" fill="#6b6a8a" font-size="10">Cada dígito hex se expande a 4 bits exactos</text>
+            <!-- Hex digits -->
+            <rect x="8" y="30" width="70" height="44" rx="10" fill="rgba(255,107,53,.12)" stroke="rgba(255,107,53,.4)" stroke-width="1.5"/>
+            <text x="43" y="60" text-anchor="middle" fill="#ff6b35" font-size="28" font-weight="700">5</text>
+            <rect x="88" y="30" width="70" height="44" rx="10" fill="rgba(255,107,53,.12)" stroke="rgba(255,107,53,.4)" stroke-width="1.5"/>
+            <text x="123" y="60" text-anchor="middle" fill="#ff6b35" font-size="28" font-weight="700">A</text>
+            <!-- Flecha -->
+            <path d="M175 52 L205 52" stroke="#6b6a8a" stroke-width="1.5" marker-end="url(#arrH)"/>
+            <!-- Binario resultado -->
+            <rect x="213" y="30" width="210" height="44" rx="10" fill="rgba(6,182,212,.08)" stroke="rgba(6,182,212,.3)" stroke-width="1.5"/>
+            <text x="318" y="58" text-anchor="middle" fill="#06b6d4" font-size="20" font-weight="700" letter-spacing="6">0101 1010</text>
+            <!-- Labels -->
+            <text x="43" y="90" text-anchor="middle" fill="#6b6a8a" font-size="9">5 → 0101</text>
+            <text x="123" y="90" text-anchor="middle" fill="#6b6a8a" font-size="9">A → 1010</text>
+            <text x="318" y="105" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">5A₁₆ = 01011010₂</text>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- CAFE ejemplo -->
+  <div class="ex-card">
+    <div class="ex-head"><span class="ex-badge badge-bin">Hex → Bin</span><span class="ex-label">Ejemplo clásico — 0xCAFE a binario</span></div>
+    <div class="ex-body">
+      <div class="code">
+C → <span class="cc">1100</span>    A → <span class="cc">1010</span>    F → <span class="cc">1111</span>    E → <span class="cc">1110</span>
+
+CAFE₁₆ = <span class="cc">1100 1010 1111 1110</span>₂
+      </div>
+      <p style="color:var(--muted);font-size:.83rem;">Verificación: 12×4096 + 10×256 + 15×16 + 14 = 49152 + 2560 + 240 + 14 = <strong style="color:#fff;">51966₁₀</strong></p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════ INTERPRETACIÓN ══════════════════════ -->
+<section id="interpretacion">
+  <div class="sec-label">Aplicaciones reales · 30 min</div>
+  <h2 class="sec-title">Interpretación en Distintos Formatos</h2>
+  <p>Un mismo número puede representar un color, una dirección de memoria, un carácter de texto o una instrucción de máquina. <strong>El contexto define el significado.</strong></p>
+
+  <!-- Colores RGB -->
+  <h3 class="sub">Colores RGB y el Hexadecimal</h3>
+
+  <!-- SVG anatomía de un código de color -->
+  <div style="overflow-x:auto;margin:1rem 0;display:flex;justify-content:center;">
+    <svg viewBox="0 0 620 130" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:620px;height:auto;">
+      <g font-family="JetBrains Mono,monospace">
+        <!-- Fondo #FF6B35 -->
+        <rect x="10" y="20" width="100" height="70" rx="12" fill="#FF6B35"/>
+        <text x="60" y="63" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">#FF6B35</text>
+        <!-- Flecha al breakdown -->
+        <path d="M115 55 L145 55" stroke="#6b6a8a" stroke-width="1.5" marker-end="url(#arrH)"/>
+        <!-- Rojo: FF -->
+        <rect x="153" y="20" width="130" height="70" rx="12" fill="rgba(255,0,0,.2)" stroke="rgba(255,0,0,.5)" stroke-width="1.5"/>
+        <text x="218" y="46" text-anchor="middle" fill="rgba(255,80,80,1)" font-size="24" font-weight="700">FF</text>
+        <text x="218" y="64" text-anchor="middle" fill="#6b6a8a" font-size="9">Rojo</text>
+        <text x="218" y="78" text-anchor="middle" fill="rgba(255,120,120,1)" font-size="10" font-weight="700">= 255</text>
+        <!-- Verde: 6B -->
+        <rect x="293" y="20" width="130" height="70" rx="12" fill="rgba(0,200,0,.15)" stroke="rgba(0,200,0,.4)" stroke-width="1.5"/>
+        <text x="358" y="46" text-anchor="middle" fill="#4ade80" font-size="24" font-weight="700">6B</text>
+        <text x="358" y="64" text-anchor="middle" fill="#6b6a8a" font-size="9">Verde</text>
+        <text x="358" y="78" text-anchor="middle" fill="#4ade80" font-size="10" font-weight="700">= 107</text>
+        <!-- Azul: 35 -->
+        <rect x="433" y="20" width="130" height="70" rx="12" fill="rgba(0,100,255,.2)" stroke="rgba(0,100,255,.4)" stroke-width="1.5"/>
+        <text x="498" y="46" text-anchor="middle" fill="#60a5fa" font-size="24" font-weight="700">35</text>
+        <text x="498" y="64" text-anchor="middle" fill="#6b6a8a" font-size="9">Azul</text>
+        <text x="498" y="78" text-anchor="middle" fill="#60a5fa" font-size="10" font-weight="700">= 53</text>
+        <!-- Fórmula -->
+        <text x="310" y="118" text-anchor="middle" fill="#6b6a8a" font-size="9">R(255) + G(107) + B(53) = naranja cálido</text>
+      </g>
+    </svg>
+  </div>
+
+  <!-- Paleta de colores -->
+  <div class="swatch-grid">
+    <div class="swatch-card"><div class="swatch-color" style="background:#FF0000;"></div><div class="swatch-info"><div class="swatch-hex">#FF0000</div><div class="swatch-name">Rojo puro · R:255 G:0 B:0</div></div></div>
+    <div class="swatch-card"><div class="swatch-color" style="background:#00FF00;"></div><div class="swatch-info"><div class="swatch-hex">#00FF00</div><div class="swatch-name">Verde puro · R:0 G:255 B:0</div></div></div>
+    <div class="swatch-card"><div class="swatch-color" style="background:#0000FF;"></div><div class="swatch-info"><div class="swatch-hex">#0000FF</div><div class="swatch-name">Azul puro · R:0 G:0 B:255</div></div></div>
+    <div class="swatch-card"><div class="swatch-color" style="background:#FF6B35;"></div><div class="swatch-info"><div class="swatch-hex">#FF6B35</div><div class="swatch-name">Naranja · R:255 G:107 B:53</div></div></div>
+    <div class="swatch-card"><div class="swatch-color" style="background:#1A237E;"></div><div class="swatch-info"><div class="swatch-hex">#1A237E</div><div class="swatch-name">Azul índigo · R:26 G:35 B:126</div></div></div>
+    <div class="swatch-card"><div class="swatch-color" style="background:#FFFFFF;border:1px solid #333;"></div><div class="swatch-info"><div class="swatch-hex">#FFFFFF</div><div class="swatch-name">Blanco · R:255 G:255 B:255</div></div></div>
+    <div class="swatch-card"><div class="swatch-color" style="background:#000000;"></div><div class="swatch-info"><div class="swatch-hex">#000000</div><div class="swatch-name">Negro · R:0 G:0 B:0</div></div></div>
+    <div class="swatch-card"><div class="swatch-color" style="background:#A020F0;"></div><div class="swatch-info"><div class="swatch-hex">#A020F0</div><div class="swatch-name">Violeta · R:160 G:32 B:240</div></div></div>
+  </div>
+
+  <!-- ASCII -->
+  <h3 class="sub">Códigos ASCII — el texto en hexadecimal</h3>
+  <p>Las computadoras almacenan el texto como números. El estándar ASCII asigna un valor a cada carácter del teclado.</p>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Carácter</th><th>Decimal</th><th>Hexadecimal</th><th>Binario</th></tr></thead>
+      <tbody>
+        <tr><td style="font-size:1.1rem;text-align:center;">'A'</td><td class="td-dec">65</td><td class="td-hex">41</td><td class="td-bin">0100 0001</td></tr>
+        <tr><td style="font-size:1.1rem;text-align:center;">'Z'</td><td class="td-dec">90</td><td class="td-hex">5A</td><td class="td-bin">0101 1010</td></tr>
+        <tr><td style="font-size:1.1rem;text-align:center;">'a'</td><td class="td-dec">97</td><td class="td-hex">61</td><td class="td-bin">0110 0001</td></tr>
+        <tr><td style="font-size:1.1rem;text-align:center;">'z'</td><td class="td-dec">122</td><td class="td-hex">7A</td><td class="td-bin">0111 1010</td></tr>
+        <tr><td style="font-size:1.1rem;text-align:center;">'0'</td><td class="td-dec">48</td><td class="td-hex">30</td><td class="td-bin">0011 0000</td></tr>
+        <tr><td style="font-size:1.1rem;text-align:center;">espacio</td><td class="td-dec">32</td><td class="td-hex">20</td><td class="td-bin">0010 0000</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout call-cyan">
+    <div class="cicon"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="var(--cyan)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+    <div class="cbody"><strong>Patrón a descubrir:</strong> entre 'A' (65) y 'a' (97) hay exactamente 32 de diferencia. En binario, pasar de mayúscula a minúscula solo cambia el bit 5. Los diseñadores del ASCII lo hicieron deliberadamente.</div>
+  </div>
+
+  <!-- Mensaje cifrado -->
+  <h3 class="sub">Descifrar un mensaje en hexadecimal (actividad grupal 10 min)</h3>
+  <div class="code">
+48  6F  6C  61  20  4D  75  6E  64  6F
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Hex</th><th>Cálculo</th><th>Decimal</th><th>Carácter</th></tr></thead>
+      <tbody>
+        <tr><td class="td-hex">48</td><td style="color:var(--muted);">4×16 + 8</td><td class="td-dec">72</td><td style="font-size:1.1rem;text-align:center;color:#fff;">H</td></tr>
+        <tr><td class="td-hex">6F</td><td style="color:var(--muted);">6×16 + 15</td><td class="td-dec">111</td><td style="font-size:1.1rem;text-align:center;color:#fff;">o</td></tr>
+        <tr><td class="td-hex">6C</td><td style="color:var(--muted);">6×16 + 12</td><td class="td-dec">108</td><td style="font-size:1.1rem;text-align:center;color:#fff;">l</td></tr>
+        <tr><td class="td-hex">61</td><td style="color:var(--muted);">6×16 + 1</td><td class="td-dec">97</td><td style="font-size:1.1rem;text-align:center;color:#fff;">a</td></tr>
+        <tr><td class="td-hex">20</td><td style="color:var(--muted);">2×16 + 0</td><td class="td-dec">32</td><td style="font-size:1.1rem;text-align:center;color:var(--muted);">(esp)</td></tr>
+        <tr><td class="td-hex">4D</td><td style="color:var(--muted);">4×16 + 13</td><td class="td-dec">77</td><td style="font-size:1.1rem;text-align:center;color:#fff;">M</td></tr>
+        <tr><td class="td-hex">75</td><td style="color:var(--muted);">7×16 + 5</td><td class="td-dec">117</td><td style="font-size:1.1rem;text-align:center;color:#fff;">u</td></tr>
+        <tr><td class="td-hex">6E</td><td style="color:var(--muted);">6×16 + 14</td><td class="td-dec">110</td><td style="font-size:1.1rem;text-align:center;color:#fff;">n</td></tr>
+        <tr><td class="td-hex">64</td><td style="color:var(--muted);">6×16 + 4</td><td class="td-dec">100</td><td style="font-size:1.1rem;text-align:center;color:#fff;">d</td></tr>
+        <tr><td class="td-hex">6F</td><td style="color:var(--muted);">6×16 + 15</td><td class="td-dec">111</td><td style="font-size:1.1rem;text-align:center;color:#fff;">o</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout call-green">
+    <div class="cicon"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="var(--green)" stroke-width="2"><path d="M9 11l3 3L22 4"/></svg></div>
+    <div class="cbody">Mensaje decodificado: <strong>"Hola Mundo"</strong></div>
+  </div>
+
+  <!-- Tabla comparativa 255 en 4 sistemas -->
+  <h3 class="sub">El mismo valor en cuatro sistemas — el 255</h3>
+
+  <!-- SVG cuadro comparativo -->
+  <div style="overflow-x:auto;margin:1rem 0;display:flex;justify-content:center;">
+    <svg viewBox="0 0 680 100" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:680px;height:auto;">
+      <g font-family="JetBrains Mono,monospace">
+        <!-- Decimal -->
+        <rect x="4" y="8" width="154" height="80" rx="12" fill="rgba(245,158,11,.1)" stroke="rgba(245,158,11,.4)" stroke-width="1.5"/>
+        <text x="81" y="35" text-anchor="middle" fill="#6b6a8a" font-size="9">DECIMAL</text>
+        <text x="81" y="62" text-anchor="middle" fill="#f59e0b" font-size="26" font-weight="700">255</text>
+        <text x="81" y="79" text-anchor="middle" fill="#6b6a8a" font-size="8">Base 10</text>
+        <!-- Binario -->
+        <rect x="168" y="8" width="154" height="80" rx="12" fill="rgba(6,182,212,.1)" stroke="rgba(6,182,212,.4)" stroke-width="1.5"/>
+        <text x="245" y="35" text-anchor="middle" fill="#6b6a8a" font-size="9">BINARIO</text>
+        <text x="245" y="60" text-anchor="middle" fill="#06b6d4" font-size="15" font-weight="700" letter-spacing="3">11111111</text>
+        <text x="245" y="79" text-anchor="middle" fill="#6b6a8a" font-size="8">8 bits todos en 1</text>
+        <!-- Octal -->
+        <rect x="332" y="8" width="154" height="80" rx="12" fill="rgba(16,185,129,.1)" stroke="rgba(16,185,129,.4)" stroke-width="1.5"/>
+        <text x="409" y="35" text-anchor="middle" fill="#6b6a8a" font-size="9">OCTAL</text>
+        <text x="409" y="62" text-anchor="middle" fill="#10b981" font-size="26" font-weight="700">377</text>
+        <text x="409" y="79" text-anchor="middle" fill="#6b6a8a" font-size="8">Base 8</text>
+        <!-- Hex -->
+        <rect x="496" y="4" width="176" height="88" rx="12" fill="rgba(255,107,53,.12)" stroke="rgba(255,107,53,.5)" stroke-width="2"/>
+        <text x="584" y="33" text-anchor="middle" fill="#ff6b35" font-size="9" font-weight="700">HEXADECIMAL</text>
+        <text x="584" y="64" text-anchor="middle" fill="#ff6b35" font-size="32" font-weight="700">FF</text>
+        <text x="584" y="82" text-anchor="middle" fill="#ff6b35" font-size="8">2 dígitos = 1 byte</text>
+      </g>
+    </svg>
+  </div>
+</section>
+
+<!-- ══════════════════════ DESCANSO 2 ══════════════════════ -->
+<section id="descanso2" style="padding-top:1rem;padding-bottom:1rem;">
+  <div class="break-box" style="border-color:rgba(168,85,247,.28);">
+    <div style="display:flex;justify-content:center;">
+      <svg viewBox="0 0 220 165" xmlns="http://www.w3.org/2000/svg" style="width:220px;height:165px;">
+        <defs><radialGradient id="glowV" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#a855f7" stop-opacity=".3"/><stop offset="100%" stop-color="#a855f7" stop-opacity="0"/></radialGradient></defs>
+        <circle cx="110" cy="88" r="72" fill="url(#glowV)"/>
+        <circle cx="110" cy="88" r="56" fill="#0f0f1a" stroke="#a855f7" stroke-width="2.5" stroke-opacity=".5"/>
+        <line x1="110" y1="35" x2="110" y2="43" stroke="#a855f7" stroke-width="2.5" stroke-opacity=".8"/>
+        <line x1="163" y1="88" x2="155" y2="88" stroke="#a855f7" stroke-width="2" stroke-opacity=".5"/>
+        <line x1="57" y1="88" x2="65" y2="88" stroke="#a855f7" stroke-width="2" stroke-opacity=".5"/>
+        <line x1="110" y1="141" x2="110" y2="133" stroke="#a855f7" stroke-width="2" stroke-opacity=".5"/>
+        <line x1="110" y1="88" x2="110" y2="48" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+        <line x1="110" y1="88" x2="134" y2="90" stroke="#a855f7" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="110" cy="88" r="5" fill="#a855f7"/>
+        <text x="110" y="122" text-anchor="middle" fill="#a855f7" font-family="JetBrains Mono,monospace" font-size="13" font-weight="700">15 min</text>
+        <!-- Taller text decorativo -->
+        <text x="170" y="60" fill="#a855f7" font-family="JetBrains Mono,monospace" font-size="9" opacity=".6" transform="rotate(15 170 60)">TALLER</text>
+      </svg>
+    </div>
+    <div class="break-title" style="color:var(--violet2);">Descanso — 15 minutos</div>
+    <p class="break-sub">Todo el contenido está listo. El taller que sigue aplica <em>todo</em> lo de hoy. ¡Llega fresco!</p>
+    <div style="display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin-top:1rem;">
+      <span class="pill pill-v">Mueve el cuerpo</span>
+      <span class="pill pill-v">Toma agua</span>
+      <span class="pill pill-v">¿Qué color es #FF00FF?</span>
+    </div>
+    <div style="margin-top:1.5rem;padding:1rem 1.4rem;background:rgba(168,85,247,.06);border-radius:10px;border:1px solid rgba(168,85,247,.18);text-align:left;max-width:500px;margin-left:auto;margin-right:auto;">
+      <p style="font-family:var(--fmono);font-size:.7rem;color:var(--violet2);margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.1em;">Para el docente — Al regresar</p>
+      <p style="font-size:.87rem;margin:0;">Responder la pregunta del descanso: <span class="mono">#FF00FF</span> = R:255 G:0 B:255 = <strong>Magenta / Fucsia</strong>. Luego dar instrucciones del taller y organizar grupos.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════ TALLER ══════════════════════ -->
+<section id="taller">
+  <div class="sec-label">Taller práctico · 45 min</div>
+  <h2 class="sec-title">Taller Práctico</h2>
+
+  <div class="callout call-violet">
+    <div class="cicon"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="var(--violet2)" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></div>
+    <div class="cbody"><strong>Para el docente:</strong> Parte A individual (15 min) · Parte B en parejas con verificación cruzada (15 min) · Parte C desafíos de aplicación en grupos de 3 (15 min). Observa los <em>procesos</em>, no solo los resultados.</div>
+  </div>
+
+  <!-- PARTE A -->
+  <h3 class="sub">Parte A — Individual (15 min)</h3>
+  <p style="color:var(--muted);font-size:.88rem;margin-bottom:1rem;">Muestra todos los pasos. Sin procedimiento, la respuesta no cuenta.</p>
+
+  <div style="margin-bottom:.5rem;"><span class="pill pill-o" style="font-size:.7rem;">Sección 1 · Dec → Hex</span></div>
+  <div class="prac-item"><div class="prac-n">A1</div><div class="prac-q">Convertir <strong>45₁₀</strong> a hexadecimal</div><span class="pill pill-o">Dec → Hex</span></div>
+  <div class="prac-item"><div class="prac-n">A2</div><div class="prac-q">Convertir <strong>173₁₀</strong> a hexadecimal</div><span class="pill pill-o">Dec → Hex</span></div>
+  <div class="prac-item"><div class="prac-n">A3</div><div class="prac-q">Convertir <strong>1000₁₀</strong> a hexadecimal</div><span class="pill pill-o">Dec → Hex</span></div>
+
+  <div style="margin:.9rem 0 .5rem;"><span class="pill pill-g" style="font-size:.7rem;">Sección 2 · Hex → Dec</span></div>
+  <div class="prac-item"><div class="prac-n">A4</div><div class="prac-q">Convertir <strong>7A₁₆</strong> a decimal</div><span class="pill pill-g">Hex → Dec</span></div>
+  <div class="prac-item"><div class="prac-n">A5</div><div class="prac-q">Convertir <strong>2BC₁₆</strong> a decimal</div><span class="pill pill-g">Hex → Dec</span></div>
+  <div class="prac-item"><div class="prac-n">A6</div><div class="prac-q">Convertir <strong>F0F₁₆</strong> a decimal</div><span class="pill pill-g">Hex → Dec</span></div>
+
+  <div style="margin:.9rem 0 .5rem;"><span class="pill pill-c" style="font-size:.7rem;">Sección 3 · Binario ↔ Hex</span></div>
+  <div class="prac-item"><div class="prac-n">A7</div><div class="prac-q">Convertir <strong>11110000₂</strong> a hexadecimal (grupos de 4)</div><span class="pill pill-c">Bin → Hex</span></div>
+  <div class="prac-item"><div class="prac-n">A8</div><div class="prac-q">Convertir <strong>B9₁₆</strong> a binario (expandir cada dígito a 4 bits)</div><span class="pill pill-c">Hex → Bin</span></div>
+
+  <div style="margin:.9rem 0 .5rem;"><span class="pill pill-m" style="font-size:.7rem;">Sección 4 · Interpretación</span></div>
+  <div class="prac-item"><div class="prac-n">A9</div><div class="prac-q">Descomponer <strong>#4CAF50</strong> en sus tres componentes RGB decimales. ¿Qué color es?</div><span class="pill pill-m">RGB</span></div>
+  <div class="prac-item"><div class="prac-n">A10</div><div class="prac-q">Decodificar el texto: <strong>43 6F 6C 6F 6D 62 69 61</strong></div><span class="pill pill-m">ASCII</span></div>
+
+  <!-- Respuestas colapsadas -->
+  <details style="margin-top:1.3rem;">
+    <summary style="cursor:pointer;padding:.9rem 1.1rem;background:var(--bg3);border:1px solid var(--border);border-radius:10px;font-family:var(--fmono);font-size:.77rem;color:var(--orange);list-style:none;display:flex;align-items:center;gap:.5rem;user-select:none;">
+      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Respuestas del Taller A — solo para el docente
+    </summary>
+    <div style="padding:1.1rem;background:var(--bg2);border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px;">
+      <div class="tbl-wrap" style="margin:0;">
+        <table>
+          <thead><tr><th>#</th><th>Respuesta</th><th>Proceso clave</th></tr></thead>
+          <tbody>
+            <tr><td class="td-hex">A1</td><td class="td-hex">2D₁₆</td><td>45÷16=2 R13(D) · 2÷16=0 R2</td></tr>
+            <tr><td class="td-hex">A2</td><td class="td-hex">AD₁₆</td><td>173÷16=10 R13(D) · 10÷16=0 R10(A)</td></tr>
+            <tr><td class="td-hex">A3</td><td class="td-hex">3E8₁₆</td><td>1000÷16=62 R8 · 62÷16=3 R14(E) · 3÷16=0 R3</td></tr>
+            <tr><td class="td-hex">A4</td><td class="td-dec">122₁₀</td><td>7×16 + 10 = 112+10</td></tr>
+            <tr><td class="td-hex">A5</td><td class="td-dec">700₁₀</td><td>2×256 + 11×16 + 12 = 512+176+12</td></tr>
+            <tr><td class="td-hex">A6</td><td class="td-dec">3855₁₀</td><td>15×256 + 0×16 + 15 = 3840+0+15</td></tr>
+            <tr><td class="td-hex">A7</td><td class="td-hex">F0₁₆</td><td>1111→F · 0000→0</td></tr>
+            <tr><td class="td-hex">A8</td><td class="td-bin">10111001₂</td><td>B→1011 · 9→1001</td></tr>
+            <tr><td class="td-hex">A9</td><td>R:76 G:175 B:80</td><td>4C=76 · AF=175 · 50=80 → verde</td></tr>
+            <tr><td class="td-hex">A10</td><td style="color:#fff;">Colombia</td><td>43=C · 6F=o · 6C=l · 6F=o · 6D=m · 62=b · 69=i · 61=a</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </details>
+
+  <!-- PARTE B -->
+  <h3 class="sub">Parte B — Verificación en Parejas (15 min)</h3>
+  <div class="card card-violet">
+    <p style="margin-bottom:.7rem;">Intercambia tu hoja. Verifica usando el <strong>método inverso</strong>:</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-n">1</div>
+        <div><div class="step-t">Para verificar Dec → Hex</div><div class="step-b">Convierte el resultado hex de vuelta a decimal. Debe coincidir.</div></div>
+      </div>
+      <div class="step">
+        <div class="step-n">2</div>
+        <div><div class="step-t">Para verificar Hex → Dec</div><div class="step-b">Convierte el resultado decimal de vuelta a hex. Debe coincidir.</div></div>
+      </div>
+      <div class="step">
+        <div class="step-n">3</div>
+        <div><div class="step-t">Para verificar Bin ↔ Hex</div><div class="step-b">Aplica el método inverso de grupos de 4. Compara bit a bit.</div></div>
+      </div>
+      <div class="step">
+        <div class="step-n">4</div>
+        <div><div class="step-t">Si encuentras un error</div><div class="step-b">No marques solo "incorrecto". Indica en qué <em>paso</em> del proceso se produjo el error.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PARTE C - Desafíos -->
+  <h3 class="sub">Parte C — Desafíos de Aplicación en Grupos de 3 (15 min)</h3>
+
+  <!-- Desafío 1: Color del colegio -->
+  <div class="ex-card">
+    <div class="ex-head"><span class="ex-badge badge-rgb">Desafío 1</span><span class="ex-label">La Paleta de Colores del Colegio</span></div>
+    <div class="ex-body">
+      <p>El equipo de diseño dice que el azul institucional del escudo es <strong>RGB(0, 71, 171)</strong>.</p>
+      <div class="steps">
+        <div class="step"><div class="step-n">a</div><div><div class="step-t">Convertir cada componente a hexadecimal</div><div class="step-b">R:0 → ? · G:71 → ? · B:171 → ?</div></div></div>
+        <div class="step"><div class="step-n">b</div><div><div class="step-t">Escribir el código completo en formato #RRGGBB</div><div class="step-b">El resultado es el color oficial de la web del colegio.</div></div></div>
+        <div class="step"><div class="step-n">c</div><div><div class="step-t">Escribir los tres bytes en binario</div><div class="step-b">24 bits en total (3 bytes de 8 bits cada uno).</div></div></div>
+      </div>
+      <details style="margin-top:.9rem;">
+        <summary style="cursor:pointer;font-family:var(--fmono);font-size:.72rem;color:var(--muted);list-style:none;padding:.5rem;border-radius:6px;background:var(--bg3);">Ver solución</summary>
+        <div class="code" style="margin-top:.5rem;font-size:.76rem;">
+R: 0   → <span class="co">00₁₆</span> → <span class="cc">0000 0000₂</span>
+G: 71  → <span class="co">47₁₆</span> → <span class="cc">0100 0111₂</span>
+B: 171 → <span class="co">AB₁₆</span> → <span class="cc">1010 1011₂</span>
+
+Código web: <span class="co">#0047AB</span>
+Binario completo: <span class="cc">00000000 01000111 10101011</span>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <!-- Desafío 2: Mensaje secreto -->
+  <div class="ex-card">
+    <div class="ex-head"><span class="ex-badge badge-rgb">Desafío 2</span><span class="ex-label">El Mensaje Secreto</span></div>
+    <div class="ex-body">
+      <p>Un hacker dejó este mensaje en el sistema. Decodifícalo:</p>
+      <div class="code">
+53  69  73  74  65  6D  61  73  20  4E  75  6D  E9  72  69  63  6F  73
+      </div>
+      <p style="font-size:.82rem;color:var(--muted);">Nota: el byte <span class="mono">E9</span> corresponde a 'é' (e con acento) en Latin-1. Los primeros 8 bytes forman la palabra "Sistemas".</p>
+      <details style="margin-top:.9rem;">
+        <summary style="cursor:pointer;font-family:var(--fmono);font-size:.72rem;color:var(--muted);list-style:none;padding:.5rem;border-radius:6px;background:var(--bg3);">Ver solución</summary>
+        <div class="callout call-green" style="margin-top:.5rem;">
+          <div class="cicon"><svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="var(--green)" stroke-width="2"><path d="M9 11l3 3L22 4"/></svg></div>
+          <div class="cbody">Mensaje: <strong>"Sistemas Numéricos"</strong></div>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <!-- Desafío 3: Error del sistema -->
+  <div class="ex-card">
+    <div class="ex-head"><span class="ex-badge badge-rgb">Desafío 3</span><span class="ex-label">El Error del Sistema — 0xC0FFEE</span></div>
+    <div class="ex-body">
+      <p>Una computadora muestra el código de error <span class="mono">0xC0FFEE</span> en pantalla.</p>
+      <div class="steps">
+        <div class="step"><div class="step-n">a</div><div><div class="step-t">¿Cuánto vale en decimal?</div></div></div>
+        <div class="step"><div class="step-n">b</div><div><div class="step-t">¿Cuántos bytes ocupa?</div></div></div>
+        <div class="step"><div class="step-n">c</div><div><div class="step-t">Escríbelo en binario completo</div></div></div>
+        <div class="step"><div class="step-n">d</div><div><div class="step-t">¿Cabe en 2 bytes (16 bits)? ¿Por qué?</div></div></div>
+      </div>
+      <details style="margin-top:.9rem;">
+        <summary style="cursor:pointer;font-family:var(--fmono);font-size:.72rem;color:var(--muted);list-style:none;padding:.5rem;border-radius:6px;background:var(--bg3);">Ver solución</summary>
+        <div class="code" style="margin-top:.5rem;font-size:.76rem;">
+a) C0FFEE₁₆ = 12×65536 + 0×4096 + 15×256 + 15×16 + 14
+            = 786432 + 0 + 3840 + 240 + 14
+            = <span class="cgr">12,648,430₁₀</span>
+
+b) <span class="co">3 bytes</span> (6 dígitos hex = 3 bytes de 8 bits)
+
+c) <span class="cc">1100 0000  1111 1111  1110 1110</span>
+
+d) <span class="cm">No</span>: 12,648,430 supera el máximo de 2 bytes (65,535).
+   Necesita al menos 3 bytes (24 bits).
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════ CIERRE ══════════════════════ -->
+<section id="cierre">
+  <div class="sec-label">Resumen final · 10 min</div>
+  <h2 class="sec-title">Resumen y Cierre</h2>
+
+  <!-- Mapa conceptual SVG -->
+  <div style="overflow-x:auto;margin:1.5rem 0;display:flex;justify-content:center;">
+    <svg viewBox="0 0 700 320" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:700px;height:auto;">
+      <defs>
+        <marker id="mA" markerWidth="7" markerHeight="5" refX="5" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="rgba(255,107,53,.4)"/></marker>
+      </defs>
+      <g font-family="JetBrains Mono,monospace">
+        <!-- Centro -->
+        <ellipse cx="350" cy="160" rx="85" ry="44" fill="#151525" stroke="rgba(255,107,53,.5)" stroke-width="2"/>
+        <text x="350" y="155" text-anchor="middle" fill="#ff6b35" font-size="11" font-weight="700">SISTEMA</text>
+        <text x="350" y="171" text-anchor="middle" fill="#ff6b35" font-size="11" font-weight="700">HEXADECIMAL</text>
+        <!-- Decimal -->
+        <rect x="18" y="14" width="148" height="76" rx="12" fill="#151525" stroke="rgba(245,158,11,.4)" stroke-width="1.5"/>
+        <text x="92" y="38" text-anchor="middle" fill="#f59e0b" font-size="11" font-weight="700">DECIMAL</text>
+        <text x="92" y="54" text-anchor="middle" fill="#6b6a8a" font-size="8">Base 10 · Dígitos 0-9</text>
+        <text x="92" y="68" text-anchor="middle" fill="#6b6a8a" font-size="8">Divisiones entre 16</text>
+        <text x="92" y="80" text-anchor="middle" fill="#f59e0b" font-size="7.5">Dec→Hex: dividir ÷16</text>
+        <line x1="166" y1="52" x2="268" y2="138" stroke="rgba(255,107,53,.3)" stroke-width="1.2" marker-end="url(#mA)"/>
+        <!-- Binario -->
+        <rect x="534" y="14" width="148" height="90" rx="12" fill="#151525" stroke="rgba(6,182,212,.4)" stroke-width="1.5"/>
+        <text x="608" y="38" text-anchor="middle" fill="#06b6d4" font-size="11" font-weight="700">BINARIO</text>
+        <text x="608" y="54" text-anchor="middle" fill="#6b6a8a" font-size="8">Base 2 · Dígitos 0,1</text>
+        <text x="608" y="68" text-anchor="middle" fill="#6b6a8a" font-size="8">1 hex = 4 bits exactos</text>
+        <text x="608" y="82" text-anchor="middle" fill="#06b6d4" font-size="7.5">Truco: grupos de 4</text>
+        <text x="608" y="95" text-anchor="middle" fill="#6b6a8a" font-size="7">sin divisiones</text>
+        <line x1="534" y1="60" x2="432" y2="138" stroke="rgba(255,107,53,.3)" stroke-width="1.2" marker-end="url(#mA)"/>
+        <!-- Colores RGB -->
+        <rect x="534" y="230" width="148" height="76" rx="12" fill="#151525" stroke="rgba(255,45,120,.4)" stroke-width="1.5"/>
+        <text x="608" y="254" text-anchor="middle" fill="#ff2d78" font-size="11" font-weight="700">COLORES RGB</text>
+        <text x="608" y="270" text-anchor="middle" fill="#6b6a8a" font-size="8">#RRGGBB</text>
+        <text x="608" y="284" text-anchor="middle" fill="#6b6a8a" font-size="8">1 canal = 1 byte = 2 hex</text>
+        <text x="608" y="296" text-anchor="middle" fill="#ff2d78" font-size="7.5">0 a 255 = 00 a FF</text>
+        <line x1="534" y1="265" x2="432" y2="188" stroke="rgba(255,107,53,.3)" stroke-width="1.2" marker-end="url(#mA)"/>
+        <!-- ASCII / Texto -->
+        <rect x="18" y="230" width="148" height="76" rx="12" fill="#151525" stroke="rgba(16,185,129,.4)" stroke-width="1.5"/>
+        <text x="92" y="254" text-anchor="middle" fill="#10b981" font-size="11" font-weight="700">ASCII / TEXTO</text>
+        <text x="92" y="270" text-anchor="middle" fill="#6b6a8a" font-size="8">Cada char = 1 byte</text>
+        <text x="92" y="284" text-anchor="middle" fill="#6b6a8a" font-size="8">48 65 6C 6C 6F</text>
+        <text x="92" y="296" text-anchor="middle" fill="#10b981" font-size="7.5">= "Hello"</text>
+        <line x1="166" y1="265" x2="268" y2="188" stroke="rgba(255,107,53,.3)" stroke-width="1.2" marker-end="url(#mA)"/>
+        <!-- Memoria -->
+        <rect x="216" y="270" width="268" height="44" rx="12" fill="#151525" stroke="rgba(168,85,247,.35)" stroke-width="1.5"/>
+        <text x="350" y="291" text-anchor="middle" fill="#a855f7" font-size="11" font-weight="700">MEMORIA / ERRORES DEL SISTEMA</text>
+        <text x="350" y="307" text-anchor="middle" fill="#6b6a8a" font-size="8">0x7FFF5FBD · 0x0000007E · 0xC0FFEE</text>
+        <line x1="350" y1="204" x2="350" y2="270" stroke="rgba(255,107,53,.3)" stroke-width="1.2" marker-end="url(#mA)"/>
+      </g>
+    </svg>
+  </div>
+
+  <!-- Las 5 Reglas de Oro -->
+  <h3 class="sub">Las 5 Reglas de Oro</h3>
+  <div class="card">
+    <div class="steps">
+      <div class="step">
+        <div class="step-n" style="background:rgba(255,107,53,.15);border-color:rgba(255,107,53,.4);color:var(--orange);">1</div>
+        <div><div class="step-t">Los 16 símbolos</div><div class="step-b">0–9 son normales. A=10, B=11, C=12, D=13, E=14, F=15. Son dígitos, no letras. Sin ellos no hay hex.</div></div>
+      </div>
+      <div class="step">
+        <div class="step-n" style="background:rgba(245,158,11,.15);border-color:rgba(245,158,11,.4);color:var(--gold);">2</div>
+        <div><div class="step-t">Divisiones entre 16</div><div class="step-b">Para Dec → Hex: divide entre 16, anota residuos, lee de abajo hacia arriba. Si el residuo es 10+, escribe la letra.</div></div>
+      </div>
+      <div class="step">
+        <div class="step-n" style="background:rgba(6,182,212,.15);border-color:rgba(6,182,212,.4);color:var(--cyan);">3</div>
+        <div><div class="step-t">Potencias de posición</div><div class="step-b">Para Hex → Dec: multiplica cada dígito por 16 elevado a su posición (derecha a izquierda desde 0) y suma.</div></div>
+      </div>
+      <div class="step">
+        <div class="step-n" style="background:rgba(255,45,120,.15);border-color:rgba(255,45,120,.4);color:var(--magenta);">4</div>
+        <div><div class="step-t">Grupos de 4 bits</div><div class="step-b">Para Bin ↔ Hex: 1 dígito hex = 4 bits exactos. Agrupa de 4 en 4 desde la derecha. Sin divisiones.</div></div>
+      </div>
+      <div class="step">
+        <div class="step-n" style="background:rgba(168,85,247,.15);border-color:rgba(168,85,247,.4);color:var(--violet2);">5</div>
+        <div><div class="step-t">Verificación inversa</div><div class="step-b">Siempre comprueba convirtiendo de vuelta. Si AB₁₆ = 171₁₀, entonces 171₁₀ debe dar AB₁₆.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla comparativa final -->
+  <h3 class="sub">Los 4 sistemas en perspectiva</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Sistema</th><th>Base</th><th>Dígitos</th><th>Bits/dígito</th><th>255 en este sistema</th></tr></thead>
+      <tbody>
+        <tr><td>Binario</td><td class="td-bin">2</td><td class="td-bin">0, 1</td><td class="td-bin">1</td><td class="td-bin">11111111</td></tr>
+        <tr><td>Octal</td><td class="td-oct">8</td><td class="td-oct">0–7</td><td class="td-oct">3</td><td class="td-oct">377</td></tr>
+        <tr><td>Decimal</td><td class="td-dec">10</td><td class="td-dec">0–9</td><td class="td-dec">~3.32</td><td class="td-dec">255</td></tr>
+        <tr class="td-hl"><td><strong>Hexadecimal</strong></td><td class="td-hex">16</td><td class="td-hex">0–F</td><td class="td-hex">4</td><td class="td-hex" style="font-size:1rem;font-weight:700;">FF</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="color:var(--muted);font-size:.85rem;text-align:center;">El hex gana en compacidad para datos binarios. <strong style="color:#fff;">2 dígitos hex = 1 byte exacto.</strong> Por eso domina la programación de sistemas.</p>
+
+  <!-- Autoevaluación -->
+  <h3 class="sub">Autoevaluación</h3>
+  <div id="evalGrid">
+    <div class="eval-row"><div style="color:var(--text)">¿Identifico los 16 dígitos hexadecimales (con letras)?</div><div class="eval-opt">😕</div><div class="eval-opt">🤔</div><div class="eval-opt">😊</div></div>
+    <div class="eval-row"><div style="color:var(--text)">¿Convierto de decimal a hex usando divisiones?</div><div class="eval-opt">😕</div><div class="eval-opt">🤔</div><div class="eval-opt">😊</div></div>
+    <div class="eval-row"><div style="color:var(--text)">¿Convierto de hex a decimal usando potencias?</div><div class="eval-opt">😕</div><div class="eval-opt">🤔</div><div class="eval-opt">😊</div></div>
+    <div class="eval-row"><div style="color:var(--text)">¿Uso grupos de 4 bits para pasar entre binario y hex?</div><div class="eval-opt">😕</div><div class="eval-opt">🤔</div><div class="eval-opt">😊</div></div>
+    <div class="eval-row"><div style="color:var(--text)">¿Descifro un color RGB desde su código hex?</div><div class="eval-opt">😕</div><div class="eval-opt">🤔</div><div class="eval-opt">😊</div></div>
+    <div class="eval-row"><div style="color:var(--text)">¿Puedo decodificar texto en formato ASCII hex?</div><div class="eval-opt">😕</div><div class="eval-opt">🤔</div><div class="eval-opt">😊</div></div>
+    <div class="eval-row"><div style="color:var(--text)">¿Verifico conversiones usando el método inverso?</div><div class="eval-opt">😕</div><div class="eval-opt">🤔</div><div class="eval-opt">😊</div></div>
+  </div>
+
+  <!-- Glosario -->
+  <h3 class="sub">Glosario</h3>
+  <div class="gloss-grid">
+    <div class="gloss-item"><div class="gloss-term">Hexadecimal</div><div class="gloss-def">Sistema numérico de base 16. Usa los dígitos 0–9 y las letras A–F.</div></div>
+    <div class="gloss-item"><div class="gloss-term">Nibble</div><div class="gloss-def">Grupo de 4 bits. Equivale exactamente a un dígito hexadecimal.</div></div>
+    <div class="gloss-item"><div class="gloss-term">Byte</div><div class="gloss-def">Grupo de 8 bits. Equivale a 2 dígitos hex. Puede valer de 0 a 255.</div></div>
+    <div class="gloss-item"><div class="gloss-term">ASCII</div><div class="gloss-def">Estándar que asigna un número decimal (y hex) a cada carácter del teclado.</div></div>
+    <div class="gloss-item"><div class="gloss-term">RGB</div><div class="gloss-def">Modelo de color: Rojo, Verde, Azul. Cada canal va de 0 a 255 (00 a FF).</div></div>
+    <div class="gloss-item"><div class="gloss-term">Volcado de memoria</div><div class="gloss-def">Representación de la RAM en formato hexadecimal, byte por byte.</div></div>
+    <div class="gloss-item"><div class="gloss-term">Prefijo 0x</div><div class="gloss-def">Notación de programación para indicar que un número está en hexadecimal.</div></div>
+    <div class="gloss-item"><div class="gloss-term">Stop Code</div><div class="gloss-def">Código de error del SO representado en hex. Ej: 0x0000007E.</div></div>
+    <div class="gloss-item"><div class="gloss-term">Conversión cruzada</div><div class="gloss-def">Convertir un valor entre dos o más sistemas para verificar su equivalencia.</div></div>
+  </div>
+
+  <!-- Footer -->
+  <div style="margin-top:4rem;padding:2rem;text-align:center;border-top:1px solid var(--border);">
+    <p style="font-family:var(--fmono);font-size:.7rem;color:var(--muted);">Material educativo de libre uso · Módulo 2: Decimal y Hexadecimal · Secundaria 15–16 años</p>
+    <p style="font-family:var(--fmono);font-size:.65rem;color:var(--border);margin-top:.3rem;">Publicable en GitHub Pages · Archivo único HTML · Sin dependencias externas</p>
+  </div>
+</section>
+
+</div><!-- .page -->
+
+<script>
+// Autoevaluación interactiva
+document.querySelectorAll('.eval-opt').forEach(opt => {
+  opt.addEventListener('click', function() {
+    const row = this.closest('.eval-row');
+    row.querySelectorAll('.eval-opt').forEach(o => {
+      o.style.background = '';
+      o.style.borderColor = '';
+      o.style.transform = '';
+    });
+    this.style.background = 'rgba(255,107,53,.15)';
+    this.style.borderColor = 'var(--orange)';
+    this.style.transform = 'scale(1.15)';
+  });
+});
+
+// Nav scroll highlight
+const secs = document.querySelectorAll('section[id]');
+const links = document.querySelectorAll('.nav-links a');
+window.addEventListener('scroll', () => {
+  let cur = '';
+  secs.forEach(s => { if (window.scrollY >= s.offsetTop - 70) cur = s.id; });
+  links.forEach(a => {
+    const active = a.getAttribute('href') === '#' + cur;
+    a.style.color = active ? 'var(--orange)' : '';
+    a.style.background = active ? 'rgba(255,107,53,.07)' : '';
+  });
+}, { passive: true });
+
+// Color strip tooltip dinámico
+document.querySelectorAll('.cs-swatch').forEach(sw => {
+  sw.addEventListener('mouseenter', function() {
+    this.style.flex = '4';
+    const code = this.getAttribute('title');
+    if (code) this.setAttribute('data-tip', code);
+  });
+  sw.addEventListener('mouseleave', function() {
+    this.style.flex = '3';
+  });
+});
+</script>
+</body>
+</html>
