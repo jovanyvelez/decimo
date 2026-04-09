@@ -149,10 +149,10 @@ if (N % 2 == 0) {
 **Diagrama de flujo (Mermaid):**
 ```mermaid
 graph TD
-    A([Inicio]) --> B[/Leer número N/]
-    B --> C{¿N % 2 == 0?}
-    C -- SÍ --> D[/Mostrar "Es par"/]
-    C -- NO --> E[/Mostrar "Es impar"/]
+    A([Inicio]) --> B[/"Leer número N"/]
+    B --> C{"¿N % 2 == 0?"}
+    C -- SÍ --> D[/"Mostrar 'Es par'"/]
+    C -- NO --> E[/"Mostrar 'Es impar'"/]
     D --> F([FIN])
     E --> F
 ```
@@ -192,9 +192,9 @@ Console.WriteLine("El promedio es: " + promedio);
 **Diagrama de flujo (Mermaid):**
 ```mermaid
 graph TD
-    A([Inicio]) --> B[/Leer nota1, nota2/]
-    B --> C[promedio = (nota1 + nota2) / 2]
-    C --> D[/Mostrar promedio/]
+    A([Inicio]) --> B[/"Leer nota1, nota2"/]
+    B --> C["promedio = (nota1 + nota2) / 2"]
+    C --> D[/"Mostrar promedio"/]
     D --> E([FIN])
 ```
 
@@ -219,9 +219,9 @@ Console.WriteLine("En Fahrenheit: " + fahrenheit);
 **Diagrama de flujo (Mermaid):**
 ```mermaid
 graph TD
-    A([Inicio]) --> B[/Leer celsius/]
-    B --> C[fahrenheit = (celsius * 9/5) + 32]
-    C --> D[/Mostrar fahrenheit/]
+    A([Inicio]) --> B[/"Leer celsius"/]
+    B --> C["fahrenheit = (celsius * 9/5) + 32"]
+    C --> D[/"Mostrar fahrenheit"/]
     D --> E([FIN])
 ```
 
@@ -468,9 +468,9 @@ Console.WriteLine($"El área es: {area} cm²");
 **Diagrama de flujo (Mermaid):**
 ```mermaid
 graph TD
-    A([Inicio]) --> B[/Leer base, altura/]
-    B --> C[area = base * altura / 2]
-    C --> D[/Mostrar area/]
+    A([Inicio]) --> B[/"Leer base, altura"/]
+    B --> C["area = base * altura / 2"]
+    C --> D[/"Mostrar area"/]
     D --> E([FIN])
 ```
 
@@ -503,13 +503,13 @@ if (faltan > 0) {
 **Diagrama de flujo (Mermaid):**
 ```mermaid
 graph TD
-    A([Inicio]) --> B[/Leer edad/]
-    B --> C[faltan = 18 - edad]
-    C --> D{¿faltan > 0?}
-    D -- SÍ --> E[/Mostrar "Te faltan..."/]
-    D -- NO --> F{¿faltan == 0?}
-    F -- SÍ --> G[/Mostrar "Acabas de cumplir..."/]
-    F -- NO --> H[/Mostrar "Ya eres mayor..."/]
+    A([Inicio]) --> B[/"Leer edad"/]
+    B --> C["faltan = 18 - edad"]
+    C --> D{"¿faltan > 0?"}
+    D -- SÍ --> E[/"Mostrar 'Te faltan...'"/]
+    D -- NO --> F{"¿faltan == 0?"}
+    F -- SÍ --> G[/"Mostrar 'Acabas de cumplir...'"/]
+    F -- NO --> H[/"Mostrar 'Ya eres mayor...'"/]
     E --> I([FIN])
     G --> I
     H --> I
@@ -608,10 +608,10 @@ if (temperatura >= 30) {
 **Diagrama de flujo (Mermaid):**
 ```mermaid
 graph TD
-    A([Inicio]) --> B[/Leer temperatura/]
-    B --> C{¿temperatura >= 30?}
-    C -- SÍ --> D[/Mostrar "Hace mucho calor"/]
-    C -- NO --> E[/Mostrar "El clima está fresco"/]
+    A([Inicio]) --> B[/"Leer temperatura"/]
+    B --> C{"¿temperatura >= 30?"}
+    C -- SÍ --> D[/"Mostrar 'Hace mucho calor'"/]
+    C -- NO --> E[/"Mostrar 'El clima está fresco'"/]
     D --> F([FIN])
     E --> F
 ```
@@ -672,16 +672,16 @@ if (nota >= 4.5) {
 **Diagrama de flujo (Mermaid):**
 ```mermaid
 graph TD
-    A([Inicio]) --> B[/Leer nota/]
-    B --> C{¿nota >= 4.5?}
-    C -- SÍ --> D[/Mostrar "Excelente"/]
-    C -- NO --> E{¿nota >= 4.0?}
-    E -- SÍ --> F[/Mostrar "Sobresaliente"/]
-    E -- NO --> G{¿nota >= 3.5?}
-    G -- SÍ --> H[/Mostrar "Aceptable"/]
-    G -- NO --> I{¿nota >= 3.0?}
-    I -- SÍ --> J[/Mostrar "Aprobado"/]
-    I -- NO --> K[/Mostrar "Reprobado"/]
+    A([Inicio]) --> B[/"Leer nota"/]
+    B --> C{"¿nota >= 4.5?"}
+    C -- SÍ --> D[/"Mostrar 'Excelente'"/]
+    C -- NO --> E{"¿nota >= 4.0?"}
+    E -- SÍ --> F[/"Mostrar 'Sobresaliente'"/]
+    E -- NO --> G{"¿nota >= 3.5?"}
+    G -- SÍ --> H[/"Mostrar 'Aceptable'"/]
+    G -- NO --> I{"¿nota >= 3.0?"}
+    I -- SÍ --> J[/"Mostrar 'Aprobado'"/]
+    I -- NO --> K[/"Mostrar 'Reprobado'"/]
     D --> L([FIN])
     F --> L
     H --> L
@@ -764,10 +764,10 @@ if (usuario == "admin" && clave == "1234") {
 **Diagrama de flujo (Mermaid):**
 ```mermaid
 graph TD
-    A([Inicio]) --> B[/Leer usuario, clave/]
-    B --> C{¿usuario == "admin" AND clave == "1234"?}
-    C -- SÍ --> D[/Mostrar "Bienvenido"/]
-    C -- NO --> E[/Mostrar "Acceso denegado"/]
+    A([Inicio]) --> B[/"Leer usuario, clave"/]
+    B --> C{"¿usuario == 'admin' AND clave == '1234'?"}
+    C -- SÍ --> D[/"Mostrar 'Bienvenido'"/]
+    C -- NO --> E[/"Mostrar 'Acceso denegado'"/]
     D --> F([FIN])
     E --> F
 ```
@@ -822,15 +822,15 @@ if (operacion == "+") {
 **Diagrama de flujo (Mermaid):**
 ```mermaid
 graph TD
-    A([Inicio]) --> B[/Leer a, operacion, b/]
+    A([Inicio]) --> B[/"Leer a, operacion, b"/]
     B --> C{operacion}
-    C -- "+" --> D[/Mostrar a + b/]
-    C -- "-" --> E[/Mostrar a - b/]
-    C -- "*" --> F[/Mostrar a * b/]
-    C -- "/" --> G{¿b != 0?}
-    G -- SÍ --> H[/Mostrar a / b/]
-    G -- NO --> I[/Mostrar Error/]
-    C -- Otro --> J[/Mostrar No válida/]
+    C -- "+" --> D[/"Mostrar a + b"/]
+    C -- "-" --> E[/"Mostrar a - b"/]
+    C -- "*" --> F[/"Mostrar a * b"/]
+    C -- "/" --> G{"¿b != 0?"}
+    G -- SÍ --> H[/"Mostrar a / b"/]
+    G -- NO --> I[/"Mostrar Error"/]
+    C -- Otro --> J[/"Mostrar No válida"/]
     D --> K([FIN])
     E --> K
     F --> K
@@ -934,12 +934,12 @@ Console.WriteLine("¡Ciclo terminado!");
 **Diagrama de flujo (Mermaid):**
 ```mermaid
 graph TD
-    A([Inicio]) --> B[contador = 1]
-    B --> C{¿contador <= 5?}
-    C -- SÍ --> D[/Mostrar contador/]
-    D --> E[contador = contador + 1]
+    A([Inicio]) --> B["contador = 1"]
+    B --> C{"¿contador <= 5?"}
+    C -- SÍ --> D[/"Mostrar contador"/]
+    D --> E["contador = contador + 1"]
     E --> C
-    C -- NO --> F[/Mostrar "¡Ciclo terminado!"/]
+    C -- NO --> F[/"Mostrar '¡Ciclo terminado!'"/]
     F --> G([FIN])
 ```
 
@@ -969,12 +969,12 @@ Console.WriteLine("Edad registrada: " + edad);
 **Diagrama de flujo (Mermaid):**
 ```mermaid
 graph TD
-    A([Inicio]) --> B[/Leer edad/]
-    B --> C{¿edad < 0 OR edad > 120?}
-    C -- SÍ --> D[/Mostrar "No válida"/]
-    D --> E[/Leer edad/]
+    A([Inicio]) --> B[/"Leer edad"/]
+    B --> C{"¿edad < 0 OR edad > 120?"}
+    C -- SÍ --> D[/"Mostrar 'No válida'"/]
+    D --> E[/"Leer edad"/]
     E --> C
-    C -- NO --> F[/Mostrar "Registrada"/]
+    C -- NO --> F[/"Mostrar 'Registrada'"/]
     F --> G([FIN])
 ```
 
@@ -1015,11 +1015,11 @@ for (int i = 1; i <= 10; i++) {
 **Diagrama de flujo (Mermaid):**
 ```mermaid
 graph TD
-    A([Inicio]) --> B[/Leer número/]
-    B --> C[i = 1]
-    C --> D{¿i <= 10?}
-    D -- SÍ --> E[/Mostrar numero * i/]
-    E --> F[i = i + 1]
+    A([Inicio]) --> B[/"Leer número"/]
+    B --> C["i = 1"]
+    C --> D{"¿i <= 10?"}
+    D -- SÍ --> E[/"Mostrar numero * i"/]
+    E --> F["i = i + 1"]
     F --> D
     D -- NO --> G([FIN])
 ```
@@ -1047,13 +1047,13 @@ Console.WriteLine($"La suma de 1 a {N} es: {suma}");
 **Diagrama de flujo (Mermaid):**
 ```mermaid
 graph TD
-    A([Inicio]) --> B[/Leer N/]
-    B --> C[suma = 0, i = 1]
-    C --> D{¿i <= N?}
-    D -- SÍ --> E[suma = suma + i]
-    E --> F[i = i + 1]
+    A([Inicio]) --> B[/"Leer N"/]
+    B --> C["suma = 0, i = 1"]
+    C --> D{"¿i <= N?"}
+    D -- SÍ --> E["suma = suma + i"]
+    E --> F["i = i + 1"]
     F --> D
-    D -- NO --> G[/Mostrar suma/]
+    D -- NO --> G[/"Mostrar suma"/]
     G --> H([FIN])
 ```
 
@@ -1137,15 +1137,15 @@ while (true) {
 **Diagrama de flujo (Mermaid):**
 ```mermaid
 graph TD
-    A([Inicio]) --> B[secreto = 42, intentos = 0]
-    B --> C[/Leer número/]
-    C --> D[intentos = intentos + 1]
-    D --> E{¿numero == secreto?}
-    E -- SÍ --> F[/Mostrar "¡Correcto!"/]
+    A([Inicio]) --> B["secreto = 42, intentos = 0"]
+    B --> C[/"Leer número"/]
+    C --> D["intentos = intentos + 1"]
+    D --> E{"¿numero == secreto?"}
+    E -- SÍ --> F[/"Mostrar '¡Correcto!'"/]
     F --> G([FIN])
-    E -- NO --> H{¿numero < secreto?}
-    H -- SÍ --> I[/Mostrar "Muy bajo"/]
-    H -- NO --> J[/Mostrar "Muy alto"/]
+    E -- NO --> H{"¿numero < secreto?"}
+    H -- SÍ --> I[/"Mostrar 'Muy bajo'"/]
+    H -- NO --> J[/"Mostrar 'Muy alto'"/]
     I --> C
     J --> C
 ```
@@ -1173,13 +1173,13 @@ Console.WriteLine($"{N}! = {factorial}");
 **Diagrama de flujo (Mermaid):**
 ```mermaid
 graph TD
-    A([Inicio]) --> B[/Leer N/]
-    B --> C[factorial = 1, i = 1]
-    C --> D{¿i <= N?}
-    D -- SÍ --> E[factorial = factorial * i]
-    E --> F[i = i + 1]
+    A([Inicio]) --> B[/"Leer N"/]
+    B --> C["factorial = 1, i = 1"]
+    C --> D{"¿i <= N?"}
+    D -- SÍ --> E["factorial = factorial * i"]
+    E --> F["i = i + 1"]
     F --> D
-    D -- NO --> G[/Mostrar factorial/]
+    D -- NO --> G[/"Mostrar factorial"/]
     G --> H([FIN])
 ```
 
@@ -1355,11 +1355,11 @@ Console.WriteLine($"El área es: {resultado:F2}");
 **Diagrama de flujo (Mermaid):**
 ```mermaid
 graph TD
-    A([Inicio]) --> B[/Leer radio/]
-    B --> C[Llamar funcion calcular_area_circulo]
-    C --> D[pi = 3.14159, area = pi * radio^2]
-    D --> E[Retornar area]
-    E --> F[/Mostrar resultado/]
+    A([Inicio]) --> B[/"Leer radio"/]
+    B --> C["Llamar funcion calcular_area_circulo"]
+    C --> D["pi = 3.14159, area = pi * radio^2"]
+    D --> E["Retornar area"]
+    E --> F[/"Mostrar resultado"/]
     F --> G([FIN])
 ```
 
@@ -1495,15 +1495,15 @@ for (int num = 1; num < 30; num++) {
 **Diagrama de flujo (Mermaid):**
 ```mermaid
 graph TD
-    A([Inicio función es_primo]) --> B{¿n < 2?}
-    B -- SÍ --> C[Retornar False]
-    B -- NO --> D[i = 2]
-    D --> E{¿i <= raíz n?}
-    E -- SÍ --> F{¿n % i == 0?}
-    F -- SÍ --> G[Retornar False]
-    F -- NO --> H[i = i + 1]
+    A([Inicio función es_primo]) --> B{"¿n < 2?"}
+    B -- SÍ --> C["Retornar False"]
+    B -- NO --> D["i = 2"]
+    D --> E{"¿i <= raíz n?"}
+    E -- SÍ --> F{"¿n % i == 0?"}
+    F -- SÍ --> G["Retornar False"]
+    F -- NO --> H["i = i + 1"]
     H --> E
-    E -- NO --> I[Retornar True]
+    E -- NO --> I["Retornar True"]
     C --> J([FIN])
     G --> J
     I --> J
@@ -1736,14 +1736,14 @@ Console.WriteLine($"Promedio: {promedio:F2}");
 **Diagrama de flujo (Mermaid):**
 ```mermaid
 graph TD
-    A([Inicio]) --> B[notas = lista de valores]
-    B --> C[suma = 0, i = 0]
-    C --> D{¿i < longitud notas?}
-    D -- SÍ --> E[suma = suma + notas[i]]
-    E --> F[i = i + 1]
+    A([Inicio]) --> B["notas = lista de valores"]
+    B --> C["suma = 0, i = 0"]
+    C --> D{"¿i < longitud notas?"}
+    D -- SÍ --> E["suma = suma + notas[i]"]
+    E --> F["i = i + 1"]
     F --> D
-    D -- NO --> G[promedio = suma / longitud]
-    G --> H[/Mostrar promedio/]
+    D -- NO --> G["promedio = suma / longitud"]
+    G --> H[/"Mostrar promedio"/]
     H --> I([FIN])
 ```
 
@@ -2086,17 +2086,17 @@ for (int i = 0; i < alumnos.Length; i++) {
 **Diagrama de flujo (Mermaid):**
 ```mermaid
 graph TD
-    A([Inicio]) --> B[Definir materias, alumnos, notas]
-    B --> C[i = 0]
-    C --> D{¿i < total alumnos?}
-    D -- SÍ --> E[suma = 0, j = 0]
-    E --> F{¿j < total materias?}
-    F -- SÍ --> G[suma = suma + notas[i,j]]
-    G --> H[j = j + 1]
+    A([Inicio]) --> B[/"Definir materias, alumnos, notas"/]
+    B --> C["i = 0"]
+    C --> D{"¿i < total alumnos?"}
+    D -- SÍ --> E["suma = 0, j = 0"]
+    E --> F{"¿j < total materias?"}
+    F -- SÍ --> G["suma = suma + notas[i,j]"]
+    G --> H["j = j + 1"]
     H --> F
-    F -- NO --> I[promedio = suma / total materias]
-    I --> J[/Mostrar alumno y su promedio/]
-    J --> K[i = i + 1]
+    F -- NO --> I["promedio = suma / total materias"]
+    I --> J[/"Mostrar alumno y su promedio"/]
+    J --> K["i = i + 1"]
     K --> D
     D -- NO --> L([FIN])
 ```
@@ -2194,13 +2194,13 @@ else Console.WriteLine("No encontrado");
 **Diagrama de flujo (Mermaid):**
 ```mermaid
 graph TD
-    A([Inicio]) --> B[i = 0]
-    B --> C{¿i < longitud?}
-    C -- SÍ --> D{¿lista[i] == objetivo?}
-    D -- SÍ --> E[Retornar i]
-    D -- NO --> F[i = i + 1]
+    A([Inicio]) --> B["i = 0"]
+    B --> C{"¿i < longitud?"}
+    C -- SÍ --> D{"¿lista[i] == objetivo?"}
+    D -- SÍ --> E["Retornar i"]
+    D -- NO --> F["i = i + 1"]
     F --> C
-    C -- NO --> G[Retornar -1]
+    C -- NO --> G["Retornar -1"]
     E --> H([FIN])
     G --> H
 ```
@@ -2247,17 +2247,17 @@ int BusquedaBinaria(int[] lista, int objetivo) {
 **Diagrama de flujo (Mermaid):**
 ```mermaid
 graph TD
-    A([Inicio]) --> B[izq = 0, der = n-1]
-    B --> C{¿izq <= der?}
-    C -- SÍ --> D[medio = izq + der / 2]
-    D --> E{¿lista[medio] == obj?}
-    E -- SÍ --> F[Retornar medio]
-    E -- NO --> G{¿lista[medio] < obj?}
-    G -- SÍ --> H[izq = medio + 1]
-    G -- NO --> I[der = medio - 1]
+    A([Inicio]) --> B["izq = 0, der = n-1"]
+    B --> C{"¿izq <= der?"}
+    C -- SÍ --> D["medio = (izq + der) / 2"]
+    D --> E{"¿lista[medio] == obj?"}
+    E -- SÍ --> F["Retornar medio"]
+    E -- NO --> G{"¿lista[medio] < obj?"}
+    G -- SÍ --> H["izq = medio + 1"]
+    G -- NO --> I["der = medio - 1"]
     H --> C
     I --> C
-    C -- NO --> J[Retornar -1]
+    C -- NO --> J["Retornar -1"]
     F --> K([FIN])
     J --> K
 ```
@@ -2304,16 +2304,16 @@ void Burbuja(int[] lista) {
 **Diagrama de flujo (Mermaid):**
 ```mermaid
 graph TD
-    A([Inicio]) --> B[i = 0]
-    B --> C{¿i < n-1?}
-    C -- SÍ --> D[j = 0]
-    D --> E{¿j < n-i-1?}
-    E -- SÍ --> F{¿lista[j] > lista[j+1]?}
-    F -- SÍ --> G[Intercambiar lista[j] y lista[j+1]]
-    F -- NO --> H[j = j + 1]
+    A([Inicio]) --> B["i = 0"]
+    B --> C{"¿i < n-1?"}
+    C -- SÍ --> D["j = 0"]
+    D --> E{"¿j < n-i-1?"}
+    E -- SÍ --> F{"¿lista[j] > lista[j+1]?"}
+    F -- SÍ --> G[/"Intercambiar lista[j] y lista[j+1]"/]
+    F -- NO --> H["j = j + 1"]
     G --> H
     H --> E
-    E -- NO --> I[i = i + 1]
+    E -- NO --> I["i = i + 1"]
     I --> C
     C -- NO --> J([FIN])
 ```
