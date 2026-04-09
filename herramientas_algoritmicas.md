@@ -235,7 +235,11 @@ graph TD
 
 **Instrucciones generales:**
 - Trabaja solo/a. No se permite hablar durante el taller.
-- Debes mostrar el diagrama de flujo, el pseudocódigo y el código en Python.
+- Debes mostrar el diagrama de flujo y el pseudocódigo.
+- El código final depende de tu grupo:
+  - **Grupo A:** Implementar en **Python**.
+  - **Grupo B:** Implementar en **C#**.
+  - **Grupo C:** Elige libremente entre Python o C#.
 - Cada estudiante recibe un problema **diferente** (el profesor asigna según número de lista).
 
 ---
@@ -521,7 +525,8 @@ graph TD
 #### "Calculadora personalizada"
 
 > ⏱️ **Tiempo:** 40 minutos  
-> 📝 **Entrega:** Código escrito a mano en papel cuadriculado + ejecución verificada por el profesor
+> 📝 **Entrega:** Código escrito a mano en papel cuadriculado + ejecución verificada por el profesor.
+> 💻 **Lenguaje:** Estudiantes nacidos de **Enero a Junio** desarrollan en **Python**. Estudiantes nacidos de **Julio a Diciembre** desarrollan en **C#**.
 
 Cada estudiante recibe un **escenario único** según su fecha de nacimiento:
 
@@ -845,7 +850,9 @@ graph TD
 #### "Simulador de decisiones"
 
 > ⏱️ **Tiempo:** 45 minutos  
-> 📝 **Formato:** Código escrito a mano. El profesor asigna el problema oralmente y en secreto a cada estudiante.
+> 📝 **Formato:** Código escrito a mano. El profesor asigna el lenguaje según el tipo de problema:
+> - **Tipo A y B:** Resolver usando **Python**.
+> - **Tipo C y D:** Resolver usando **C#**.
 
 **Tipo A — Clasificador de triángulos:**
 Dados tres lados (a, b, c), determinar si forman un triángulo válido (la suma de dos lados siempre debe ser mayor que el tercero). Si es válido, clasificarlo como: equilátero (todos iguales), isósceles (dos iguales) o escaleno (todos diferentes).
@@ -1189,7 +1196,8 @@ graph TD
 #### "Ciclos en acción"
 
 > ⏱️ **Tiempo:** 45 minutos  
-> 📝 **Formato:** El estudiante recibe una semilla numérica (su número de lista × 3) que debe usar en su solución.
+> 📝 **Formato:** El estudiante recibe una semilla numérica (su número de lista × 3).
+> ⚙️ **Regla de lenguaje:** Si tu número de lista es **IMPAR**, usa **Python**. Si es **PAR**, usa **C#**.
 
 **Problema base para todos (con variaciones):**
 
@@ -1517,12 +1525,12 @@ graph TD
 > ⏱️ **Tiempo:** 45 minutos  
 > 📝 **Formato:** Código a mano + explicación oral breve al professor (2 min por estudiante al final)
 
-**Instrucción:** Crea una mini-librería con exactamente **4 funciones**. Cada estudiante elige su temática del siguiente listado (sin repetir con compañeros cercanos):
+**Instrucción:** Crea una mini-librería con exactamente **4 funciones**. El lenguaje depende de la temática elegida:
 
-- 🏋️ Fitness: IMC, calorías quemadas, frecuencia cardíaca máxima, tiempo estimado de carrera
-- 🏪 Tienda: descuento, IVA, precio final, cambio devuelto
-- 🌍 Geografía: conversión km↔millas, km↔pies, celsius↔fahrenheit, velocidad
-- 📐 Geometría: área círculo, área triángulo, área rectángulo, volumen cubo
+- 🏋️ **Fitness** (Python): IMC, calorías quemadas, frecuencia cardíaca máxima...
+- 🏪 **Tienda** (Python): descuento, IVA, precio final, cambio devuelto.
+- 🌍 **Geografía** (C#): conversión km↔millas, km↔pies, celsius↔fahrenheit...
+- 📐 **Geometría** (C#): área círculo, área triángulo, área rectángulo, volumen cubo.
 
 Además, debes escribir un **programa principal** que llame a cada una de tus 4 funciones al menos una vez, con datos leídos del usuario.
 
@@ -1795,10 +1803,9 @@ Console.WriteLine(numeros.Contains(1)); // True
 4. Mostrar la lista ordenada de mayor a menor.
 5. Buscar si un número ingresado por el usuario está en la lista y en qué posición.
 
-**Variante por apellido (inicial):**
-- A–G: Los números deben ser positivos. Si el usuario ingresa uno negativo, debe pedirlo de nuevo.
-- H–N: Además de lo anterior, calcular la mediana (valor del medio al ordenar).
-- O–Z: Además, eliminar todos los duplicados antes de mostrar la lista ordenada.
+**Variante por apellido (inicial) y lenguaje:**
+- **A–M (Python):** Los números deben ser positivos. Si el usuario ingresa uno negativo, debe pedirlo de nuevo.
+- **N–Z (C#):** Además de lo anterior, calcular la mediana (valor del medio al ordenar) y eliminar todos los duplicados antes de mostrar la lista ordenada.
 
 > 📌 **Estrategia anti-copia:** N diferente por estudiante. Variante diferente por inicial de apellido. Entrega manuscrita verificable.
 
@@ -2111,6 +2118,10 @@ graph TD
 
 Cada estudiante recibe una **dimensión N** (basada en su número de lista: si es par N=3, si es impar N=4).
 
+**Regla de lenguaje:**
+- Si **N=3** (misterio impar), desarrolla en **Python**.
+- Si **N=4** (misterio par), desarrolla en **C#**.
+
 **Parte 1:** Crea una matriz N×N rellena con los números del 1 al N² (fila por fila).
 
 **Parte 2:** Calcula y muestra:
@@ -2416,9 +2427,9 @@ class ProgramaNotas {
 
 Cada estudiante diseña e implementa un sistema de gestión usando **todo lo aprendido**. El tema es asignado por el profesor según número de lista:
 
-**Par:** Sistema de inventario de una tienda de videojuegos. Almacena nombre, precio y cantidad de 5 juegos. Permite buscar un juego por nombre, ordenar por precio y calcular el valor total del inventario.
+**Par (C#):** Sistema de inventario de una tienda de videojuegos. Almacena nombre, precio y cantidad de 5 juegos. Permite buscar un juego por nombre, ordenar por precio y calcular el valor total del inventario.
 
-**Impar:** Sistema de registro de jugadores de un torneo. Almacena nombre, puntaje y nivel (1-3) de 5 jugadores. Permite encontrar al campeón, ordenar por puntaje y mostrar estadísticas por nivel.
+**Impar (Python):** Sistema de registro de jugadores de un torneo. Almacena nombre, puntaje y nivel (1-3) de 5 jugadores. Permite encontrar al campeón, ordenar por puntaje y mostrar estadísticas por nivel.
 
 **Requisitos mínimos:**
 - Al menos 3 funciones definidas por el estudiante.
@@ -2463,7 +2474,7 @@ Cada estudiante diseña e implementa un sistema de gestión usando **todo lo apr
 
 #### 🎮 "MINI-APLICACIÓN"
 
-El estudiante debe desarrollar una **mini-aplicación funcional** en Python que resuelva un problema real usando **todos los elementos del curso**.
+El estudiante debe desarrollar una **mini-aplicación funcional** en **Python o C#** (a elección del estudiante) que resuelva un problema real usando **todos los elementos del curso**.
 
 ---
 
