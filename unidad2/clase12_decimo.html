@@ -1,0 +1,2015 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎮 Master del Inventario · Contadores, Acumuladores y Banderas en C#</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.16/index.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.16/600.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.16/800.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/space-grotesk@5.0.18/index.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/space-grotesk@5.0.18/700.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.0.18/index.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prism-themes@1.9.0/themes/prism-one-dark.min.css">
+
+<style>
+:root{
+  --bg-0:#05070d;--bg-1:#0a0e1a;--bg-2:#111826;--bg-3:#1a2235;--bg-4:#232d44;
+  --border:#2a3450;--border-soft:#1e2639;
+  --text:#e8eefc;--text-mut:#8b97b5;--text-dim:#5c6888;
+  --cyan:#00f0ff;--magenta:#ff2bd6;--pink:#ff5eb3;--yellow:#f7ff3d;
+  --green:#00ff9d;--purple:#a855f7;--orange:#ff7a29;--red:#ff3860;
+  --grad-hero:linear-gradient(135deg,#00f0ff 0%,#ff2bd6 50%,#a855f7 100%);
+  --grad-cyan:linear-gradient(135deg,#00f0ff,#00ff9d);
+  --grad-pink:linear-gradient(135deg,#ff2bd6,#a855f7);
+  --grad-warm:linear-gradient(135deg,#ff7a29,#ff2bd6);
+  --grad-yellow:linear-gradient(135deg,#f7ff3d,#ff7a29);
+  --shadow-c:0 0 20px rgba(0,240,255,.35);
+  --shadow-p:0 0 20px rgba(255,43,214,.35);
+  --shadow-g:0 0 20px rgba(0,255,157,.35);
+  --shadow-y:0 0 20px rgba(247,255,61,.35);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Inter',system-ui,sans-serif;background:var(--bg-0);color:var(--text);
+  line-height:1.65;overflow-x:hidden;
+  background-image:
+    radial-gradient(ellipse at top left,rgba(0,240,255,.06) 0%,transparent 50%),
+    radial-gradient(ellipse at bottom right,rgba(255,43,214,.06) 0%,transparent 50%);
+  background-attachment:fixed;
+}
+code,pre,kbd{font-family:'JetBrains Mono',monospace}
+::selection{background:var(--cyan);color:#000}
+
+#progressBar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--grad-hero);z-index:1000;box-shadow:0 0 10px var(--cyan);transition:width .15s linear}
+
+.layout{display:grid;grid-template-columns:280px 1fr;gap:2rem;padding:2rem;max-width:1600px;margin:0 auto}
+@media(max-width:1024px){.layout{grid-template-columns:1fr;padding:1rem}.sidebar{position:static!important;height:auto!important}}
+
+.sidebar{position:sticky;top:2rem;height:calc(100vh - 4rem);overflow-y:auto;padding-right:.5rem}
+.sidebar::-webkit-scrollbar{width:6px}
+.sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+.sidebar-logo{display:flex;align-items:center;gap:.75rem;padding:1rem;background:linear-gradient(135deg,rgba(0,240,255,.08),rgba(255,43,214,.08));border:1px solid var(--border);border-radius:14px;margin-bottom:1.25rem;position:relative;overflow:hidden}
+.sidebar-logo::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 50%,rgba(0,240,255,.15),transparent 60%);pointer-events:none}
+.logo-icon{width:44px;height:44px;border-radius:12px;background:var(--grad-hero);display:flex;align-items:center;justify-content:center;font-weight:800;color:#000;font-size:1.2rem;flex-shrink:0;position:relative;z-index:1;box-shadow:var(--shadow-c)}
+.logo-text{position:relative;z-index:1}
+.logo-text strong{font-family:'Space Grotesk',sans-serif;font-size:1rem;letter-spacing:-.02em;display:block}
+.logo-text small{color:var(--text-mut);font-size:.72rem;font-weight:500}
+
+.sb-section{font-family:'Space Grotesk',sans-serif;font-size:.7rem;text-transform:uppercase;letter-spacing:.15em;color:var(--text-dim);font-weight:700;margin:1rem .75rem .5rem}
+.sb-nav{list-style:none}
+.sb-nav a{display:flex;align-items:center;gap:.7rem;padding:.55rem .75rem;border-radius:8px;color:var(--text-mut);text-decoration:none;font-size:.85rem;font-weight:500;transition:all .2s;border-left:2px solid transparent}
+.sb-nav a:hover{background:var(--bg-2);color:var(--text)}
+.sb-nav a.active{background:linear-gradient(90deg,rgba(0,240,255,.15),transparent);color:var(--cyan);border-left-color:var(--cyan)}
+.sb-nav .nav-idx{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;color:var(--text-dim);min-width:22px}
+.sb-nav a.active .nav-idx{color:var(--cyan)}
+
+.sb-stats{margin-top:1.25rem;padding:1rem;background:var(--bg-2);border:1px solid var(--border);border-radius:12px;font-size:.8rem}
+.sb-stats-row{display:flex;justify-content:space-between;padding:.25rem 0;color:var(--text-mut)}
+.sb-stats-row strong{color:var(--text);font-weight:700;font-family:'JetBrains Mono',monospace}
+.sb-progress-bar{height:6px;background:var(--bg-4);border-radius:3px;overflow:hidden;margin-top:.5rem}
+.sb-progress-fill{height:100%;background:var(--grad-hero);width:0%;transition:width .3s}
+
+.sb-badges{margin-top:1rem;padding:.85rem;background:var(--bg-2);border:1px solid var(--border);border-radius:12px}
+.sb-badges-title{font-family:'Space Grotesk',sans-serif;font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text-dim);margin-bottom:.5rem}
+.sb-badges-grid{display:flex;flex-wrap:wrap;gap:.35rem}
+.sb-badge{width:32px;height:32px;border-radius:8px;background:var(--bg-3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.9rem;filter:grayscale(1) brightness(.5);transition:all .3s}
+.sb-badge.earned{filter:none;box-shadow:0 0 10px rgba(0,240,255,.3);border-color:var(--cyan);background:var(--bg-4)}
+
+.main{min-width:0}
+section{margin-bottom:4rem;scroll-margin-top:2rem}
+.fade-in{opacity:0;transform:translateY(20px);transition:opacity .6s,transform .6s}
+.fade-in.visible{opacity:1;transform:translateY(0)}
+
+.hero{position:relative;border-radius:24px;overflow:hidden;margin-bottom:3rem;background:var(--bg-2);border:1px solid var(--border);box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.hero-bg{position:absolute;inset:0;opacity:.5;background:var(--grad-hero);filter:blur(100px)}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,240,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,240,255,.04) 1px,transparent 1px);background-size:40px 40px;mask-image:radial-gradient(ellipse at center,black 30%,transparent 70%)}
+.hero-content{position:relative;padding:3.5rem 3rem;display:grid;grid-template-columns:1.2fr 1fr;gap:2.5rem;align-items:center}
+@media(max-width:900px){.hero-content{grid-template-columns:1fr;padding:2rem 1.5rem}.hero-visual{display:none}}
+
+.hero-eyebrow{display:inline-flex;align-items:center;gap:.5rem;padding:.4rem .9rem;background:rgba(0,240,255,.15);border:1px solid rgba(0,240,255,.3);color:var(--cyan);border-radius:100px;font-size:.78rem;font-weight:700;margin-bottom:1rem;letter-spacing:.02em}
+.hero-eyebrow .pulse{width:8px;height:8px;background:var(--green);border-radius:50%;box-shadow:0 0 10px var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(1.3)}}
+
+.hero h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(2rem,5.5vw,3.8rem);font-weight:700;line-height:1.05;margin-bottom:1rem;letter-spacing:-.03em}
+.hero h1 .grad{background:var(--grad-hero);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero-sub{font-size:1.05rem;color:var(--text-mut);max-width:540px;margin-bottom:1.5rem}
+.hero-badges{display:flex;gap:.5rem;flex-wrap:wrap}
+.badge{padding:.4rem .85rem;background:var(--bg-3);border:1px solid var(--border);border-radius:8px;font-size:.8rem;font-weight:600;display:inline-flex;align-items:center;gap:.35rem}
+.badge.hl{background:rgba(0,240,255,.1);border-color:rgba(0,240,255,.3);color:var(--cyan)}
+
+.hero-visual{position:relative;height:280px;display:flex;align-items:center;justify-content:center}
+.hero-vars{display:grid;gap:.75rem;width:100%}
+.hero-var{display:flex;align-items:center;gap:.75rem;padding:.7rem 1rem;background:rgba(17,24,38,.8);border:1px solid var(--border);border-radius:10px;font-family:'JetBrains Mono',monospace;font-size:.85rem;backdrop-filter:blur(10px)}
+.hero-var .name{color:var(--cyan);font-weight:700;min-width:110px}
+.hero-var .type{color:var(--purple);font-size:.75rem;min-width:40px}
+.hero-var .val{color:var(--green);font-weight:700;margin-left:auto}
+.hero-var.pulse-var{animation:varPulse 2s ease-in-out infinite}
+@keyframes varPulse{0%,100%{border-color:var(--border);box-shadow:none}50%{border-color:var(--cyan);box-shadow:0 0 15px rgba(0,240,255,.3)}}
+
+.sec-header{display:flex;align-items:center;gap:1rem;margin-bottom:2rem;padding-bottom:1rem;border-bottom:1px solid var(--border)}
+.sec-num{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:700;color:#000;flex-shrink:0}
+.sec-num.c1{background:var(--grad-cyan);box-shadow:var(--shadow-c)}
+.sec-num.c2{background:var(--grad-pink);box-shadow:var(--shadow-p)}
+.sec-num.c3{background:var(--grad-warm);box-shadow:0 0 20px rgba(255,122,41,.35)}
+.sec-num.c4{background:var(--grad-yellow);box-shadow:var(--shadow-y)}
+.sec-num.c5{background:linear-gradient(135deg,#a855f7,#06b6d4);box-shadow:0 0 20px rgba(168,85,247,.4)}
+.sec-title-group h2{font-family:'Space Grotesk',sans-serif;font-size:1.85rem;font-weight:700;letter-spacing:-.02em;line-height:1.2}
+.sec-sub{color:var(--text-mut);font-size:.95rem;margin-top:.25rem}
+.sec-meta{margin-left:auto;display:flex;gap:.5rem;flex-wrap:wrap}
+.meta-pill{padding:.35rem .75rem;background:var(--bg-2);border:1px solid var(--border);border-radius:100px;font-size:.78rem;font-weight:600;color:var(--text-mut)}
+
+h3{font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:700;margin:2.5rem 0 1rem;color:var(--text);display:flex;align-items:center;gap:.75rem;letter-spacing:-.01em}
+h3 .icon{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,rgba(0,240,255,.2),rgba(255,43,214,.2));border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+h4{font-family:'Space Grotesk',sans-serif;font-size:1.15rem;font-weight:700;margin:1.75rem 0 .75rem;color:var(--text)}
+p{margin-bottom:1rem}
+.lead{font-size:1.08rem;color:var(--text-mut);line-height:1.75;margin-bottom:1.5rem}
+
+.card{background:var(--bg-2);border:1px solid var(--border);border-radius:16px;padding:2rem;margin:1.5rem 0;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:var(--grad-hero)}
+.card.cyan::before{background:var(--grad-cyan)}
+.card.pink::before{background:var(--grad-pink)}
+.card.warm::before{background:var(--grad-warm)}
+.card.yellow::before{background:var(--grad-yellow)}
+
+.analogy{display:grid;grid-template-columns:auto 1fr;gap:1.25rem;padding:1.5rem;background:linear-gradient(135deg,rgba(0,240,255,.05),rgba(255,43,214,.05));border:1px solid var(--border);border-radius:14px;margin:1.5rem 0;align-items:center}
+.analogy-icon{width:70px;height:70px;border-radius:16px;background:var(--grad-hero);display:flex;align-items:center;justify-content:center;font-size:2rem;box-shadow:var(--shadow-c);flex-shrink:0}
+.analogy-title{font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--cyan);margin-bottom:.25rem;font-size:1.05rem}
+.analogy-text{color:var(--text-mut);font-size:.92rem;line-height:1.55}
+
+.syntax-compare{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0}
+@media(max-width:700px){.syntax-compare{grid-template-columns:1fr}}
+.syntax-box{padding:1.25rem;border-radius:12px;border:1px solid;background:var(--bg-2);position:relative;overflow:hidden}
+.syntax-box::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.syntax-box.a{border-color:rgba(0,240,255,.3)}.syntax-box.a::before{background:var(--cyan)}
+.syntax-box.b{border-color:rgba(255,43,214,.3)}.syntax-box.b::before{background:var(--magenta)}
+.syntax-box-title{font-family:'Space Grotesk',sans-serif;font-size:.82rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.75rem;display:flex;align-items:center;gap:.4rem}
+.syntax-box.a .syntax-box-title{color:var(--cyan)}
+.syntax-box.b .syntax-box-title{color:var(--magenta)}
+.syntax-box pre{margin:0!important;padding:.85rem!important;font-size:.82rem!important;background:var(--bg-1)!important;border-radius:8px;border:1px solid var(--border-soft)}
+
+.code-wrap{position:relative;margin:1.5rem 0;border-radius:12px;overflow:hidden;background:#0d1117;border:1px solid var(--border);box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.code-header{display:flex;align-items:center;justify-content:space-between;padding:.6rem 1rem;background:#161b22;border-bottom:1px solid var(--border);font-size:.82rem;color:var(--text-mut)}
+.code-header-left{display:flex;align-items:center;gap:.7rem;font-weight:600}
+.code-dots{display:flex;gap:5px}
+.code-dots span{width:11px;height:11px;border-radius:50%}
+.code-dots span:nth-child(1){background:#ff5f56}
+.code-dots span:nth-child(2){background:#ffbd2e}
+.code-dots span:nth-child(3){background:#27c93f}
+.copy-btn{background:transparent;border:1px solid var(--border);color:var(--text-mut);padding:.28rem .65rem;border-radius:6px;cursor:pointer;font-size:.72rem;font-weight:600;font-family:inherit;transition:all .2s}
+.copy-btn:hover{background:var(--bg-3);color:var(--cyan);border-color:var(--cyan)}
+.copy-btn.ok{color:var(--green);border-color:var(--green)}
+pre[class*="language-"]{margin:0!important;padding:1.15rem!important;background:transparent!important;font-size:.82rem!important;line-height:1.6!important;overflow-x:auto}
+pre[class*="language-"]::-webkit-scrollbar{height:8px}
+pre[class*="language-"]::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+code[class*="language-"]{font-family:'JetBrains Mono',monospace!important;font-size:.82rem!important}
+p code,li code,td code,.syntax-box code{background:var(--bg-3);color:var(--cyan);padding:.15rem .4rem;border-radius:5px;font-size:.84em;border:1px solid var(--border);font-weight:500}
+
+.callout{padding:1.1rem 1.3rem;border-radius:12px;margin:1.5rem 0;border:1px solid;display:flex;gap:.85rem;align-items:flex-start}
+.callout-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.15rem}
+.callout-content{flex:1;min-width:0}
+.callout-title{font-family:'Space Grotesk',sans-serif;font-weight:700;margin-bottom:.25rem;font-size:.95rem}
+.callout-body{color:var(--text-mut);font-size:.9rem;line-height:1.6}
+.callout.tip{background:rgba(0,240,255,.06);border-color:rgba(0,240,255,.3)}
+.callout.tip .callout-icon{background:rgba(0,240,255,.18);color:var(--cyan)}
+.callout.tip .callout-title{color:var(--cyan)}
+.callout.warn{background:rgba(247,255,61,.06);border-color:rgba(247,255,61,.3)}
+.callout.warn .callout-icon{background:rgba(247,255,61,.18);color:var(--yellow)}
+.callout.warn .callout-title{color:var(--yellow)}
+.callout.success{background:rgba(0,255,157,.06);border-color:rgba(0,255,157,.3)}
+.callout.success .callout-icon{background:rgba(0,255,157,.18);color:var(--green)}
+.callout.success .callout-title{color:var(--green)}
+.callout.danger{background:rgba(255,56,96,.08);border-color:rgba(255,56,96,.3)}
+.callout.danger .callout-icon{background:rgba(255,56,96,.18);color:var(--red)}
+.callout.danger .callout-title{color:var(--red)}
+.callout.quest{background:rgba(168,85,247,.08);border-color:rgba(168,85,247,.3)}
+.callout.quest .callout-icon{background:rgba(168,85,247,.2);color:var(--purple)}
+.callout.quest .callout-title{color:var(--purple)}
+
+/* ===== Simulators ===== */
+.sim{background:var(--bg-2);border:1px solid var(--border);border-radius:16px;padding:1.75rem;margin:1.75rem 0;position:relative;overflow:hidden}
+.sim::before{content:'';position:absolute;top:0;right:0;width:250px;height:250px;background:radial-gradient(circle,rgba(0,240,255,.08),transparent 70%);pointer-events:none}
+.sim-title{font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--text);font-size:1.1rem;display:flex;align-items:center;gap:.6rem;margin-bottom:1.25rem;position:relative}
+.sim-title::before{content:'';width:8px;height:8px;background:var(--cyan);border-radius:50%;box-shadow:0 0 8px var(--cyan)}
+
+/* Memory panel */
+.memory-panel{background:var(--bg-1);border:1px solid var(--border);border-radius:12px;padding:1rem;margin-bottom:1.25rem}
+.memory-title{font-family:'Space Grotesk',sans-serif;font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text-dim);margin-bottom:.75rem;display:flex;align-items:center;gap:.4rem}
+.memory-title::before{content:'💾';}
+.memory-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.6rem}
+.mem-cell{padding:.7rem .85rem;background:var(--bg-2);border:1px solid var(--border);border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:.82rem;transition:all .3s;position:relative;overflow:hidden}
+.mem-cell::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 50%,rgba(0,240,255,.08) 100%);pointer-events:none}
+.mem-cell .label{color:var(--text-dim);font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.2rem}
+.mem-cell .var-name{color:var(--cyan);font-weight:700;display:block;font-size:.82rem}
+.mem-cell .var-type{color:var(--purple);font-size:.7rem}
+.mem-cell .var-val{color:var(--green);font-size:1.15rem;font-weight:700;display:block;margin-top:.3rem}
+.mem-cell.bool-true{border-color:rgba(0,255,157,.5);box-shadow:0 0 15px rgba(0,255,157,.25)}
+.mem-cell.bool-true .var-val{color:var(--green)}
+.mem-cell.bool-false{border-color:rgba(255,56,96,.5);box-shadow:0 0 15px rgba(255,56,96,.25)}
+.mem-cell.bool-false .var-val{color:var(--red)}
+.mem-cell.flash{animation:memFlash .5s ease}
+@keyframes memFlash{0%{transform:scale(1)}50%{transform:scale(1.05);box-shadow:0 0 25px rgba(0,240,255,.6)}100%{transform:scale(1)}}
+
+/* Buttons */
+.btn{padding:.6rem 1.1rem;border:1px solid var(--border);background:var(--bg-3);color:var(--text);border-radius:8px;cursor:pointer;font-family:inherit;font-size:.85rem;font-weight:600;transition:all .2s;display:inline-flex;align-items:center;gap:.4rem}
+.btn:hover{background:var(--bg-4);border-color:var(--cyan);color:var(--cyan)}
+.btn.primary{background:var(--grad-cyan);color:#000;border:none;box-shadow:var(--shadow-c)}
+.btn.primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,240,255,.5)}
+.btn.pink{background:var(--grad-pink);color:#fff;border:none;box-shadow:var(--shadow-p)}
+.btn.pink:hover{transform:translateY(-1px)}
+.btn.warm{background:var(--grad-warm);color:#fff;border:none}
+.btn.yellow{background:var(--grad-yellow);color:#000;border:none;box-shadow:var(--shadow-y)}
+.btn.ghost{background:transparent}
+.btn.big{padding:.9rem 1.6rem;font-size:1rem}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+
+.btn-row{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1rem}
+
+/* ===== Counter Simulator ===== */
+.counter-display{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:center}
+@media(max-width:700px){.counter-display{grid-template-columns:1fr}}
+.counter-visual{background:linear-gradient(135deg,var(--bg-1),var(--bg-3));border:2px solid var(--border);border-radius:16px;padding:2rem;text-align:center;position:relative;overflow:hidden}
+.counter-visual::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(0,240,255,.15),transparent 70%);pointer-events:none}
+.counter-label{font-family:'Space Grotesk',sans-serif;font-size:.8rem;text-transform:uppercase;letter-spacing:.15em;color:var(--text-dim);margin-bottom:.5rem}
+.counter-num{font-family:'Space Grotesk',sans-serif;font-size:5rem;font-weight:700;background:var(--grad-cyan);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;line-height:1;transition:transform .2s}
+.counter-num.bump{animation:bump .3s}
+@keyframes bump{0%{transform:scale(1)}50%{transform:scale(1.15)}100%{transform:scale(1)}}
+.counter-people{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-top:1rem;min-height:60px}
+.person-icon{width:30px;height:30px;border-radius:50%;background:var(--grad-cyan);display:flex;align-items:center;justify-content:center;font-size:.9rem;animation:pop .3s ease;box-shadow:0 0 10px rgba(0,240,255,.4)}
+@keyframes pop{from{transform:scale(0) rotate(-180deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+
+.code-live{background:#0d1117;border:1px solid var(--border);border-radius:10px;padding:1rem;font-family:'JetBrains Mono',monospace;font-size:.85rem;line-height:1.7;overflow-x:auto;color:#d4d4d4}
+.code-live .kw{color:#c678dd}
+.code-live .fn{color:#61afef}
+.code-live .str{color:#98c379}
+.code-live .cm{color:#5c6370;font-style:italic}
+.code-live .num{color:#d19a66}
+.code-live .ty{color:#e5c07b}
+.code-live .hl-line{background:rgba(0,240,255,.1);display:block;margin:0 -1rem;padding:0 1rem;border-left:3px solid var(--cyan)}
+
+/* ===== Shop Simulator ===== */
+.shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.75rem;margin-bottom:1.25rem}
+.product-card{background:var(--bg-1);border:1px solid var(--border);border-radius:12px;padding:1rem;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;text-align:center}
+.product-card:hover{border-color:var(--magenta);transform:translateY(-3px);box-shadow:0 10px 25px rgba(255,43,214,.2)}
+.product-card.added{animation:addFlash .5s}
+@keyframes addFlash{0%{box-shadow:0 0 0 0 rgba(0,255,157,.7)}50%{box-shadow:0 0 0 10px rgba(0,255,157,.3)}100%{box-shadow:0 0 0 0 rgba(0,255,157,0)}}
+.product-icon{font-size:2.2rem;margin-bottom:.5rem;display:block}
+.product-name{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:.85rem;color:var(--text);margin-bottom:.3rem}
+.product-price{font-family:'JetBrains Mono',monospace;color:var(--green);font-weight:700;font-size:.95rem}
+
+.cart-summary{background:linear-gradient(135deg,rgba(255,43,214,.05),rgba(168,85,247,.05));border:1px solid rgba(255,43,214,.3);border-radius:14px;padding:1.25rem}
+.cart-items{max-height:180px;overflow-y:auto;margin-bottom:1rem}
+.cart-items::-webkit-scrollbar{width:5px}
+.cart-items::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.cart-item{display:flex;justify-content:space-between;padding:.45rem .6rem;background:var(--bg-2);border-radius:6px;margin-bottom:.3rem;font-size:.85rem;font-family:'JetBrains Mono',monospace}
+.cart-item .name{color:var(--text-mut)}
+.cart-item .price{color:var(--green);font-weight:600}
+.cart-total{display:flex;justify-content:space-between;align-items:center;padding-top:.85rem;border-top:1px dashed var(--border);font-family:'Space Grotesk',sans-serif;font-weight:700}
+.cart-total .label{color:var(--text-mut);font-size:.85rem}
+.cart-total .value{color:var(--magenta);font-size:1.5rem;text-shadow:0 0 15px rgba(255,43,214,.5)}
+
+/* ===== Scanner Simulator ===== */
+.scanner{background:var(--bg-1);border:2px solid var(--border);border-radius:16px;padding:1.5rem;position:relative;transition:all .3s}
+.scanner.alert{border-color:var(--red);box-shadow:0 0 30px rgba(255,56,96,.4);animation:alertPulse 1s infinite}
+@keyframes alertPulse{0%,100%{box-shadow:0 0 30px rgba(255,56,96,.4)}50%{box-shadow:0 0 50px rgba(255,56,96,.7)}}
+.scanner-status{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;padding-bottom:.85rem;border-bottom:1px solid var(--border)}
+.scanner-light{display:flex;align-items:center;gap:.6rem;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.95rem}
+.scanner-led{width:16px;height:16px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);transition:all .3s}
+.scanner.alert .scanner-led{background:var(--red);box-shadow:0 0 15px var(--red)}
+.scanner.alert .scanner-light{color:var(--red)}
+
+.conveyor{display:flex;gap:.6rem;overflow-x:auto;padding:.75rem 0;min-height:100px;align-items:center}
+.conveyor::-webkit-scrollbar{height:6px}
+.conveyor::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.scan-item{flex-shrink:0;padding:.75rem 1rem;background:var(--bg-2);border:1px solid var(--border);border-radius:10px;font-family:'JetBrains Mono',monospace;font-size:.85rem;display:flex;align-items:center;gap:.5rem;transition:all .3s;min-width:140px}
+.scan-item.scanned{border-color:var(--green);box-shadow:0 0 10px rgba(0,255,157,.3)}
+.scan-item.banned{border-color:var(--red);background:rgba(255,56,96,.1);box-shadow:0 0 15px rgba(255,56,96,.4)}
+.scan-item.current{border-color:var(--yellow);background:rgba(247,255,61,.08);box-shadow:0 0 15px rgba(247,255,61,.4);animation:scanPulse 1s infinite}
+@keyframes scanPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+.scan-item .icon{font-size:1.3rem}
+.scan-item .name{color:var(--text);font-weight:600}
+.scan-item .tag{font-size:.65rem;padding:.15rem .4rem;border-radius:4px;text-transform:uppercase;letter-spacing:.05em}
+.scan-item.banned .tag{background:rgba(255,56,96,.2);color:var(--red)}
+.scan-item:not(.banned) .tag{background:rgba(0,255,157,.2);color:var(--green)}
+
+/* ===== Cashier Simulator ===== */
+.cashier{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+@media(max-width:900px){.cashier{grid-template-columns:1fr}}
+.cashier-input{background:var(--bg-1);border:1px solid var(--border);border-radius:12px;padding:1.25rem}
+.cashier-output{background:linear-gradient(135deg,rgba(0,240,255,.05),rgba(0,255,157,.05));border:1px solid rgba(0,240,255,.3);border-radius:12px;padding:1.25rem}
+
+.input-row{display:flex;gap:.5rem;margin-bottom:.75rem;align-items:center}
+.input-row label{font-size:.85rem;color:var(--text-mut);min-width:80px;font-family:'Space Grotesk',sans-serif;font-weight:600}
+.input-field{flex:1;padding:.55rem .75rem;background:var(--bg-2);border:1px solid var(--border);color:var(--text);border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:.85rem;outline:none;transition:all .2s}
+.input-field:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,240,255,.15)}
+.input-field[type="number"]{max-width:120px}
+
+.receipt{font-family:'JetBrains Mono',monospace;font-size:.85rem;line-height:1.6}
+.receipt-line{display:flex;justify-content:space-between;padding:.35rem 0;border-bottom:1px dashed rgba(0,240,255,.15)}
+.receipt-line:last-child{border-bottom:none}
+.receipt-line .key{color:var(--text-mut)}
+.receipt-line .val{color:var(--cyan);font-weight:700}
+.receipt-line.highlight .val{color:var(--green);font-size:1.1rem}
+.receipt-line.vip{background:rgba(247,255,61,.08);padding:.5rem .6rem;border-radius:6px;margin-top:.5rem}
+.receipt-line.vip .key{color:var(--yellow);font-weight:700}
+.receipt-line.vip .val{color:var(--yellow)}
+
+/* ===== Workshop / Code Master ===== */
+.challenge{background:var(--bg-2);border:1px solid var(--border);border-radius:14px;padding:1.5rem;margin:1.5rem 0;position:relative;overflow:hidden}
+.challenge::before{content:'';position:absolute;top:0;right:0;width:150px;height:150px;background:radial-gradient(circle,rgba(168,85,247,.1),transparent 70%);pointer-events:none}
+.challenge-head{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;position:relative}
+.challenge-badge{padding:.25rem .7rem;background:var(--grad-pink);color:#fff;border-radius:100px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;box-shadow:var(--shadow-p)}
+.challenge-badge.adv{background:var(--grad-warm)}
+.challenge-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.05rem;color:var(--text)}
+
+.ws-code{background:#0d1117;border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin:1rem 0;font-family:'JetBrains Mono',monospace;font-size:.88rem;line-height:1.7;overflow-x:auto;color:#d4d4d4}
+.ws-code .kw{color:#c678dd}
+.ws-code .fn{color:#61afef}
+.ws-code .str{color:#98c379}
+.ws-code .cm{color:#5c6370;font-style:italic}
+.ws-code .num{color:#d19a66}
+.ws-code .ty{color:#e5c07b}
+.ws-input{display:inline-block;background:var(--bg-1);border:1.5px dashed var(--cyan);color:var(--cyan);font-family:'JetBrains Mono',monospace;font-size:.88rem;padding:.1rem .5rem;border-radius:5px;min-width:100px;outline:none;text-align:center;font-weight:600;transition:all .2s}
+.ws-input:focus{border-style:solid;box-shadow:0 0 0 3px rgba(0,240,255,.15);background:rgba(0,240,255,.05)}
+.ws-input.correct{background:rgba(0,255,157,.1);border-color:var(--green);color:var(--green);border-style:solid}
+.ws-input.wrong{background:rgba(255,56,96,.1);border-color:var(--red);color:var(--red);border-style:solid}
+
+.quiz-fb{margin-top:1rem;padding:.85rem 1rem;border-radius:10px;font-size:.88rem;display:none}
+.quiz-fb.show{display:block}
+.quiz-fb.ok{background:rgba(0,255,157,.08);border:1px solid rgba(0,255,157,.3);color:var(--green)}
+.quiz-fb.no{background:rgba(255,56,96,.08);border:1px solid rgba(255,56,96,.3);color:var(--red)}
+
+.table-wrap{margin:1.5rem 0;overflow-x:auto;border-radius:12px;border:1px solid var(--border);background:var(--bg-2)}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th{background:var(--bg-3);padding:.85rem 1rem;text-align:left;font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--text);font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border)}
+td{padding:.8rem 1rem;border-bottom:1px solid var(--border-soft)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--bg-3)}
+
+.compare-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.5rem 0}
+.compare-card{padding:1.25rem;background:var(--bg-2);border:1px solid var(--border);border-radius:12px;position:relative;overflow:hidden}
+.compare-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.compare-card.a::before{background:var(--grad-cyan)}
+.compare-card.b::before{background:var(--grad-pink)}
+.compare-card.c::before{background:var(--grad-warm)}
+.compare-card h4{margin-top:0;font-size:1rem;display:flex;align-items:center;gap:.4rem}
+.compare-card.a h4{color:var(--cyan)}
+.compare-card.b h4{color:var(--magenta)}
+.compare-card.c h4{color:var(--orange)}
+
+footer{text-align:center;padding:3rem 1rem;color:var(--text-dim);border-top:1px solid var(--border);margin-top:4rem;font-size:.85rem}
+footer .fb{display:inline-flex;align-items:center;gap:.5rem;padding:.5rem 1rem;background:var(--bg-2);border:1px solid var(--border);border-radius:100px;font-weight:600;color:var(--text-mut);margin-bottom:.75rem}
+
+@media(max-width:768px){
+  body{font-size:15px}
+  .sec-header{flex-wrap:wrap}
+  .sec-meta{margin-left:0;margin-top:.5rem}
+  h3{font-size:1.25rem}
+  .counter-num{font-size:3.5rem}
+  .btn-row{flex-direction:column;align-items:stretch}
+  .btn{justify-content:center}
+}
+</style>
+</head>
+<body>
+
+<div id="progressBar"></div>
+
+<div class="layout">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">⟨⟩</div>
+      <div class="logo-text">
+        <strong>Master Inventario</strong>
+        <small>Contadores · Acumuladores · Banderas</small>
+      </div>
+    </div>
+
+    <div class="sb-section">Misiones</div>
+    <ul class="sb-nav">
+      <li><a href="#intro"><span class="nav-idx">00</span>🎮 Bienvenida</a></li>
+      <li><a href="#contador"><span class="nav-idx">01</span>🚪 El Contador</a></li>
+      <li><a href="#acumulador"><span class="nav-idx">02</span>🛒 El Acumulador</a></li>
+      <li><a href="#bandera"><span class="nav-idx">03</span>🚨 La Bandera</a></li>
+      <li><a href="#integracion"><span class="nav-idx">04</span>💰 El Cajero</a></li>
+      <li><a href="#workshop"><span class="nav-idx">05</span>🛠️ Code Master</a></li>
+    </ul>
+
+    <div class="sb-stats">
+      <div class="sb-stats-row"><span>⏱️ Duración</span><strong>3.5h</strong></div>
+      <div class="sb-stats-row"><span>🎯 Nivel</span><strong>Principiante+</strong></div>
+      <div class="sb-stats-row"><span>💻 Lenguaje</span><strong>C#</strong></div>
+      <div class="sb-stats-row"><span>🏆 XP ganada</span><strong id="xpDisplay">0 / 500</strong></div>
+      <div class="sb-progress-bar"><div class="sb-progress-fill" id="sbProgress"></div></div>
+    </div>
+
+    <div class="sb-badges">
+      <div class="sb-badges-title">Logros desbloqueados</div>
+      <div class="sb-badges-grid">
+        <div class="sb-badge" id="badge-counter" title="Counter Master">🚪</div>
+        <div class="sb-badge" id="badge-shop" title="Shop Keeper">🛒</div>
+        <div class="sb-badge" id="badge-flag" title="Flag Hunter">🚨</div>
+        <div class="sb-badge" id="badge-cashier" title="Cashier Pro">💰</div>
+        <div class="sb-badge" id="badge-master" title="Code Master">🛠️</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main">
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-bg"></div>
+      <div class="hero-grid"></div>
+      <div class="hero-content">
+        <div>
+          <div class="hero-eyebrow"><span class="pulse"></span> Misión: Dominar el Estado en C#</div>
+          <h1>El <span class="grad">Master</span> del<br>Inventario</h1>
+          <p class="hero-sub">Tres herramientas que dominan el 90% de los algoritmos del mundo real: <strong>Contadores</strong> para saber cuántos, <strong>Acumuladores</strong> para saber cuánto, y <strong>Banderas</strong> para saber si pasó algo. Aprende a pensar como un ingeniero de verdad.</p>
+          <div class="hero-badges">
+            <span class="badge hl">🕒 3.5 horas</span>
+            <span class="badge">🎮 5 simuladores</span>
+            <span class="badge">🛠️ Taller práctico</span>
+            <span class="badge">🏆 Sistema XP</span>
+          </div>
+        </div>
+        <div class="hero-visual">
+          <div class="hero-vars">
+            <div class="hero-var pulse-var">
+              <span class="type">int</span>
+              <span class="name">contador</span>
+              <span class="val" id="hero-counter">0</span>
+            </div>
+            <div class="hero-var pulse-var" style="animation-delay:.3s">
+              <span class="type">double</span>
+              <span class="name">total</span>
+              <span class="val" id="hero-total">$0.00</span>
+            </div>
+            <div class="hero-var pulse-var" style="animation-delay:.6s">
+              <span class="type">bool</span>
+              <span class="name">esVIP</span>
+              <span class="val" id="hero-flag">false</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================== INTRO ====================== -->
+    <section id="intro" class="fade-in">
+      <div class="sec-header">
+        <div class="sec-num c1">00</div>
+        <div class="sec-title-group">
+          <h2>Bienvenida al Inventario 🎮</h2>
+          <div class="sec-sub">Las 3 herramientas que todo programador lleva en su mochila</div>
+        </div>
+        <div class="sec-meta"><span class="meta-pill">⏱️ 15 min</span></div>
+      </div>
+
+      <p class="lead">Imagina que trabajas en una tienda. Tu jefe te pide tres cosas: <strong>contar cuántos clientes entraron hoy</strong>, <strong>sumar cuánto dinero vendiste</strong> y <strong>avisar si alguien compró un producto prohibido</strong>. Para resolver eso, la programación tiene tres herramientas clásicas: <span style="color:var(--cyan)">Contador</span>, <span style="color:var(--magenta)">Acumulador</span> y <span style="color:var(--orange)">Bandera</span>.</p>
+
+      <div class="compare-grid">
+        <div class="compare-card a">
+          <h4>🚪 Contador</h4>
+          <p style="color:var(--text-mut);font-size:.88rem;margin:0"><strong>¿Para qué?</strong> Saber CUÁNTOS.<br><strong>¿Cómo?</strong> Suma de 1 en 1.<br><strong>Ejemplo:</strong> Clientes, intentos, vueltas.</p>
+        </div>
+        <div class="compare-card b">
+          <h4>🛒 Acumulador</h4>
+          <p style="color:var(--text-mut);font-size:.88rem;margin:0"><strong>¿Para qué?</strong> Saber CUÁNTO.<br><strong>¿Cómo?</strong> Suma valores variables.<br><strong>Ejemplo:</strong> Totales, promedios, sumas.</p>
+        </div>
+        <div class="compare-card c">
+          <h4>🚨 Bandera</h4>
+          <p style="color:var(--text-mut);font-size:.88rem;margin:0"><strong>¿Para qué?</strong> Saber SI PASÓ algo.<br><strong>¿Cómo?</strong> Variable true/false.<br><strong>Ejemplo:</strong> Alarmas, búsquedas, validaciones.</p>
+        </div>
+      </div>
+
+      <div class="callout tip">
+        <div class="callout-icon">💡</div>
+        <div class="callout-content">
+          <div class="callout-title">Pro-Tip de Ingeniero Senior</div>
+          <div class="callout-body">Estas tres herramientas se usan <strong>juntas en el 90% de los algoritmos reales</strong>. Desde calcular el promedio de tus notas hasta detectar fraudes bancarios. Dominarlas es como aprender a usar el martillo, el destornillador y la llave inglesa: básicas, pero imprescindibles.</div>
+        </div>
+      </div>
+
+      <h3><span class="icon">🗺️</span> Tu ruta de misiones</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Misión</th><th>Herramienta</th><th>Tiempo</th><th>XP</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>01 · El Portero del Club</td><td style="color:var(--cyan)">Contador</td><td>45 min</td><td>100 XP</td></tr>
+            <tr><td>02 · El Carrito de Compras</td><td style="color:var(--magenta)">Acumulador</td><td>45 min</td><td>100 XP</td></tr>
+            <tr><td>03 · El Sensor de Seguridad</td><td style="color:var(--orange)">Bandera</td><td>45 min</td><td>100 XP</td></tr>
+            <tr><td>04 · El Reto del Cajero</td><td style="color:var(--yellow)">Integración</td><td>60 min</td><td>150 XP</td></tr>
+            <tr><td>05 · Code Master</td><td style="color:var(--purple)">Taller final</td><td>45 min</td><td>200 XP</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ====================== BLOQUE 1: CONTADOR ====================== -->
+    <section id="contador" class="fade-in">
+      <div class="sec-header">
+        <div class="sec-num c1">01</div>
+        <div class="sec-title-group">
+          <h2>El Contador 🚪</h2>
+          <div class="sec-sub">"El Portero del Club" — cuenta de uno en uno</div>
+        </div>
+        <div class="sec-meta"><span class="meta-pill">⏱️ 45 min</span><span class="meta-pill">🎯 100 XP</span></div>
+      </div>
+
+      <div class="analogy">
+        <div class="analogy-icon">🚪</div>
+        <div>
+          <div class="analogy-title">Analogía: El portero del club</div>
+          <div class="analogy-text">Imagina que eres el portero de un club y tienes un <strong>clic-counter manual</strong> (esos aparatitos que hacen "clic" cada vez que entra alguien). Cada vez que pasa una persona, aprietas el botón y el número sube en 1. Nunca sube en 2, ni en 5. <strong>Siempre de 1 en 1</strong>. Eso es un contador.</div>
+        </div>
+      </div>
+
+      <h3><span class="icon">🧠</span> La idea central</h3>
+      <p>Un <strong>contador</strong> es una variable (normalmente <code>int</code>) que se <strong>inicializa en 0</strong> y se incrementa de a <strong>1 en 1</strong> cada vez que ocurre un evento que quieres contar.</p>
+
+      <div class="syntax-compare">
+        <div class="syntax-box a">
+          <div class="syntax-box-title">✨ Forma corta (profesional)</div>
+<pre class="language-csharp"><code>int contador = 0;   // inicialización
+
+// Dentro de un bucle o evento:
+contador++;         // suma 1</code></pre>
+        </div>
+        <div class="syntax-box b">
+          <div class="syntax-box-title">📝 Forma explícita</div>
+<pre class="language-csharp"><code>int contador = 0;   // inicialización
+
+// Dentro de un bucle o evento:
+contador = contador + 1;  // suma 1</code></pre>
+        </div>
+      </div>
+
+      <div class="callout tip">
+        <div class="callout-icon">💡</div>
+        <div class="callout-content">
+          <div class="callout-title">¿Son iguales?</div>
+          <div class="callout-body">Sí, hacen exactamente lo mismo. Pero <code>contador++</code> es la forma que usan los programadores profesionales. También existe <code>contador += 1</code>, que es una versión intermedia. Las tres son válidas.</div>
+        </div>
+      </div>
+
+      <h3><span class="icon">🎮</span> Simulador: El Portero del Club</h3>
+      <p>Presiona el botón <strong>"Entra cliente"</strong>. Observa cómo el contador sube y cómo se refleja en el código C# de la derecha.</p>
+
+      <div class="sim">
+        <div class="sim-title">🚪 Club Nocturno — Contador en vivo</div>
+
+        <div class="memory-panel">
+          <div class="memory-title">Memoria del programa</div>
+          <div class="memory-grid">
+            <div class="mem-cell" id="mem-counter">
+              <div class="label">Variable</div>
+              <span class="var-type">int</span>
+              <span class="var-name">contador</span>
+              <span class="var-val" id="mem-counter-val">0</span>
+            </div>
+            <div class="mem-cell">
+              <div class="label">Aforo máximo</div>
+              <span class="var-type">const int</span>
+              <span class="var-name">AFORO</span>
+              <span class="var-val">20</span>
+            </div>
+            <div class="mem-cell" id="mem-estado">
+              <div class="label">Estado</div>
+              <span class="var-type">string</span>
+              <span class="var-name">estado</span>
+              <span class="var-val" id="mem-estado-val">Abierto</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="counter-display">
+          <div class="counter-visual">
+            <div class="counter-label">Personas dentro</div>
+            <div class="counter-num" id="counterNum">0</div>
+            <div class="counter-people" id="counterPeople"></div>
+          </div>
+          <div>
+            <div class="code-live" id="counterCode">
+<span class="kw">using</span> System;
+
+<span class="kw">class</span> <span class="ty">Portero</span>
+{
+    <span class="kw">static void</span> <span class="fn">Main</span>()
+    {
+        <span class="cm">// 1. Inicializar el contador</span>
+        <span class="kw">int</span> contador = <span class="num">0</span>;
+        <span class="kw">const int</span> AFORO = <span class="num">20</span>;
+
+        <span class="cm">// 2. Simular 5 clientes entrando</span>
+        <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">5</span>; i++)
+        {
+            Console.<span class="fn">WriteLine</span>(<span class="str">"¡Entra un cliente!"</span>);
+            <span id="counterLine" class="hl-line">contador++;  <span class="cm">// ← suma 1</span></span>
+            Console.<span class="fn">WriteLine</span>(<span class="str">$"Dentro: {contador}"</span>);
+        }
+
+        <span class="cm">// 3. Mostrar resultado final</span>
+        Console.<span class="fn">WriteLine</span>(<span class="str">$"Total: {contador}"</span>);
+    }
+}
+            </div>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn primary big" id="counterAdd">🚶 Entra cliente</button>
+          <button class="btn" id="counterSub">🚪 Sale cliente</button>
+          <button class="btn ghost" id="counterReset">🔄 Reiniciar</button>
+        </div>
+      </div>
+
+      <h3><span class="icon">💻</span> Código completo en C#</h3>
+      <p>Así se vería el portero real, contando clientes durante toda la noche:</p>
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-header-left"><div class="code-dots"><span></span><span></span><span></span></div>PorteroClub.cs</div>
+          <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+        </div>
+<pre class="language-csharp"><code>using System;
+
+class PorteroClub
+{
+    static void Main()
+    {
+        // ══════════════════════════════════════
+        // 1. DECLARAR E INICIALIZAR EL CONTADOR
+        // ══════════════════════════════════════
+        int contador = 0;           // Empieza en CERO
+        const int AFORO = 100;      // Capacidad máxima
+
+        Console.WriteLine("🎉 Bienvenido al Club Neón");
+        Console.WriteLine($"Aforo máximo: {AFORO} personas\n");
+
+        // ══════════════════════════════════════
+        // 2. SIMULAR LA NOCHE (bucle)
+        // ══════════════════════════════════════
+        bool clubAbierto = true;
+
+        while (clubAbierto &amp;&amp; contador &lt; AFORO)
+        {
+            Console.Write("¿Entra alguien? (s/n): ");
+            string respuesta = Console.ReadLine();
+
+            if (respuesta == "s")
+            {
+                contador++;   // ← AQUÍ ESTÁ EL CONTADOR
+                Console.WriteLine($"🚶 Persona #{contador} entró. " +
+                    $"Quedan {AFORO - contador} lugares.");
+            }
+            else if (respuesta == "n")
+            {
+                clubAbierto = false;
+            }
+        }
+
+        // ══════════════════════════════════════
+        // 3. MOSTRAR EL RESULTADO FINAL
+        // ══════════════════════════════════════
+        Console.WriteLine($"\n🎊 Noche terminada.");
+        Console.WriteLine($"Total de clientes: {contador}");
+    }
+}</code></pre>
+      </div>
+
+      <h3><span class="icon">⚡</span> 5 usos típicos del contador</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Caso de uso</th><th>Ejemplo de código</th><th>¿Qué cuenta?</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>🔁 Vueltas de un bucle</td><td><code>for (int i=0; i&lt;10; i++)</code></td><td>Iteraciones</td></tr>
+            <tr><td>👥 Personas o eventos</td><td><code>clientes++</code></td><td>Entradas</td></tr>
+            <tr><td>❌ Intentos fallidos</td><td><code>intentos++</code></td><td>Errores</td></tr>
+            <tr><td>✅ Coincidencias</td><td><code>if (esPar) pares++</code></td><td>Casos que cumplen condición</td></tr>
+            <tr><td>🎯 Posición actual</td><td><code>posicion++</code></td><td>Avance en una lista</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout warn">
+        <div class="callout-icon">⚠️</div>
+        <div class="callout-content">
+          <div class="callout-title">Error de principiante #1</div>
+          <div class="callout-body">Olvidar <strong>inicializar el contador en 0</strong>. Si declaras <code>int contador;</code> sin asignarle valor y lo usas, en C# no compilará (es una protección del lenguaje). Siempre inicializa tus variables.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================== BLOQUE 2: ACUMULADOR ====================== -->
+    <section id="acumulador" class="fade-in">
+      <div class="sec-header">
+        <div class="sec-num c2">02</div>
+        <div class="sec-title-group">
+          <h2>El Acumulador 🛒</h2>
+          <div class="sec-sub">"El Carrito de Compras" — suma valores variables</div>
+        </div>
+        <div class="sec-meta"><span class="meta-pill">⏱️ 45 min</span><span class="meta-pill">🎯 100 XP</span></div>
+      </div>
+
+      <div class="analogy">
+        <div class="analogy-icon">🐷</div>
+        <div>
+          <div class="analogy-title">Analogía: La alcancía mágica</div>
+          <div class="analogy-text">Imagina una alcancía donde metes monedas de <strong>diferentes valores</strong>: a veces $5, a veces $20, a veces $1. Cada vez que metes una moneda, <strong>se suma al total que ya tenías</strong>. El contador siempre suma 1; el acumulador suma <strong>lo que tú le eches</strong>.</div>
+        </div>
+      </div>
+
+      <h3><span class="icon">🧠</span> La diferencia clave con el contador</h3>
+      <div class="compare-grid">
+        <div class="compare-card a">
+          <h4>🚪 Contador</h4>
+          <p style="color:var(--text-mut);font-size:.88rem;margin:0">Siempre suma <strong>1</strong><br><code>contador++;</code><br><code>contador += 1;</code></p>
+        </div>
+        <div class="compare-card b">
+          <h4>🛒 Acumulador</h4>
+          <p style="color:var(--text-mut);font-size:.88rem;margin:0">Suma <strong>valores variables</strong><br><code>total += precio;</code><br><code>suma = suma + valor;</code></p>
+        </div>
+      </div>
+
+      <div class="syntax-compare">
+        <div class="syntax-box a">
+          <div class="syntax-box-title">✨ Forma corta</div>
+<pre class="language-csharp"><code>double total = 0;    // inicia en 0
+
+// Dentro del bucle:
+total += precio;     // suma el precio</code></pre>
+        </div>
+        <div class="syntax-box b">
+          <div class="syntax-box-title">📝 Forma explícita</div>
+<pre class="language-csharp"><code>double total = 0;    // inicia en 0
+
+// Dentro del bucle:
+total = total + precio;  // suma el precio</code></pre>
+        </div>
+      </div>
+
+      <h3><span class="icon">🎮</span> Simulador: Tienda de Gadgets</h3>
+      <p>Haz clic en los productos para añadirlos al carrito. Observa cómo el acumulador <code>total</code> va sumando precios diferentes.</p>
+
+      <div class="sim">
+        <div class="sim-title">🛒 GadgetStore — Acumulador en vivo</div>
+
+        <div class="memory-panel">
+          <div class="memory-title">Memoria del programa</div>
+          <div class="memory-grid">
+            <div class="mem-cell" id="mem-total">
+              <div class="label">Acumulador</div>
+              <span class="var-type">double</span>
+              <span class="var-name">total</span>
+              <span class="var-val" id="mem-total-val">$0.00</span>
+            </div>
+            <div class="mem-cell" id="mem-items">
+              <div class="label">Contador</div>
+              <span class="var-type">int</span>
+              <span class="var-name">items</span>
+              <span class="var-val" id="mem-items-val">0</span>
+            </div>
+            <div class="mem-cell" id="mem-last">
+              <div class="label">Último precio</div>
+              <span class="var-type">double</span>
+              <span class="var-name">precio</span>
+              <span class="var-val" id="mem-last-val">$0.00</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="shop-grid" id="shopGrid"></div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-top:1rem">
+          <div class="cart-summary">
+            <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--magenta);margin-bottom:.75rem;font-size:.95rem">🧾 Carrito de Compras</div>
+            <div class="cart-items" id="cartItems">
+              <div style="color:var(--text-dim);text-align:center;padding:1rem;font-size:.85rem">Aún no has añadido productos</div>
+            </div>
+            <div class="cart-total">
+              <span class="label">TOTAL</span>
+              <span class="value" id="cartTotal">$0.00</span>
+            </div>
+          </div>
+
+          <div>
+            <div class="code-live">
+<span class="kw">using</span> System;
+
+<span class="kw">class</span> <span class="ty">Tienda</span>
+{
+    <span class="kw">static void</span> <span class="fn">Main</span>()
+    {
+        <span class="cm">// 1. Inicializar acumulador y contador</span>
+        <span class="kw">double</span> total = <span class="num">0</span>;
+        <span class="kw">int</span> items = <span class="num">0</span>;
+
+        <span class="cm">// 2. Por cada producto comprado:</span>
+        <span class="kw">double</span> precio = <span class="num" id="codePrecio">25.99</span>;  <span class="cm">// ← precio actual</span>
+
+        <span class="hl-line">total += precio;  <span class="cm">// ← ACUMULADOR</span></span>
+        <span class="hl-line">items++;          <span class="cm">// ← CONTADOR</span></span>
+
+        Console.<span class="fn">WriteLine</span>(<span class="str">$"Items: {items}"</span>);
+        Console.<span class="fn">WriteLine</span>(<span class="str">$"Total: ${total:F2}"</span>);
+    }
+}
+            </div>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn pink" id="cartClear">🗑️ Vaciar carrito</button>
+        </div>
+      </div>
+
+      <h3><span class="icon">💻</span> Código completo en C#</h3>
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-header-left"><div class="code-dots"><span></span><span></span><span></span></div>TiendaGadgets.cs</div>
+          <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+        </div>
+<pre class="language-csharp"><code>using System;
+
+class TiendaGadgets
+{
+    static void Main()
+    {
+        // ══════════════════════════════════════
+        // 1. INICIALIZAR ACUMULADOR Y CONTADOR
+        // ══════════════════════════════════════
+        double total = 0;       // Acumulador de dinero
+        int contador = 0;       // Contador de productos
+
+        Console.WriteLine("🛒 Bienvenido a GadgetStore");
+        Console.WriteLine("Escribe 'fin' para terminar la compra\n");
+
+        // ══════════════════════════════════════
+        // 2. BUCLE DE COMPRA
+        // ══════════════════════════════════════
+        while (true)
+        {
+            Console.Write("Precio del producto (o 'fin'): ");
+            string entrada = Console.ReadLine();
+
+            if (entrada.ToLower() == "fin")
+                break;   // Sale del bucle
+
+            // Validar que sea un número
+            if (double.TryParse(entrada, out double precio) &amp;&amp; precio &gt; 0)
+            {
+                total += precio;    // ← ACUMULADOR
+                contador++;         // ← CONTADOR
+
+                Console.WriteLine($"✓ Añadido. " +
+                    $"Productos: {contador} | Total: ${total:F2}\n");
+            }
+            else
+            {
+                Console.WriteLine("⚠️ Ingresa un número válido.\n");
+            }
+        }
+
+        // ══════════════════════════════════════
+        // 3. CALCULAR PROMEDIO (usa ambos)
+        // ══════════════════════════════════════
+        Console.WriteLine("\n════ RESUMEN DE COMPRA ════");
+        Console.WriteLine($"Productos comprados: {contador}");
+        Console.WriteLine($"Total pagado: ${total:F2}");
+
+        if (contador &gt; 0)
+        {
+            double promedio = total / contador;   // ← usa ambos
+            Console.WriteLine($"Precio promedio: ${promedio:F2}");
+        }
+    }
+}</code></pre>
+      </div>
+
+      <h3><span class="icon">⚡</span> Usos clásicos del acumulador</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Caso de uso</th><th>Tipo de dato</th><th>Ejemplo</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>💰 Totales monetarios</td><td><code>double</code></td><td><code>total += precio;</code></td></tr>
+            <tr><td>📊 Sumas numéricas</td><td><code>int</code> o <code>double</code></td><td><code>suma += nota;</code></td></tr>
+            <tr><td>📏 Distancias</td><td><code>double</code></td><td><code>distancia += tramo;</code></td></tr>
+            <tr><td>⏱️ Tiempo</td><td><code>int</code> (segundos)</td><td><code>tiempoTotal += duracion;</code></td></tr>
+            <tr><td>📈 Promedios</td><td>Acumulador + contador</td><td><code>prom = total / cantidad;</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout success">
+        <div class="callout-icon">🏆</div>
+        <div class="callout-content">
+          <div class="callout-title">Fórmula mágica del promedio</div>
+          <div class="callout-body">
+            <code style="font-size:1rem">promedio = acumulador / contador</code><br><br>
+            Esta es la fórmula más usada de toda la programación. Necesitas <strong>dos variables</strong>: una que acumule la suma total y otra que cuente cuántos elementos sumaste.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================== BLOQUE 3: BANDERA ====================== -->
+    <section id="bandera" class="fade-in">
+      <div class="sec-header">
+        <div class="sec-num c3">03</div>
+        <div class="sec-title-group">
+          <h2>La Bandera 🚨</h2>
+          <div class="sec-sub">"El Sensor de Seguridad" — ON/OFF, verdadero/falso</div>
+        </div>
+        <div class="sec-meta"><span class="meta-pill">⏱️ 45 min</span><span class="meta-pill">🎯 100 XP</span></div>
+      </div>
+
+      <div class="analogy">
+        <div class="analogy-icon">💡</div>
+        <div>
+          <div class="analogy-title">Analogía: El interruptor de luz</div>
+          <div class="analogy-text">Un interruptor solo tiene dos estados: <strong>encendido (ON)</strong> o <strong>apagado (OFF)</strong>. No hay intermedio. Una bandera (<em>flag</em> en inglés) funciona igual: es una variable <code>bool</code> que vale <code>true</code> o <code>false</code>, y sirve para <strong>recordar si algo pasó</strong>.</div>
+        </div>
+      </div>
+
+      <h3><span class="icon">🧠</span> ¿Cuándo usar una bandera?</h3>
+      <p>Usa una bandera cuando necesites responder preguntas del tipo <strong>"¿pasó X?"</strong>:</p>
+      <ul style="padding-left:1.2rem;color:var(--text-mut)">
+        <li>¿Se encontró el producto en la lista?</li>
+        <li>¿Hubo algún error en los datos?</li>
+        <li>¿Algún estudiante reprobó?</li>
+        <li>¿El usuario ya está registrado?</li>
+      </ul>
+
+      <div class="syntax-compare">
+        <div class="syntax-box a">
+          <div class="syntax-box-title">🏁 Declarar bandera</div>
+<pre class="language-csharp"><code>// Empieza "apagada" (no ha pasado nada)
+bool encontrado = false;
+bool hayError = false;
+bool esVIP = false;</code></pre>
+        </div>
+        <div class="syntax-box b">
+          <div class="syntax-box-title">🔥 Activar bandera</div>
+<pre class="language-csharp"><code>// Cuando ocurre el evento:
+encontrado = true;   // ← ¡se activó!
+// Y luego puedes consultarla:
+if (encontrado) { ... }</code></pre>
+        </div>
+      </div>
+
+      <h3><span class="icon">🎮</span> Simulador: Escáner de Seguridad</h3>
+      <p>Este escáner revisa productos en una cinta. Si detecta uno <strong>prohibido</strong>, la bandera <code>alarma</code> se activa y el escáner se pone rojo.</p>
+
+      <div class="sim">
+        <div class="sim-title">🚨 Escáner de Aeropuerto — Bandera en vivo</div>
+
+        <div class="memory-panel">
+          <div class="memory-title">Memoria del programa</div>
+          <div class="memory-grid">
+            <div class="mem-cell bool-false" id="mem-flag">
+              <div class="label">Bandera</div>
+              <span class="var-type">bool</span>
+              <span class="var-name">alarma</span>
+              <span class="var-val" id="mem-flag-val">false</span>
+            </div>
+            <div class="mem-cell" id="mem-scanned">
+              <div class="label">Contador</div>
+              <span class="var-type">int</span>
+              <span class="var-name">revisados</span>
+              <span class="var-val" id="mem-scanned-val">0</span>
+            </div>
+            <div class="mem-cell">
+              <div class="label">Estado</div>
+              <span class="var-type">string</span>
+              <span class="var-name">mensaje</span>
+              <span class="var-val" id="mem-msg-val">OK ✓</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="scanner" id="scanner">
+          <div class="scanner-status">
+            <div class="scanner-light">
+              <div class="scanner-led"></div>
+              <span id="scannerLabel">Sistema operando normalmente</span>
+            </div>
+            <div style="color:var(--text-dim);font-size:.82rem;font-family:'JetBrains Mono',monospace">
+              Escáner #A-07
+            </div>
+          </div>
+          <div class="conveyor" id="conveyor"></div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn warm big" id="scanStart">▶ Iniciar escaneo</button>
+          <button class="btn ghost" id="scanReset">🔄 Nueva cinta</button>
+        </div>
+
+        <div style="margin-top:1.25rem">
+          <div class="code-live" id="flagCode">
+<span class="kw">using</span> System;
+
+<span class="kw">class</span> <span class="ty">Escáner</span>
+{
+    <span class="kw">static void</span> <span class="fn">Main</span>()
+    {
+        <span class="cm">// 1. Declarar bandera (inicia apagada)</span>
+        <span class="kw">bool</span> alarma = <span class="kw">false</span>;
+        <span class="kw">int</span> revisados = <span class="num">0</span>;
+
+        <span class="cm">// 2. Revisar cada producto de la cinta</span>
+        <span class="kw">foreach</span> (<span class="kw">var</span> producto <span class="kw">in</span> cinta)
+        {
+            revisados++;
+            <span class="kw">if</span> (producto.EsProhibido)
+            {
+                <span class="hl-line">alarma = <span class="kw">true</span>;  <span class="cm">// ← BANDERA se activa</span></span>
+                Console.<span class="fn">WriteLine</span>(<span class="str">"🚨 ALERTA!"</span>);
+                <span class="kw">break</span>;  <span class="cm">// sale del bucle</span>
+            }
+        }
+
+        <span class="cm">// 3. Revisar la bandera al final</span>
+        <span class="kw">if</span> (alarma)
+            Console.<span class="fn">WriteLine</span>(<span class="str">"Llamar a seguridad"</span>);
+        <span class="kw">else</span>
+            Console.<span class="fn">WriteLine</span>(<span class="str">"Todo limpio ✓"</span>);
+    }
+}
+          </div>
+        </div>
+      </div>
+
+      <h3><span class="icon">💻</span> Código completo en C#</h3>
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-header-left"><div class="code-dots"><span></span><span></span><span></span></div>EscánerSeguridad.cs</div>
+          <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+        </div>
+<pre class="language-csharp"><code>using System;
+
+class EscánerSeguridad
+{
+    static void Main()
+    {
+        // Lista de productos (algunos prohibidos)
+        string[] productos = {
+            "Laptop", "Libro", "Cuchillo",   // ← prohibido
+            "Cámara", "Botella agua", "Tijeras"  // ← prohibido
+        };
+
+        string[] prohibidos = { "Cuchillo", "Tijeras", "Arma", "Explosivo" };
+
+        // ══════════════════════════════════════
+        // 1. INICIALIZAR BANDERA (apagada)
+        // ══════════════════════════════════════
+        bool alarma = false;
+        string itemDetectado = "";
+        int revisados = 0;
+
+        Console.WriteLine("🔍 Iniciando escaneo...\n");
+
+        // ══════════════════════════════════════
+        // 2. REVISAR CADA PRODUCTO
+        // ══════════════════════════════════════
+        foreach (string producto in productos)
+        {
+            revisados++;
+
+            // ¿Está en la lista de prohibidos?
+            bool esProhibido = false;
+            foreach (string p in prohibidos)
+            {
+                if (producto == p)
+                {
+                    esProhibido = true;
+                    break;
+                }
+            }
+
+            if (esProhibido)
+            {
+                alarma = true;          // ← ¡BANDERA ACTIVADA!
+                itemDetectado = producto;
+                Console.WriteLine($"🚨 ALERTA en item #{revisados}: {producto}");
+                break;   // Ya no seguimos buscando
+            }
+            else
+            {
+                Console.WriteLine($"✓ Item #{revisados}: {producto} — OK");
+            }
+        }
+
+        // ══════════════════════════════════════
+        // 3. REVISAR LA BANDERA AL FINAL
+        // ══════════════════════════════════════
+        Console.WriteLine("\n════ REPORTE FINAL ════");
+        Console.WriteLine($"Productos revisados: {revisados}");
+
+        if (alarma)   // ← CONSULTAMOS LA BANDERA
+        {
+            Console.WriteLine($"🚨 ALARMA ACTIVADA");
+            Console.WriteLine($"Item prohibido detectado: {itemDetectado}");
+            Console.WriteLine($"Acción: Llamar a seguridad");
+        }
+        else
+        {
+            Console.WriteLine($"✅ Todo limpio. Pasajero autorizado.");
+        }
+    }
+}</code></pre>
+      </div>
+
+      <h3><span class="icon">⚡</span> Patrones comunes con banderas</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Patrón</th><th>Código</th><th>Uso</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Búsqueda</strong></td>
+              <td><code>if (encontrado) { ... }</code></td>
+              <td>¿Está el elemento en la lista?</td>
+            </tr>
+            <tr>
+              <td><strong>Validación</strong></td>
+              <td><code>if (!esValido) { error }</code></td>
+              <td>¿Algún dato es incorrecto?</td>
+            </tr>
+            <tr>
+              <td><strong>Estado</strong></td>
+              <td><code>if (juegoTerminado) { fin }</code></td>
+              <td>Controlar ciclos while</td>
+            </tr>
+            <tr>
+              <td><strong>Alternador</strong></td>
+              <td><code>activo = !activo;</code></td>
+              <td>ON/OFF con cada clic</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout warn">
+        <div class="callout-icon">⚠️</div>
+        <div class="callout-content">
+          <div class="callout-title">Nombres que comunican intención</div>
+          <div class="callout-body">Las banderas <strong>deben tener nombres que empiecen con verbos o preguntas</strong>: <code>encontrado</code>, <code>esVIP</code>, <code>hayError</code>, <code>aprobado</code>. Nunca nombres como <code>x</code>, <code>temp</code> o <code>b</code>. Tu "yo" del futuro te lo agradecerá.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================== BLOQUE 4: INTEGRACIÓN ====================== -->
+    <section id="integracion" class="fade-in">
+      <div class="sec-header">
+        <div class="sec-num c4">04</div>
+        <div class="sec-title-group">
+          <h2>El Reto del Cajero 💰</h2>
+          <div class="sec-sub">Las tres herramientas trabajando juntas</div>
+        </div>
+        <div class="sec-meta"><span class="meta-pill">⏱️ 60 min</span><span class="meta-pill">🎯 150 XP</span></div>
+      </div>
+
+      <p class="lead">Ahora viene lo bueno: <strong>integrar los tres conceptos en un solo algoritmo</strong>. Este es el patrón que usan los sistemas reales de cobro, desde la tiendita de la esquina hasta Amazon.</p>
+
+      <div class="callout quest">
+        <div class="callout-icon">🎯</div>
+        <div class="callout-content">
+          <div class="callout-title">La misión</div>
+          <div class="callout-body">Construir un cajero que: <strong>(1)</strong> cuente productos, <strong>(2)</strong> sume precios, <strong>(3)</strong> calcule promedio, y <strong>(4)</strong> active una bandera VIP si la compra supera los $100 para aplicar descuento del 10%.</div>
+        </div>
+      </div>
+
+      <h3><span class="icon">🎮</span> Simulador: Cajero Automático</h3>
+      <p>Añade productos con sus precios. Cuando termines, verás cómo las 3 variables trabajan en conjunto.</p>
+
+      <div class="sim">
+        <div class="sim-title">💰 Cajero Neón — Integración de las 3 herramientas</div>
+
+        <div class="cashier">
+          <div class="cashier-input">
+            <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--yellow);margin-bottom:1rem">📥 Entrada de productos</div>
+
+            <div class="input-row">
+              <label>Producto</label>
+              <input type="text" class="input-field" id="prodName" placeholder="Ej: Laptop" value="Teclado">
+            </div>
+            <div class="input-row">
+              <label>Precio $</label>
+              <input type="number" class="input-field" id="prodPrice" value="45.50" step="0.01" min="0">
+              <button class="btn primary" id="addProd">+ Añadir</button>
+            </div>
+
+            <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border)">
+              <div style="font-size:.85rem;color:var(--text-mut);margin-bottom:.5rem">Productos añadidos:</div>
+              <div id="cashierItems" style="max-height:200px;overflow-y:auto;font-family:'JetBrains Mono',monospace;font-size:.82rem"></div>
+            </div>
+
+            <div class="btn-row">
+              <button class="btn yellow big" id="processSale" style="flex:1">💳 Procesar venta</button>
+              <button class="btn ghost" id="clearCashier">🗑️</button>
+            </div>
+          </div>
+
+          <div class="cashier-output">
+            <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--cyan);margin-bottom:1rem">📊 Ticket de venta</div>
+
+            <div class="memory-panel" style="margin-bottom:1rem">
+              <div class="memory-title">Variables activas</div>
+              <div class="memory-grid">
+                <div class="mem-cell" id="c-counter">
+                  <div class="label">Contador</div>
+                  <span class="var-name">productos</span>
+                  <span class="var-val" id="c-counter-val">0</span>
+                </div>
+                <div class="mem-cell" id="c-total">
+                  <div class="label">Acumulador</div>
+                  <span class="var-name">total</span>
+                  <span class="var-val" id="c-total-val">$0.00</span>
+                </div>
+                <div class="mem-cell bool-false" id="c-flag">
+                  <div class="label">Bandera</div>
+                  <span class="var-name">esVIP</span>
+                  <span class="var-val" id="c-flag-val">false</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="receipt" id="receipt">
+              <div style="text-align:center;color:var(--text-dim);padding:2rem;font-size:.85rem">
+                Añade productos y presiona "Procesar venta"
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h3><span class="icon">💻</span> El código completo: las 3 herramientas juntas</h3>
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-header-left"><div class="code-dots"><span></span><span></span><span></span></div>CajeroNeon.cs</div>
+          <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+        </div>
+<pre class="language-csharp"><code>using System;
+
+class CajeroNeon
+{
+    static void Main()
+    {
+        Console.WriteLine("💰 CAJERO NEÓN — Sistema de cobro v1.0\n");
+
+        // ══════════════════════════════════════════════════════
+        // 1. INICIALIZAR LAS 3 HERRAMIENTAS
+        // ══════════════════════════════════════════════════════
+        int contador = 0;           // Cuántos productos
+        double total = 0;           // Cuánto dinero
+        bool esVIP = false;         // ¿Supera los $100?
+
+        const double LIMITE_VIP = 100.0;
+        const double DESCUENTO_VIP = 0.10;   // 10%
+
+        // ══════════════════════════════════════════════════════
+        // 2. BUCLE PRINCIPAL: leer productos
+        // ══════════════════════════════════════════════════════
+        string seguir = "s";
+
+        while (seguir == "s")
+        {
+            Console.Write("Nombre del producto: ");
+            string nombre = Console.ReadLine();
+
+            Console.Write("Precio: $");
+            double precio = double.Parse(Console.ReadLine());
+
+            // AQUÍ TRABAJAN CONTADOR Y ACUMULADOR JUNTOS
+            contador++;         // ← Contador: suma 1
+            total += precio;    // ← Acumulador: suma el precio
+
+            Console.WriteLine($"✓ {nombre} añadido. " +
+                $"Subtotal: ${total:F2}\n");
+
+            Console.Write("¿Otro producto? (s/n): ");
+            seguir = Console.ReadLine();
+        }
+
+        // ══════════════════════════════════════════════════════
+        // 3. EVALUAR LA BANDERA
+        // ══════════════════════════════════════════════════════
+        if (total &gt; LIMITE_VIP)
+        {
+            esVIP = true;    // ← BANDERA se activa
+        }
+
+        // ══════════════════════════════════════════════════════
+        // 4. IMPRIMIR TICKET (usa las 3 variables)
+        // ══════════════════════════════════════════════════════
+        Console.WriteLine("\n════ TICKET DE VENTA ════");
+        Console.WriteLine($"Productos: {contador}");
+        Console.WriteLine($"Subtotal:  ${total:F2}");
+
+        if (contador &gt; 0)
+        {
+            double promedio = total / contador;   // ← usa ambas
+            Console.WriteLine($"Promedio:  ${promedio:F2}");
+        }
+
+        if (esVIP)   // ← BANDERA se consulta aquí
+        {
+            double descuento = total * DESCUENTO_VIP;
+            double final = total - descuento;
+
+            Console.WriteLine($"\n⭐ ¡COMPRA VIP!");
+            Console.WriteLine($"Descuento 10%: -${descuento:F2}");
+            Console.WriteLine($"TOTAL FINAL:   ${final:F2}");
+        }
+        else
+        {
+            Console.WriteLine($"\nTOTAL FINAL:   ${total:F2}");
+        }
+
+        Console.WriteLine("\n¡Gracias por su compra! 🎉");
+    }
+}</code></pre>
+      </div>
+
+      <h3><span class="icon">🗺️</span> Visualización del flujo integrado</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Paso</th><th>Acción</th><th>Herramienta usada</th><th>Variable afectada</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>Inicializar variables</td><td>—</td><td><code>contador=0, total=0, esVIP=false</code></td></tr>
+            <tr><td>2</td><td>Leer producto</td><td>Input</td><td><code>nombre, precio</code></td></tr>
+            <tr><td>3</td><td>Contar producto</td><td style="color:var(--cyan)">Contador</td><td><code>contador++</code></td></tr>
+            <tr><td>4</td><td>Sumar precio</td><td style="color:var(--magenta)">Acumulador</td><td><code>total += precio</code></td></tr>
+            <tr><td>5</td><td>¿Repetir?</td><td>Bucle while</td><td>Vuelve al paso 2</td></tr>
+            <tr><td>6</td><td>¿Total &gt; $100?</td><td style="color:var(--orange)">Bandera</td><td><code>esVIP = true</code></td></tr>
+            <tr><td>7</td><td>Imprimir ticket</td><td>Las 3 juntas</td><td>Reporte final</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ====================== BLOQUE 5: WORKSHOP ====================== -->
+    <section id="workshop" class="fade-in">
+      <div class="sec-header">
+        <div class="sec-num c5">05</div>
+        <div class="sec-title-group">
+          <h2>Taller Code Master 🛠️</h2>
+          <div class="sec-sub">Rellena el código y valida tu lógica</div>
+        </div>
+        <div class="sec-meta"><span class="meta-pill">⏱️ 45 min</span><span class="meta-pill">🎯 200 XP</span></div>
+      </div>
+
+      <p class="lead">La hora de la verdad. Vas a <strong>completar código real en C#</strong>. Escribe en los recuadros punteados y presiona "Validar lógica" para obtener feedback inmediato.</p>
+
+      <!-- RETO 1: Contador -->
+      <div class="challenge">
+        <div class="challenge-head">
+          <span class="challenge-badge">Reto 1</span>
+          <div class="challenge-title">🚪 Cuenta los números pares del 1 al 20</div>
+        </div>
+        <p style="color:var(--text-mut);font-size:.9rem">Completa el código para contar cuántos números pares hay entre 1 y 20:</p>
+        <div class="ws-code">
+<span class="kw">int</span> contadorPares = <input class="ws-input" data-ans="0" data-ws="1" placeholder="?">;  <span class="cm">// ← inicializa</span>
+
+<span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">1</span>; i <input class="ws-input" data-ans="&lt;=" data-ws="1" placeholder="?"> <span class="num">20</span>; i++)
+{
+    <span class="kw">if</span> (i % <span class="num">2</span> <input class="ws-input" data-ans="==" data-ws="1" placeholder="?"> <span class="num">0</span>)
+    {
+        contadorPares<input class="ws-input" data-ans="++" data-ws="1" placeholder="?">;  <span class="cm">// ← incrementa</span>
+    }
+}
+
+Console.<span class="fn">WriteLine</span>(<span class="str">$"Hay {contadorPares} pares"</span>);
+<span class="cm">// Resultado esperado: 10</span>
+        </div>
+        <button class="btn primary" onclick="checkWorkshop(1)">✓ Validar Reto 1</button>
+        <div class="quiz-fb" id="ws-fb-1"></div>
+      </div>
+
+      <!-- RETO 2: Acumulador -->
+      <div class="challenge">
+        <div class="challenge-head">
+          <span class="challenge-badge">Reto 2</span>
+          <div class="challenge-title">🛒 Suma las ventas de la semana</div>
+        </div>
+        <p style="color:var(--text-mut);font-size:.9rem">Una tienda tuvo estas ventas diarias: $120, $85, $200, $150, $300. Calcula el total y el promedio:</p>
+        <div class="ws-code">
+<span class="kw">double</span>[] ventas = { <span class="num">120</span>, <span class="num">85</span>, <span class="num">200</span>, <span class="num">150</span>, <span class="num">300</span> };
+
+<span class="kw">double</span> total = <input class="ws-input" data-ans="0" data-ws="2" placeholder="?">;  <span class="cm">// ← inicializa acumulador</span>
+
+<span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; ventas.<input class="ws-input" data-ans="Length" data-ws="2" placeholder="?">; i++)
+{
+    total <input class="ws-input" data-ans="+=" data-ws="2" placeholder="?"> ventas[i];  <span class="cm">// ← acumula</span>
+}
+
+<span class="kw">double</span> promedio = total / ventas.<input class="ws-input" data-ans="Length" data-ws="2" placeholder="?">;
+Console.<span class="fn">WriteLine</span>(<span class="str">$"Total: ${total}"</span>);
+Console.<span class="fn">WriteLine</span>(<span class="str">$"Promedio diario: ${promedio}"</span>);
+<span class="cm">// Resultado: Total $855, Promedio $171</span>
+        </div>
+        <button class="btn primary" onclick="checkWorkshop(2)">✓ Validar Reto 2</button>
+        <div class="quiz-fb" id="ws-fb-2"></div>
+      </div>
+
+      <!-- RETO 3: Bandera -->
+      <div class="challenge">
+        <div class="challenge-head">
+          <span class="challenge-badge">Reto 3</span>
+          <div class="challenge-title">🚨 Busca si existe un número negativo</div>
+        </div>
+        <p style="color:var(--text-mut);font-size:.9rem">Dado un arreglo, detecta si contiene al menos un número negativo:</p>
+        <div class="ws-code">
+<span class="kw">int</span>[] numeros = { <span class="num">5</span>, <span class="num">12</span>, <span class="num">-3</span>, <span class="num">8</span>, <span class="num">20</span> };
+
+<span class="kw">bool</span> hayNegativo = <input class="ws-input" data-ans="false" data-ws="3" placeholder="?">;  <span class="cm">// ← inicia apagada</span>
+
+<span class="kw">foreach</span> (<span class="kw">int</span> n <span class="kw">in</span> numeros)
+{
+    <span class="kw">if</span> (n <input class="ws-input" data-ans="&lt;" data-ws="3" placeholder="?"> <span class="num">0</span>)
+    {
+        hayNegativo = <input class="ws-input" data-ans="true" data-ws="3" placeholder="?">;  <span class="cm">// ← activa bandera</span>
+        <span class="kw">break</span>;  <span class="cm">// sale del bucle</span>
+    }
+}
+
+<span class="kw">if</span> (<input class="ws-input" data-ans="hayNegativo" data-ws="3" placeholder="?">)
+    Console.<span class="fn">WriteLine</span>(<span class="str">"🚨 Hay al menos un negativo"</span>);
+<span class="kw">else</span>
+    Console.<span class="fn">WriteLine</span>(<span class="str">"✅ Todos son positivos"</span>);
+        </div>
+        <button class="btn primary" onclick="checkWorkshop(3)">✓ Validar Reto 3</button>
+        <div class="quiz-fb" id="ws-fb-3"></div>
+      </div>
+
+      <!-- RETO 4: Integración -->
+      <div class="challenge">
+        <div class="challenge-head">
+          <span class="challenge-badge adv">Reto 4 · Jefe Final</span>
+          <div class="challenge-title">💰 Analiza 5 notas: cuenta aprobados, suma total y detecta si hay reprobados</div>
+        </div>
+        <p style="color:var(--text-mut);font-size:.9rem">Usa las 3 herramientas juntas: contador (aprobados), acumulador (suma), bandera (hay reprobados):</p>
+        <div class="ws-code">
+<span class="kw">double</span>[] notas = { <span class="num">85</span>, <span class="num">45</span>, <span class="num">70</span>, <span class="num">92</span>, <span class="num">55</span> };
+
+<span class="kw">int</span> aprobados = <span class="num">0</span>;       <span class="cm">// contador</span>
+<span class="kw">double</span> suma = <span class="num">0</span>;          <span class="cm">// acumulador</span>
+<span class="kw">bool</span> hayReprobados = <input class="ws-input" data-ans="false" data-ws="4" placeholder="?">;   <span class="cm">// bandera</span>
+
+<span class="kw">foreach</span> (<span class="kw">double</span> nota <span class="kw">in</span> notas)
+{
+    suma <input class="ws-input" data-ans="+=" data-ws="4" placeholder="?"> nota;         <span class="cm">// acumula</span>
+
+    <span class="kw">if</span> (nota <input class="ws-input" data-ans="&gt;=" data-ws="4" placeholder="?"> <span class="num">60</span>)
+        aprobados<input class="ws-input" data-ans="++" data-ws="4" placeholder="?">;        <span class="cm">// cuenta aprobados</span>
+    <span class="kw">else</span>
+        hayReprobados = <input class="ws-input" data-ans="true" data-ws="4" placeholder="?">;  <span class="cm">// activa bandera</span>
+}
+
+<span class="kw">double</span> promedio = suma / notas.Length;
+
+Console.<span class="fn">WriteLine</span>(<span class="str">$"Promedio: {promedio}"</span>);
+Console.<span class="fn">WriteLine</span>(<span class="str">$"Aprobados: {aprobados}"</span>);
+<span class="kw">if</span> (hayReprobados)
+    Console.<span class="fn">WriteLine</span>(<span class="str">"⚠️ Hay estudiantes en riesgo"</span>);
+        </div>
+        <button class="btn pink big" onclick="checkWorkshop(4)">🏆 Validar Reto Final</button>
+        <div class="quiz-fb" id="ws-fb-4"></div>
+      </div>
+
+      <div class="callout success" style="margin-top:2rem">
+        <div class="callout-icon">🏆</div>
+        <div class="callout-content">
+          <div class="callout-title">¡Misión completada, Code Master!</div>
+          <div class="callout-body">Si completaste los 4 retos correctamente, ya dominas las 3 herramientas fundamentales del desarrollo de software. <strong>Contador + Acumulador + Bandera</strong> son la base de algoritmos más complejos: promedios, búsquedas, validaciones, reportes, estadísticas... ¡Todo! Ahora estás listo para construir sistemas reales.</div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="fb">🎓 Master del Inventario · Plataforma de Autoaprendizaje</div>
+      <div>Contadores, Acumuladores y Banderas en C# · 3.5 horas · Nivel Principiante+</div>
+      <div style="margin-top:.5rem;font-size:.78rem">Hecho con 💜 para adolescentes que quieren pensar como ingenieros.</div>
+    </footer>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+<script>
+// =========================================================
+// XP + BADGES
+// =========================================================
+let xp = 0;
+const badges = { counter:false, shop:false, flag:false, cashier:false, master:false };
+const addXP = (n, badgeKey) => {
+  xp += n;
+  document.getElementById('xpDisplay').textContent = `${xp} / 500`;
+  document.getElementById('sbProgress').style.width = Math.min(100, (xp/500)*100) + '%';
+  if (badgeKey && !badges[badgeKey]) {
+    badges[badgeKey] = true;
+    const el = document.getElementById('badge-' + badgeKey);
+    if (el) el.classList.add('earned');
+  }
+};
+
+// =========================================================
+// Progress bar + active section
+// =========================================================
+const progressBar = document.getElementById('progressBar');
+window.addEventListener('scroll', () => {
+  const s = window.scrollY;
+  const h = document.documentElement.scrollHeight - window.innerHeight;
+  progressBar.style.width = ((s/h)*100) + '%';
+});
+
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.sb-nav a');
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navLinks.forEach(l => l.classList.remove('active'));
+      const a = document.querySelector(`.sb-nav a[href="#${e.target.id}"]`);
+      if (a) a.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+sections.forEach(s => io.observe(s));
+
+const fadeIO = new IntersectionObserver((es) => {
+  es.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.05 });
+document.querySelectorAll('.fade-in').forEach(el => fadeIO.observe(el));
+
+// =========================================================
+// Copy code
+// =========================================================
+function copyCode(btn) {
+  const code = btn.closest('.code-wrap').querySelector('code').innerText;
+  navigator.clipboard.writeText(code).then(() => {
+    const t = btn.innerText;
+    btn.innerText = '✅ Copiado';
+    btn.classList.add('ok');
+    setTimeout(() => { btn.innerText = t; btn.classList.remove('ok'); }, 2000);
+  });
+}
+
+// =========================================================
+// HERO auto-increment
+// =========================================================
+(() => {
+  let c = 0, t = 0, f = false;
+  setInterval(() => {
+    c = (c + 1) % 10;
+    t += Math.random() * 15;
+    if (c === 5) f = true;
+    document.getElementById('hero-counter').textContent = c;
+    document.getElementById('hero-total').textContent = '$' + t.toFixed(2);
+    document.getElementById('hero-flag').textContent = f ? 'true' : 'false';
+    document.getElementById('hero-flag').style.color = f ? 'var(--green)' : 'var(--red)';
+  }, 1200);
+})();
+
+// =========================================================
+// SIMULATOR 1: COUNTER (Club)
+// =========================================================
+(() => {
+  let count = 0;
+  const AFORO = 20;
+  const numEl = document.getElementById('counterNum');
+  const peopleEl = document.getElementById('counterPeople');
+  const memVal = document.getElementById('mem-counter-val');
+  const memCell = document.getElementById('mem-counter');
+  const memEstadoVal = document.getElementById('mem-estado-val');
+  const memEstadoCell = document.getElementById('mem-estado');
+
+  const render = () => {
+    numEl.textContent = count;
+    memVal.textContent = count;
+    numEl.classList.remove('bump');
+    void numEl.offsetWidth;
+    numEl.classList.add('bump');
+    memCell.classList.remove('flash');
+    void memCell.offsetWidth;
+    memCell.classList.add('flash');
+
+    peopleEl.innerHTML = '';
+    for (let i = 0; i < count; i++) {
+      const p = document.createElement('div');
+      p.className = 'person-icon';
+      p.textContent = '🧑';
+      peopleEl.appendChild(p);
+    }
+
+    if (count >= AFORO) {
+      memEstadoVal.textContent = 'LLENO';
+      memEstadoCell.style.color = 'var(--red)';
+    } else if (count >= AFORO * 0.7) {
+      memEstadoVal.textContent = 'Casi lleno';
+      memEstadoCell.style.color = 'var(--yellow)';
+    } else {
+      memEstadoVal.textContent = 'Abierto';
+      memEstadoCell.style.color = 'var(--green)';
+    }
+  };
+
+  document.getElementById('counterAdd').addEventListener('click', () => {
+    if (count < AFORO) { count++; render(); addXP(2); }
+  });
+  document.getElementById('counterSub').addEventListener('click', () => {
+    if (count > 0) { count--; render(); }
+  });
+  document.getElementById('counterReset').addEventListener('click', () => {
+    count = 0; render();
+  });
+
+  // Auto-earn badge on first click
+  document.getElementById('counterAdd').addEventListener('click', () => {
+    if (!badges.counter && count >= 3) addXP(0, 'counter');
+  });
+
+  render();
+})();
+
+// =========================================================
+// SIMULATOR 2: ACCUMULATOR (Shop)
+// =========================================================
+(() => {
+  const products = [
+    { icon:'🎧', name:'Auriculares', price:29.99 },
+    { icon:'⌚', name:'Smartwatch', price:89.50 },
+    { icon:'📱', name:'Funda móvil', price:12.00 },
+    { icon:'🖱️', name:'Mouse gamer', price:45.00 },
+    { icon:'⌨️', name:'Teclado RGB', price:69.99 },
+    { icon:'🎮', name:'Control', price:55.00 },
+    { icon:'💾', name:'USB 64GB', price:15.50 },
+    { icon:'🔌', name:'Cable USB-C', price:9.99 }
+  ];
+
+  let cart = [];
+  const grid = document.getElementById('shopGrid');
+  const cartItemsEl = document.getElementById('cartItems');
+  const cartTotalEl = document.getElementById('cartTotal');
+  const memTotal = document.getElementById('mem-total-val');
+  const memItems = document.getElementById('mem-items-val');
+  const memLast = document.getElementById('mem-last-val');
+  const memTotalCell = document.getElementById('mem-total');
+  const memItemsCell = document.getElementById('mem-items');
+  const codePrecio = document.getElementById('codePrecio');
+
+  const render = () => {
+    const total = cart.reduce((s, p) => s + p.price, 0);
+    const count = cart.length;
+
+    cartTotalEl.textContent = '$' + total.toFixed(2);
+    memTotal.textContent = '$' + total.toFixed(2);
+    memItems.textContent = count;
+
+    memTotalCell.classList.remove('flash');
+    void memTotalCell.offsetWidth;
+    memTotalCell.classList.add('flash');
+    memItemsCell.classList.remove('flash');
+    void memItemsCell.offsetWidth;
+    memItemsCell.classList.add('flash');
+
+    if (cart.length === 0) {
+      cartItemsEl.innerHTML = '<div style="color:var(--text-dim);text-align:center;padding:1rem;font-size:.85rem">Aún no has añadido productos</div>';
+    } else {
+      cartItemsEl.innerHTML = cart.map((p, i) =>
+        `<div class="cart-item"><span class="name">${p.icon} ${p.name}</span><span class="price">$${p.price.toFixed(2)}</span></div>`
+      ).join('');
+      cartItemsEl.scrollTop = cartItemsEl.scrollHeight;
+    }
+  };
+
+  // Render product grid
+  products.forEach((p, idx) => {
+    const card = document.createElement('div');
+    card.className = 'product-card';
+    card.innerHTML = `
+      <span class="product-icon">${p.icon}</span>
+      <div class="product-name">${p.name}</div>
+      <div class="product-price">$${p.price.toFixed(2)}</div>
+    `;
+    card.addEventListener('click', () => {
+      cart.push(p);
+      codePrecio.textContent = p.price.toFixed(2);
+      memLast.textContent = '$' + p.price.toFixed(2);
+      card.classList.remove('added');
+      void card.offsetWidth;
+      card.classList.add('added');
+      render();
+      addXP(2);
+      if (!badges.shop && cart.length >= 3) addXP(0, 'shop');
+    });
+    grid.appendChild(card);
+  });
+
+  document.getElementById('cartClear').addEventListener('click', () => {
+    cart = [];
+    memLast.textContent = '$0.00';
+    render();
+  });
+
+  render();
+})();
+
+// =========================================================
+// SIMULATOR 3: FLAG (Scanner)
+// =========================================================
+(() => {
+  const allowed = [
+    { icon:'💼', name:'Maletín', banned:false },
+    { icon:'📱', name:'Celular', banned:false },
+    { icon:'📷', name:'Cámara', banned:false },
+    { icon:'📚', name:'Libros', banned:false },
+    { icon:'🎧', name:'Audífonos', banned:false },
+    { icon:'💻', name:'Laptop', banned:false }
+  ];
+  const banned = [
+    { icon:'🔪', name:'Cuchillo', banned:true },
+    { icon:'✂️', name:'Tijeras', banned:true },
+    { icon:'🔫', name:'Arma', banned:true }
+  ];
+
+  let items = [];
+  let scanning = false;
+
+  const generateBelt = () => {
+    items = [];
+    // Mix 5-8 items with 0-1 banned
+    const total = 5 + Math.floor(Math.random() * 4);
+    const bannedPos = Math.random() < 0.7 ? Math.floor(Math.random() * total) : -1;
+    for (let i = 0; i < total; i++) {
+      if (i === bannedPos) {
+        items.push(banned[Math.floor(Math.random() * banned.length)]);
+      } else {
+        items.push(allowed[Math.floor(Math.random() * allowed.length)]);
+      }
+    }
+  };
+
+  const conveyor = document.getElementById('conveyor');
+  const scanner = document.getElementById('scanner');
+  const scannerLabel = document.getElementById('scannerLabel');
+  const memFlag = document.getElementById('mem-flag');
+  const memFlagVal = document.getElementById('mem-flag-val');
+  const memScanned = document.getElementById('mem-scanned-val');
+  const memMsg = document.getElementById('mem-msg-val');
+
+  const renderBelt = (currentIdx = -1, detectedBanned = -1) => {
+    conveyor.innerHTML = items.map((it, i) => {
+      let cls = 'scan-item';
+      if (i === currentIdx) cls += ' current';
+      else if (i === detectedBanned) cls += ' banned';
+      else if (i < currentIdx) cls += ' scanned';
+      return `
+        <div class="${cls}">
+          <span class="icon">${it.icon}</span>
+          <div>
+            <div class="name">${it.name}</div>
+            <div class="tag">${it.banned ? '⚠ Prohibido' : '✓ Permitido'}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  };
+
+  const resetState = () => {
+    scanning = false;
+    scanner.classList.remove('alert');
+    scannerLabel.textContent = 'Sistema operando normalmente';
+    memFlag.className = 'mem-cell bool-false';
+    memFlagVal.textContent = 'false';
+    memScanned.textContent = '0';
+    memMsg.textContent = 'OK ✓';
+    memMsg.style.color = 'var(--green)';
+  };
+
+  const startScan = async () => {
+    if (scanning) return;
+    scanning = true;
+    resetState();
+    memFlag.className = 'mem-cell bool-false';
+    memFlagVal.textContent = 'false';
+
+    let bannedIdx = -1;
+    for (let i = 0; i < items.length; i++) {
+      renderBelt(i, bannedIdx);
+      memScanned.textContent = (i + 1).toString();
+      await new Promise(r => setTimeout(r, 700));
+
+      if (items[i].banned) {
+        bannedIdx = i;
+        // Activate flag!
+        memFlag.className = 'mem-cell bool-true';
+        memFlagVal.textContent = 'true';
+        memMsg.textContent = '🚨 ALERTA';
+        memMsg.style.color = 'var(--red)';
+        scanner.classList.add('alert');
+        scannerLabel.textContent = '¡ALARMA ACTIVADA!';
+        renderBelt(-1, bannedIdx);
+        addXP(10, 'flag');
+        break;
+      }
+    }
+
+    if (bannedIdx === -1) {
+      // All clean
+      memMsg.textContent = '✓ Limpio';
+      memMsg.style.color = 'var(--green)';
+      scannerLabel.textContent = 'Escaneo completado — Sin alertas';
+      renderBelt(items.length, -1);
+      addXP(5);
+    }
+
+    scanning = false;
+  };
+
+  document.getElementById('scanStart').addEventListener('click', startScan);
+  document.getElementById('scanReset').addEventListener('click', () => {
+    generateBelt();
+    resetState();
+    renderBelt();
+  });
+
+  // Init
+  generateBelt();
+  renderBelt();
+})();
+
+// =========================================================
+// SIMULATOR 4: CASHIER (Integration)
+// =========================================================
+(() => {
+  let items = [];
+
+  const itemsEl = document.getElementById('cashierItems');
+  const counterVal = document.getElementById('c-counter-val');
+  const totalVal = document.getElementById('c-total-val');
+  const flagVal = document.getElementById('c-flag-val');
+  const flagCell = document.getElementById('c-flag');
+  const counterCell = document.getElementById('c-counter');
+  const totalCell = document.getElementById('c-total');
+  const receiptEl = document.getElementById('receipt');
+
+  const render = () => {
+    if (items.length === 0) {
+      itemsEl.innerHTML = '<div style="color:var(--text-dim);padding:.5rem;font-size:.8rem">Sin productos</div>';
+    } else {
+      itemsEl.innerHTML = items.map((it, i) =>
+        `<div style="display:flex;justify-content:space-between;padding:.3rem .4rem;background:var(--bg-2);border-radius:4px;margin-bottom:.25rem">
+          <span style="color:var(--text-mut)">${i+1}. ${it.name}</span>
+          <span style="color:var(--green)">$${it.price.toFixed(2)}</span>
+        </div>`
+      ).join('');
+    }
+  };
+
+  document.getElementById('addProd').addEventListener('click', () => {
+    const name = document.getElementById('prodName').value.trim();
+    const price = parseFloat(document.getElementById('prodPrice').value);
+    if (!name || isNaN(price) || price <= 0) {
+      alert('Ingresa un nombre y precio válido');
+      return;
+    }
+    items.push({ name, price });
+    document.getElementById('prodName').value = '';
+    render();
+    addXP(2);
+  });
+
+  document.getElementById('clearCashier').addEventListener('click', () => {
+    items = [];
+    counterVal.textContent = '0';
+    totalVal.textContent = '$0.00';
+    flagVal.textContent = 'false';
+    flagCell.className = 'mem-cell bool-false';
+    receiptEl.innerHTML = '<div style="text-align:center;color:var(--text-dim);padding:2rem;font-size:.85rem">Añade productos y presiona "Procesar venta"</div>';
+    render();
+  });
+
+  document.getElementById('processSale').addEventListener('click', () => {
+    if (items.length === 0) {
+      alert('Añade al menos un producto');
+      return;
+    }
+
+    // COUNTER
+    const contador = items.length;
+    counterVal.textContent = contador;
+    counterCell.classList.remove('flash'); void counterCell.offsetWidth; counterCell.classList.add('flash');
+
+    // ACCUMULATOR
+    let total = 0;
+    items.forEach(it => total += it.price);
+    totalVal.textContent = '$' + total.toFixed(2);
+    totalCell.classList.remove('flash'); void totalCell.offsetWidth; totalCell.classList.add('flash');
+
+    // FLAG
+    const LIMITE_VIP = 100;
+    const esVIP = total > LIMITE_VIP;
+    flagVal.textContent = esVIP ? 'true' : 'false';
+    flagCell.className = 'mem-cell ' + (esVIP ? 'bool-true' : 'bool-false');
+
+    // AVERAGE
+    const promedio = total / contador;
+
+    // FINAL
+    let final = total;
+    let descuento = 0;
+    if (esVIP) {
+      descuento = total * 0.10;
+      final = total - descuento;
+    }
+
+    // Build receipt
+    let html = '';
+    items.forEach((it, i) => {
+      html += `<div class="receipt-line"><span class="key">${i+1}. ${it.name}</span><span class="val">$${it.price.toFixed(2)}</span></div>`;
+    });
+    html += `<div class="receipt-line" style="margin-top:.75rem;border-top:1px solid rgba(0,240,255,.3);padding-top:.75rem"><span class="key">Productos (contador):</span><span class="val">${contador}</span></div>`;
+    html += `<div class="receipt-line"><span class="key">Subtotal (acumulador):</span><span class="val">$${total.toFixed(2)}</span></div>`;
+    html += `<div class="receipt-line"><span class="key">Promedio:</span><span class="val">$${promedio.toFixed(2)}</span></div>`;
+
+    if (esVIP) {
+      html += `<div class="receipt-line vip"><span class="key">⭐ ¡COMPRA VIP! (bandera = true)</span><span class="val">-10%</span></div>`;
+      html += `<div class="receipt-line"><span class="key">Descuento:</span><span class="val" style="color:var(--yellow)">-$${descuento.toFixed(2)}</span></div>`;
+      html += `<div class="receipt-line highlight"><span class="key">TOTAL FINAL:</span><span class="val" style="color:var(--yellow)">$${final.toFixed(2)}</span></div>`;
+    } else {
+      html += `<div class="receipt-line highlight"><span class="key">TOTAL FINAL:</span><span class="val">$${final.toFixed(2)}</span></div>`;
+    }
+
+    receiptEl.innerHTML = html;
+    addXP(15, 'cashier');
+  });
+
+  render();
+})();
+
+// =========================================================
+// WORKSHOP VALIDATION
+// =========================================================
+function checkWorkshop(id) {
+  const inputs = document.querySelectorAll(`.ws-input[data-ws="${id}"]`);
+  const fb = document.getElementById(`ws-fb-${id}`);
+  let allOk = true;
+  inputs.forEach(inp => {
+    const got = inp.value.trim().replace(/\s+/g,' ').toLowerCase();
+    const exp = inp.dataset.ans.toLowerCase();
+    const ok = got === exp || got === exp.replace(/\s+/g,'');
+    inp.classList.remove('correct','wrong');
+    inp.classList.add(ok ? 'correct' : 'wrong');
+    if (!ok) allOk = false;
+  });
+  fb.classList.add('show');
+  if (allOk) {
+    fb.className = 'quiz-fb show ok';
+    const rewards = { 1:15, 2:20, 3:20, 4:30 };
+    const msgs = {
+      1:'¡Perfecto! Has dominado el contador. Recuerda: siempre inicializa en 0 y usa ++ dentro del bucle.',
+      2:'¡Excelente! Acumulador y promedio funcionan. La fórmula <code>total / Length</code> es la base de toda estadística.',
+      3:'¡Muy bien! La bandera se inicializa en false, se activa con true, y se consulta al final. Patrón clásico de búsqueda.',
+      4:'🏆 ¡MAESTRO TOTAL! Has integrado las 3 herramientas: contador (aprobados++), acumulador (suma += nota) y bandera (hayReprobados = true). Esto es el 90% de los algoritmos reales.'
+    };
+    fb.innerHTML = `✅ ${msgs[id]} <strong>+${rewards[id]} XP</strong>`;
+    addXP(rewards[id], id === 4 ? 'master' : null);
+  } else {
+    fb.className = 'quiz-fb show no';
+    const hints = {
+      1:'Pista: el contador siempre se inicializa en 0, usa ++ para incrementar, y el if compara con ==.',
+      2:'Pista: el acumulador inicia en 0, usa += para sumar, y .Length te da el tamaño del arreglo.',
+      3:'Pista: la bandera inicia en false, se activa con true, y se consulta directamente como if (hayNegativo).',
+      4:'Pista: inicializa la bandera en false, usa += para acumular, >= para comparar, ++ para contar, y true para activar.'
+    };
+    fb.innerHTML = `❌ Algunas respuestas son incorrectas (marcadas en rojo). ${hints[id]}`;
+  }
+}
+
+// =========================================================
+// PRISM
+// =========================================================
+if (window.Prism && Prism.plugins && Prism.plugins.autoloader) {
+  Prism.plugins.autoloader.languages_path = 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/';
+}
+</script>
+
+</body>
+</html>
+
