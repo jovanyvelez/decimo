@@ -1,0 +1,1970 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔓 Hacking the System · El Bucle Infinito</title>
+<style>
+:root{
+  --bg:#05070a;--bg2:#0a1014;--bg3:#101820;--bg4:#18222c;
+  --green:#00ff41;--green-dim:#00b32e;--green-ghost:rgba(0,255,65,.1);
+  --cyan:#00f0ff;--magenta:#ff2bd6;--yellow:#f7ff3d;--red:#ff3860;
+  --text:#c8d6e0;--text-dim:#6b7f8c;--text-bright:#e8f4f8;
+  --border:rgba(0,255,65,.2);--border-dim:rgba(0,255,65,.08);
+  --grad-hack:linear-gradient(135deg,#00ff41,#00f0ff);
+  --grad-warn:linear-gradient(135deg,#ff3860,#ff2bd6);
+  --grad-alert:linear-gradient(135deg,#f7ff3d,#ff7a29);
+  --shadow-green:0 0 20px rgba(0,255,65,.4);
+  --shadow-cyan:0 0 20px rgba(0,240,255,.4);
+  --shadow-red:0 0 20px rgba(255,56,96,.4);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.7;
+  overflow-x:hidden;
+  background-image:
+    radial-gradient(ellipse at top left,rgba(0,255,65,.05) 0%,transparent 50%),
+    radial-gradient(ellipse at bottom right,rgba(0,240,255,.04) 0%,transparent 50%);
+  background-attachment:fixed;
+}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,255,65,.015) 2px,rgba(0,255,65,.015) 4px);
+}
+code,pre,.mono{font-family:'Courier New',Consolas,Monaco,monospace}
+::selection{background:var(--green);color:#000}
+
+#progressBar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--grad-hack);z-index:10000;box-shadow:0 0 10px var(--green)}
+
+.layout{display:grid;grid-template-columns:280px 1fr;gap:2rem;padding:2rem;max-width:1600px;margin:0 auto}
+@media(max-width:1024px){.layout{grid-template-columns:1fr;padding:1rem}.sidebar{position:static!important;height:auto!important}}
+
+/* ===== Sidebar ===== */
+.sidebar{position:sticky;top:2rem;height:calc(100vh - 4rem);overflow-y:auto;padding-right:.5rem}
+.sidebar::-webkit-scrollbar{width:6px}
+.sidebar::-webkit-scrollbar-thumb{background:var(--green-dim);border-radius:3px}
+.logo-box{display:flex;align-items:center;gap:.75rem;padding:1rem;background:linear-gradient(135deg,rgba(0,255,65,.08),rgba(0,240,255,.05));border:1px solid var(--border);border-radius:10px;margin-bottom:1rem;position:relative;overflow:hidden}
+.logo-box::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 10px,rgba(0,255,65,.03) 10px,rgba(0,255,65,.03) 20px)}
+.logo-ic{width:40px;height:40px;border-radius:8px;background:var(--grad-hack);display:flex;align-items:center;justify-content:center;color:#000;font-weight:900;font-size:1.1rem;box-shadow:var(--shadow-green);position:relative;z-index:1;font-family:'Courier New',monospace}
+.logo-txt{position:relative;z-index:1;font-family:'Courier New',monospace}
+.logo-txt strong{display:block;color:var(--green);font-size:.95rem;letter-spacing:.05em}
+.logo-txt small{color:var(--text-dim);font-size:.68rem}
+
+.sb-sec{font-family:'Courier New',monospace;font-size:.7rem;text-transform:uppercase;letter-spacing:.15em;color:var(--green-dim);margin:1rem .75rem .5rem}
+.sb-nav{list-style:none}
+.sb-nav a{display:flex;align-items:center;gap:.6rem;padding:.55rem .75rem;border-radius:6px;color:var(--text-dim);text-decoration:none;font-size:.85rem;font-family:'Courier New',monospace;transition:all .2s;border-left:2px solid transparent}
+.sb-nav a:hover{background:var(--green-ghost);color:var(--green)}
+.sb-nav a.active{background:var(--green-ghost);color:var(--green);border-left-color:var(--green);box-shadow:inset 0 0 20px rgba(0,255,65,.1)}
+.sb-nav .idx{color:var(--text-dim);font-weight:700;min-width:22px}
+.sb-nav a.active .idx{color:var(--green)}
+
+.sb-stats{margin-top:1rem;padding:1rem;background:var(--bg2);border:1px solid var(--border-dim);border-radius:10px;font-family:'Courier New',monospace;font-size:.78rem}
+.sb-stats-row{display:flex;justify-content:space-between;padding:.25rem 0;color:var(--text-dim)}
+.sb-stats-row strong{color:var(--green);font-weight:700}
+.sb-bar{height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;margin-top:.5rem}
+.sb-fill{height:100%;background:var(--grad-hack);width:0%;transition:width .3s;box-shadow:0 0 8px var(--green)}
+
+.badges{margin-top:1rem;padding:.85rem;background:var(--bg2);border:1px solid var(--border-dim);border-radius:10px}
+.badges-t{font-family:'Courier New',monospace;font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--green-dim);margin-bottom:.5rem}
+.badges-g{display:flex;flex-wrap:wrap;gap:.3rem}
+.bdg{width:30px;height:30px;border-radius:6px;background:var(--bg3);border:1px solid var(--border-dim);display:flex;align-items:center;justify-content:center;font-size:.85rem;filter:grayscale(1) brightness(.4);transition:all .3s}
+.bdg.on{filter:none;border-color:var(--green);box-shadow:0 0 10px rgba(0,255,65,.4)}
+
+/* ===== Main ===== */
+.main{min-width:0}
+section{margin-bottom:4rem;scroll-margin-top:2rem}
+.fade-in{opacity:0;transform:translateY(20px);transition:opacity .6s,transform .6s}
+.fade-in.visible{opacity:1;transform:translateY(0)}
+
+/* ===== Hero ===== */
+.hero{position:relative;border-radius:16px;overflow:hidden;margin-bottom:3rem;background:var(--bg2);border:1px solid var(--border);box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.hero::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,255,65,.02) 2px,rgba(0,255,65,.02) 4px);pointer-events:none}
+.hero::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,255,65,.08),rgba(0,240,255,.05),transparent);pointer-events:none}
+.hero-content{position:relative;padding:3rem;z-index:1}
+@media(max-width:700px){.hero-content{padding:2rem 1.5rem}}
+
+.hero-top{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap}
+.hero-tag{padding:.4rem .9rem;background:rgba(0,255,65,.1);border:1px solid var(--green);color:var(--green);border-radius:100px;font-size:.75rem;font-weight:700;font-family:'Courier New',monospace;letter-spacing:.1em;display:inline-flex;align-items:center;gap:.5rem;text-transform:uppercase}
+.hero-tag .blinker{width:8px;height:8px;background:var(--green);border-radius:50%;box-shadow:0 0 10px var(--green);animation:blink 1.2s infinite}
+@keyframes blink{0%,50%{opacity:1}51%,100%{opacity:.3}}
+
+.hero-status{font-family:'Courier New',monospace;font-size:.75rem;color:var(--cyan);padding:.3rem .6rem;background:rgba(0,240,255,.08);border:1px solid rgba(0,240,255,.3);border-radius:4px}
+
+.hero h1{font-family:'Courier New',monospace;font-size:clamp(1.8rem,5vw,3.5rem);font-weight:900;line-height:1.1;margin-bottom:1rem;letter-spacing:-.02em;color:var(--text-bright)}
+.hero h1 .grad{background:var(--grad-hack);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero h1 .cursor{display:inline-block;width:3px;height:.9em;background:var(--green);vertical-align:middle;margin-left:4px;animation:blink 1s infinite}
+.hero-sub{font-size:1.05rem;color:var(--text);max-width:700px;margin-bottom:2rem;line-height:1.7}
+
+.hero-brief{background:var(--bg);border:1px solid var(--green);border-radius:8px;padding:1rem 1.25rem;font-family:'Courier New',monospace;font-size:.88rem;line-height:1.7;margin-bottom:2rem;position:relative}
+.hero-brief::before{content:'MISSION BRIEFING >';position:absolute;top:-.6rem;left:1rem;background:var(--bg);padding:0 .5rem;color:var(--green);font-size:.7rem;font-weight:700;letter-spacing:.1em}
+.hero-brief .ln{color:var(--text-dim)}
+.hero-brief .key{color:var(--green);font-weight:700}
+
+.hero-badges{display:flex;gap:.5rem;flex-wrap:wrap}
+.badge{padding:.4rem .8rem;background:var(--bg3);border:1px solid var(--border-dim);border-radius:6px;font-size:.78rem;font-weight:600;display:inline-flex;align-items:center;gap:.35rem;font-family:'Courier New',monospace}
+.badge.hl{background:var(--green-ghost);border-color:var(--green);color:var(--green)}
+
+/* ===== Section headers ===== */
+.sec-head{display:flex;align-items:center;gap:1rem;margin-bottom:2rem;padding-bottom:1rem;border-bottom:1px dashed var(--border)}
+.sec-num{width:54px;height:54px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Courier New',monospace;font-size:1.4rem;font-weight:900;color:#000;flex-shrink:0;position:relative;overflow:hidden}
+.sec-num::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 4px,rgba(0,0,0,.1) 4px,rgba(0,0,0,.1) 8px)}
+.sec-num.m1{background:var(--grad-hack);box-shadow:var(--shadow-green)}
+.sec-num.m2{background:var(--grad-alert);box-shadow:0 0 20px rgba(247,255,61,.35)}
+.sec-num.m3{background:var(--grad-warn);box-shadow:var(--shadow-red)}
+.sec-num.m4{background:linear-gradient(135deg,#00f0ff,#a855f7);box-shadow:var(--shadow-cyan)}
+.sec-num.m5{background:linear-gradient(135deg,#ff2bd6,#f7ff3d);box-shadow:0 0 20px rgba(255,43,214,.35)}
+.sec-title-group h2{font-family:'Courier New',monospace;font-size:1.7rem;font-weight:900;letter-spacing:-.01em;line-height:1.2;color:var(--text-bright)}
+.sec-sub{color:var(--text-dim);font-size:.9rem;margin-top:.25rem;font-family:'Courier New',monospace}
+.sec-meta{margin-left:auto;display:flex;gap:.5rem;flex-wrap:wrap}
+.meta-pill{padding:.3rem .7rem;background:var(--bg3);border:1px solid var(--border-dim);border-radius:4px;font-size:.72rem;font-weight:700;color:var(--green);font-family:'Courier New',monospace}
+
+/* ===== Typography ===== */
+h3{font-family:'Courier New',monospace;font-size:1.3rem;font-weight:700;margin:2.5rem 0 1rem;color:var(--text-bright);display:flex;align-items:center;gap:.7rem;letter-spacing:-.005em}
+h3::before{content:'>';color:var(--green);font-weight:900}
+h4{font-family:'Courier New',monospace;font-size:1.05rem;font-weight:700;margin:1.5rem 0 .6rem;color:var(--green)}
+p{margin-bottom:1rem}
+.lead{font-size:1.05rem;color:var(--text);line-height:1.75;margin-bottom:1.5rem;padding-left:1rem;border-left:3px solid var(--green);background:var(--green-ghost);padding:1rem}
+
+/* ===== Concept card ===== */
+.concept{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:1.75rem;margin:1.5rem 0;position:relative;overflow:hidden}
+.concept::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:var(--grad-hack)}
+.concept.warn::before{background:var(--grad-alert)}
+.concept.danger::before{background:var(--grad-warn)}
+.concept.cyan::before{background:linear-gradient(135deg,#00f0ff,#a855f7)}
+
+/* ===== Syntax compare ===== */
+.syntax-cmp{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0}
+@media(max-width:700px){.syntax-cmp{grid-template-columns:1fr}}
+.syntax-box{padding:1.25rem;border-radius:10px;border:1px solid;background:var(--bg2);position:relative;overflow:hidden}
+.syntax-box::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.syntax-box.a{border-color:rgba(0,255,65,.3)}.syntax-box.a::before{background:var(--green)}
+.syntax-box.b{border-color:rgba(0,240,255,.3)}.syntax-box.b::before{background:var(--cyan)}
+.syntax-box.c{border-color:rgba(255,43,214,.3)}.syntax-box.c::before{background:var(--magenta)}
+.syntax-box.d{border-color:rgba(247,255,61,.3)}.syntax-box.d::before{background:var(--yellow)}
+.syntax-t{font-family:'Courier New',monospace;font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.7rem;display:flex;align-items:center;gap:.4rem}
+.syntax-box.a .syntax-t{color:var(--green)}
+.syntax-box.b .syntax-t{color:var(--cyan)}
+.syntax-box.c .syntax-t{color:var(--magenta)}
+.syntax-box.d .syntax-t{color:var(--yellow)}
+
+/* ===== Code blocks ===== */
+.code-wrap{position:relative;margin:1.5rem 0;border-radius:8px;overflow:hidden;background:#000;border:1px solid var(--green);box-shadow:0 10px 40px rgba(0,0,0,.5)}
+.code-head{display:flex;align-items:center;justify-content:space-between;padding:.5rem 1rem;background:#0a1510;border-bottom:1px solid var(--border);font-size:.78rem;color:var(--green);font-family:'Courier New',monospace}
+.code-head-l{display:flex;align-items:center;gap:.7rem;font-weight:700}
+.code-dots{display:flex;gap:5px}
+.code-dots span{width:10px;height:10px;border-radius:50%;border:1px solid}
+.code-dots span:nth-child(1){background:#ff3860;border-color:#ff3860}
+.code-dots span:nth-child(2){background:#f7ff3d;border-color:#f7ff3d}
+.code-dots span:nth-child(3){background:#00ff41;border-color:#00ff41}
+.copy-btn{background:transparent;border:1px solid var(--green);color:var(--green);padding:.25rem .6rem;border-radius:4px;cursor:pointer;font-size:.7rem;font-weight:700;font-family:'Courier New',monospace;transition:all .2s}
+.copy-btn:hover{background:var(--green);color:#000}
+.copy-btn.ok{background:var(--green);color:#000}
+
+.code-pre{margin:0;padding:1.1rem;background:transparent;font-family:'Courier New',monospace;font-size:.82rem;line-height:1.65;overflow-x:auto;color:var(--text);white-space:pre}
+.code-pre::-webkit-scrollbar{height:8px}
+.code-pre::-webkit-scrollbar-thumb{background:var(--green-dim);border-radius:4px}
+.code-pre .kw{color:#c678dd}
+.code-pre .fn{color:#61afef}
+.code-pre .str{color:#98c379}
+.code-pre .cm{color:#5c6370;font-style:italic}
+.code-pre .num{color:#d19a66}
+.code-pre .ty{color:#e5c07b}
+.code-pre .hl{background:rgba(0,255,65,.1);display:inline-block;width:100%;padding:0 .5rem;margin:0 -.5rem;border-left:3px solid var(--green)}
+
+p code,li code,td code{background:var(--bg3);color:var(--green);padding:.1rem .4rem;border-radius:4px;font-size:.85em;border:1px solid var(--border-dim);font-weight:600}
+
+/* ===== Callouts ===== */
+.callout{padding:1rem 1.25rem;border-radius:8px;margin:1.5rem 0;border:1px solid;display:flex;gap:.85rem;align-items:flex-start;font-family:'Courier New',monospace}
+.callout-icon{width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.1rem;font-weight:900}
+.callout-content{flex:1;min-width:0;font-size:.88rem}
+.callout-title{font-weight:700;margin-bottom:.25rem;font-size:.85rem;letter-spacing:.05em;text-transform:uppercase}
+.callout-body{color:var(--text);font-size:.85rem;line-height:1.6;font-family:-apple-system,sans-serif}
+.callout.tip{background:rgba(0,255,65,.05);border-color:var(--green)}
+.callout.tip .callout-icon{background:rgba(0,255,65,.2);color:var(--green)}
+.callout.tip .callout-title{color:var(--green)}
+.callout.warn{background:rgba(247,255,61,.05);border-color:rgba(247,255,61,.4)}
+.callout.warn .callout-icon{background:rgba(247,255,61,.2);color:var(--yellow)}
+.callout.warn .callout-title{color:var(--yellow)}
+.callout.danger{background:rgba(255,56,96,.05);border-color:rgba(255,56,96,.4)}
+.callout.danger .callout-icon{background:rgba(255,56,96,.2);color:var(--red)}
+.callout.danger .callout-title{color:var(--red)}
+.callout.quest{background:rgba(0,240,255,.05);border-color:rgba(0,240,255,.4)}
+.callout.quest .callout-icon{background:rgba(0,240,255,.2);color:var(--cyan)}
+.callout.quest .callout-title{color:var(--cyan)}
+
+/* ===== Simulator common ===== */
+.sim{background:var(--bg2);border:1px solid var(--green);border-radius:10px;padding:1.5rem;margin:1.75rem 0;position:relative;box-shadow:0 10px 40px rgba(0,255,65,.08)}
+.sim::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,255,65,.01) 2px,rgba(0,255,65,.01) 4px);pointer-events:none;border-radius:10px}
+.sim-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;gap:.75rem;flex-wrap:wrap;position:relative;z-index:1}
+.sim-title{font-family:'Courier New',monospace;font-weight:700;color:var(--green);font-size:.95rem;display:flex;align-items:center;gap:.5rem;letter-spacing:.05em;text-transform:uppercase}
+.sim-title::before{content:'>';color:var(--green)}
+.sim-stats{display:flex;gap:.5rem;flex-wrap:wrap}
+.sim-stat{background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:.25rem .6rem;font-size:.72rem;font-family:'Courier New',monospace;font-weight:700;color:var(--text-dim)}
+.sim-stat strong{color:var(--green)}
+.sim-stat.cyan strong{color:var(--cyan)}
+.sim-stat.magenta strong{color:var(--magenta)}
+.sim-stat.red strong{color:var(--red)}
+.sim-stat.yellow strong{color:var(--yellow)}
+
+/* ===== Buttons ===== */
+.btn{padding:.6rem 1rem;border:1px solid var(--green);background:transparent;color:var(--green);border-radius:5px;cursor:pointer;font-family:'Courier New',monospace;font-size:.82rem;font-weight:700;transition:all .2s;display:inline-flex;align-items:center;gap:.4rem;letter-spacing:.05em;text-transform:uppercase}
+.btn:hover{background:var(--green);color:#000;box-shadow:var(--shadow-green)}
+.btn.primary{background:var(--green);color:#000;box-shadow:var(--shadow-green)}
+.btn.primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,255,65,.6)}
+.btn.cyan{border-color:var(--cyan);color:var(--cyan)}
+.btn.cyan:hover,.btn.cyan.primary{background:var(--cyan);color:#000;box-shadow:var(--shadow-cyan)}
+.btn.magenta{border-color:var(--magenta);color:var(--magenta)}
+.btn.magenta:hover{background:var(--magenta);color:#000}
+.btn.red{border-color:var(--red);color:var(--red)}
+.btn.red:hover{background:var(--red);color:#000;box-shadow:var(--shadow-red)}
+.btn.ghost{background:transparent}
+.btn.big{padding:.85rem 1.5rem;font-size:.95rem}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-row{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem}
+
+/* ===== Terminal (Module 1) ===== */
+.terminal{background:#000;border:1px solid var(--green);border-radius:8px;font-family:'Courier New',monospace;overflow:hidden;box-shadow:var(--shadow-green)}
+.term-head{background:#0a1510;padding:.5rem 1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-size:.78rem}
+.term-head-l{display:flex;align-items:center;gap:.7rem;color:var(--green)}
+.term-head-r{color:var(--text-dim);font-size:.7rem}
+.term-body{padding:1rem;height:280px;overflow-y:auto;font-size:.82rem;line-height:1.6;color:var(--green)}
+.term-body::-webkit-scrollbar{width:6px}
+.term-body::-webkit-scrollbar-thumb{background:var(--green-dim)}
+.term-line{margin-bottom:.25rem;word-break:break-word}
+.term-line .prompt{color:var(--cyan)}
+.term-line .cmd{color:var(--yellow)}
+.term-line .out{color:var(--text)}
+.term-line .sys{color:var(--green);font-style:italic}
+.term-line .err{color:var(--red)}
+.term-line .ok{color:var(--green);font-weight:700}
+.term-input-row{display:flex;align-items:center;gap:.5rem;padding:.75rem 1rem;border-top:1px solid var(--border);background:#050a08}
+.term-input-row .prompt{color:var(--cyan);font-weight:700}
+.term-input{flex:1;background:transparent;border:none;color:var(--yellow);font-family:'Courier New',monospace;font-size:.88rem;outline:none;caret-color:var(--green)}
+.term-input::placeholder{color:var(--text-dim)}
+
+.condition-box{margin-top:1rem;padding:1rem;background:#000;border:1px solid var(--border);border-radius:8px;font-family:'Courier New',monospace;font-size:.85rem}
+.cond-title{color:var(--text-dim);font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem}
+.cond-eval{padding:.6rem .8rem;background:var(--bg);border-radius:6px;border:1px solid var(--border)}
+.cond-code{color:var(--text)}
+.cond-code .kw{color:#c678dd}
+.cond-code .str{color:#98c379}
+.cond-code .var{color:var(--cyan)}
+.cond-result{margin-top:.5rem;padding:.5rem .8rem;border-radius:4px;font-weight:700;font-size:.85rem}
+.cond-result.true{background:rgba(0,255,65,.1);border:1px solid var(--green);color:var(--green)}
+.cond-result.false{background:rgba(255,56,96,.1);border:1px solid var(--red);color:var(--red)}
+
+/* ===== Password Validator (Module 2) ===== */
+.pw-sim{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+@media(max-width:800px){.pw-sim{grid-template-columns:1fr}}
+.pw-input-box{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem}
+.pw-input{width:100%;padding:.75rem 1rem;background:#000;border:2px solid var(--border);color:var(--text-bright);font-family:'Courier New',monospace;font-size:1.1rem;border-radius:6px;outline:none;transition:all .2s;letter-spacing:.1em}
+.pw-input:focus{border-color:var(--cyan);box-shadow:0 0 15px rgba(0,240,255,.3)}
+.pw-input.valid{border-color:var(--green);box-shadow:0 0 15px rgba(0,255,65,.3)}
+.pw-input.invalid{border-color:var(--red);box-shadow:0 0 15px rgba(255,56,96,.3)}
+.pw-attempts{font-family:'Courier New',monospace;font-size:.78rem;color:var(--text-dim);margin-top:.5rem}
+.pw-attempts strong{color:var(--yellow)}
+
+.pw-rules{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem}
+.pw-rules-t{font-family:'Courier New',monospace;font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim);margin-bottom:.75rem}
+.pw-rule{display:flex;align-items:center;gap:.6rem;padding:.5rem .6rem;background:var(--bg2);border:1px solid var(--border-dim);border-radius:4px;margin-bottom:.4rem;font-size:.82rem;font-family:'Courier New',monospace;transition:all .3s}
+.pw-rule.pass{border-color:var(--green);background:rgba(0,255,65,.05);color:var(--green)}
+.pw-rule.fail{border-color:var(--red);background:rgba(255,56,96,.05);color:var(--red)}
+.pw-rule-ic{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.8rem;flex-shrink:0;background:var(--bg3)}
+.pw-rule.pass .pw-rule-ic{background:var(--green);color:#000}
+.pw-rule.fail .pw-rule-ic{background:var(--red);color:#fff}
+
+.pw-do-while{margin-top:1rem;padding:1rem;background:#000;border:1px solid var(--border);border-radius:8px;font-family:'Courier New',monospace;font-size:.8rem}
+.pw-do-while .ln{display:block;padding:.1rem .5rem;border-left:2px solid transparent}
+.pw-do-while .ln.active{background:rgba(0,255,65,.08);border-left-color:var(--green)}
+.pw-do-while .kw{color:#c678dd}
+.pw-do-while .str{color:#98c379}
+.pw-do-while .cm{color:#5c6370}
+.pw-do-while .fn{color:#61afef}
+
+/* ===== Flag Switches (Module 3) ===== */
+.flag-panel{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+@media(max-width:800px){.flag-panel{grid-template-columns:1fr}}
+.switches{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem}
+.switch{display:flex;align-items:center;gap:1rem;padding:.85rem 1rem;background:var(--bg2);border:1px solid var(--border-dim);border-radius:6px;margin-bottom:.6rem;cursor:pointer;transition:all .2s}
+.switch:hover{border-color:var(--green)}
+.switch.on{background:rgba(0,255,65,.08);border-color:var(--green);box-shadow:0 0 15px rgba(0,255,65,.2)}
+.switch-led{width:20px;height:20px;border-radius:50%;background:var(--bg4);border:2px solid var(--text-dim);flex-shrink:0;transition:all .3s}
+.switch.on .switch-led{background:var(--green);border-color:var(--green);box-shadow:0 0 12px var(--green)}
+.switch-info{flex:1}
+.switch-name{font-family:'Courier New',monospace;font-weight:700;font-size:.9rem;color:var(--text-bright)}
+.switch-desc{font-size:.75rem;color:var(--text-dim);margin-top:.1rem}
+.switch-val{font-family:'Courier New',monospace;font-weight:900;font-size:.85rem;color:var(--red)}
+.switch.on .switch-val{color:var(--green)}
+
+.flag-code{background:#000;border:1px solid var(--border);border-radius:8px;padding:1rem;font-family:'Courier New',monospace;font-size:.8rem;line-height:1.7;overflow-x:auto;position:relative;max-height:420px;overflow-y:auto}
+.flag-code::-webkit-scrollbar{width:6px}
+.flag-code::-webkit-scrollbar-thumb{background:var(--green-dim)}
+.flag-code .kw{color:#c678dd}
+.flag-code .ty{color:#e5c07b}
+.flag-code .str{color:#98c379}
+.flag-code .num{color:#d19a66}
+.flag-code .cm{color:#5c6370;font-style:italic}
+.flag-code .fn{color:#61afef}
+.flag-code .flag-true{background:rgba(0,255,65,.15);display:inline-block;padding:0 .2rem;border-radius:2px;color:var(--green);font-weight:700}
+.flag-code .flag-false{color:var(--red)}
+.flag-code .ln-active{background:rgba(0,255,65,.1);display:block;padding:0 .3rem;margin:0 -.3rem;border-left:3px solid var(--green)}
+.flag-code .ln-break{background:rgba(255,56,96,.15);display:block;padding:0 .3rem;margin:0 -.3rem;border-left:3px solid var(--red)}
+
+.log-stream{background:#000;border:1px solid var(--border);border-radius:6px;padding:.75rem;font-family:'Courier New',monospace;font-size:.75rem;max-height:180px;overflow-y:auto;margin-top:1rem;color:var(--text-dim);line-height:1.5}
+.log-stream::-webkit-scrollbar{width:6px}
+.log-stream::-webkit-scrollbar-thumb{background:var(--green-dim)}
+.log-entry{padding:.1rem 0}
+.log-entry.warn{color:var(--yellow)}
+.log-entry.alert{color:var(--red);font-weight:700}
+.log-entry.ok{color:var(--green)}
+
+/* ===== Cashier (Module 4) ===== */
+.cashier-sim{display:grid;grid-template-columns:1.2fr 1fr;gap:1.5rem}
+@media(max-width:900px){.cashier-sim{grid-template-columns:1fr}}
+.cash-left{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem}
+.cash-right{background:linear-gradient(135deg,rgba(0,255,65,.05),rgba(0,240,255,.03));border:1px solid var(--green);border-radius:8px;padding:1.25rem}
+
+.cash-input-row{display:flex;gap:.5rem;margin-bottom:.75rem;align-items:center}
+.cash-input-row label{font-family:'Courier New',monospace;font-size:.78rem;color:var(--text-dim);min-width:70px;text-transform:uppercase;letter-spacing:.05em}
+.cash-field{flex:1;padding:.5rem .7rem;background:#000;border:1px solid var(--border);color:var(--text-bright);border-radius:4px;font-family:'Courier New',monospace;font-size:.85rem;outline:none;transition:all .2s}
+.cash-field:focus{border-color:var(--cyan);box-shadow:0 0 10px rgba(0,240,255,.2)}
+
+.cash-log{background:#000;border:1px solid var(--border);border-radius:6px;padding:.75rem;font-family:'Courier New',monospace;font-size:.78rem;max-height:220px;overflow-y:auto;margin-top:1rem}
+.cash-log::-webkit-scrollbar{width:6px}
+.cash-log::-webkit-scrollbar-thumb{background:var(--green-dim)}
+.cash-log-entry{display:flex;justify-content:space-between;padding:.3rem .4rem;border-bottom:1px dashed var(--border-dim)}
+.cash-log-entry:last-child{border-bottom:none}
+.cash-log-entry .name{color:var(--text-dim)}
+.cash-log-entry .price{color:var(--green);font-weight:700}
+.cash-log-entry.warn .name{color:var(--yellow)}
+.cash-log-entry.warn .price{color:var(--yellow)}
+.cash-log-entry.err .name{color:var(--red)}
+.cash-log-entry.err .price{color:var(--red)}
+
+.receipt{font-family:'Courier New',monospace;font-size:.85rem;line-height:1.6}
+.receipt-line{display:flex;justify-content:space-between;padding:.3rem 0;border-bottom:1px dashed var(--border-dim)}
+.receipt-line .key{color:var(--text-dim)}
+.receipt-line .val{color:var(--green);font-weight:700}
+.receipt-line.highlight .val{color:var(--yellow);font-size:1.05rem}
+.receipt-line.vip{background:rgba(247,255,61,.1);padding:.5rem .6rem;border-radius:4px;margin-top:.5rem;border:1px solid rgba(247,255,61,.3)}
+.receipt-line.vip .key{color:var(--yellow);font-weight:700}
+.receipt-line.vip .val{color:var(--yellow)}
+.receipt-head{text-align:center;color:var(--green);font-weight:900;margin-bottom:.75rem;letter-spacing:.1em;text-transform:uppercase}
+
+/* ===== Flow diagram ===== */
+.flow-svg{width:100%;height:auto;margin:1.5rem 0;display:block;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:1rem}
+.flow-svg text{font-family:'Courier New',monospace}
+
+/* ===== Bug Hunter (Module 5) ===== */
+.bug-card{background:var(--bg2);border:1px solid var(--red);border-radius:10px;padding:1.5rem;margin:1.5rem 0;position:relative;overflow:hidden}
+.bug-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--grad-warn)}
+.bug-head{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem}
+.bug-badge{padding:.3rem .75rem;background:var(--grad-warn);color:#000;border-radius:100px;font-size:.72rem;font-weight:900;font-family:'Courier New',monospace;letter-spacing:.1em;text-transform:uppercase;box-shadow:0 0 15px rgba(255,56,96,.4)}
+.bug-title{font-family:'Courier New',monospace;font-weight:700;color:var(--text-bright);font-size:1.05rem}
+.bug-desc{color:var(--text);font-size:.9rem;margin-bottom:1rem;padding:.75rem;background:rgba(255,56,96,.05);border-left:3px solid var(--red);border-radius:4px}
+.bug-desc strong{color:var(--red)}
+.bug-code{background:#000;border:1px solid var(--red);border-radius:6px;padding:1rem;font-family:'Courier New',monospace;font-size:.8rem;line-height:1.65;margin-bottom:1rem;color:var(--text)}
+.bug-code .kw{color:#c678dd}
+.bug-code .str{color:#98c379}
+.bug-code .num{color:#d19a66}
+.bug-code .cm{color:#5c6370;font-style:italic}
+.bug-code .fn{color:#61afef}
+.bug-code .bug-line{background:rgba(255,56,96,.12);display:block;padding:0 .5rem;margin:0 -.5rem;border-left:3px solid var(--red)}
+
+.bug-opts{display:grid;gap:.5rem}
+.bug-opt{padding:.85rem 1.1rem;background:var(--bg);border:1.5px solid var(--border);border-radius:6px;cursor:pointer;font-family:'Courier New',monospace;font-size:.85rem;transition:all .2s;color:var(--text)}
+.bug-opt:hover{border-color:var(--cyan);background:rgba(0,240,255,.05)}
+.bug-opt.correct{border-color:var(--green);background:rgba(0,255,65,.1);color:var(--green)}
+.bug-opt.correct::before{content:'✓ ';color:var(--green);font-weight:900}
+.bug-opt.wrong{border-color:var(--red);background:rgba(255,56,96,.08);color:var(--red)}
+.bug-opt.wrong::before{content:'✗ ';color:var(--red);font-weight:900}
+.bug-fb{margin-top:1rem;padding:.85rem 1rem;border-radius:6px;font-size:.88rem;display:none;font-family:-apple-system,sans-serif}
+.bug-fb.show{display:block}
+.bug-fb.ok{background:rgba(0,255,65,.08);border:1px solid var(--green);color:var(--green)}
+.bug-fb.no{background:rgba(255,56,96,.08);border:1px solid var(--red);color:var(--red)}
+
+/* ===== Tables ===== */
+.table-wrap{margin:1.5rem 0;overflow-x:auto;border-radius:8px;border:1px solid var(--border);background:var(--bg2)}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+th{background:var(--bg3);padding:.75rem 1rem;text-align:left;font-family:'Courier New',monospace;font-weight:700;color:var(--green);font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border)}
+td{padding:.75rem 1rem;border-bottom:1px solid var(--border-dim);font-family:-apple-system,sans-serif}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(0,255,65,.03)}
+td code{font-family:'Courier New',monospace}
+
+/* ===== Compare pills ===== */
+.cmp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin:1.5rem 0}
+.cmp-card{padding:1.1rem;background:var(--bg2);border:1px solid var(--border);border-radius:8px;position:relative;overflow:hidden}
+.cmp-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.cmp-card.a::before{background:var(--green)}
+.cmp-card.b::before{background:var(--cyan)}
+.cmp-card.c::before{background:var(--magenta)}
+.cmp-card h4{margin-top:0;font-size:.95rem}
+.cmp-card.a h4{color:var(--green)}
+.cmp-card.b h4{color:var(--cyan)}
+.cmp-card.c h4{color:var(--magenta)}
+
+footer{text-align:center;padding:3rem 1rem;color:var(--text-dim);border-top:1px dashed var(--border);margin-top:4rem;font-size:.85rem;font-family:'Courier New',monospace}
+footer .f-badge{display:inline-flex;align-items:center;gap:.5rem;padding:.5rem 1rem;background:var(--bg2);border:1px solid var(--border);border-radius:100px;font-weight:700;color:var(--green);margin-bottom:.75rem;letter-spacing:.05em}
+
+@media(max-width:768px){
+  body{font-size:15px}
+  .sec-head{flex-wrap:wrap}
+  .sec-meta{margin-left:0;margin-top:.5rem}
+  h3{font-size:1.15rem}
+  .btn-row{flex-direction:column;align-items:stretch}
+  .btn{justify-content:center}
+}
+</style>
+</head>
+<body>
+
+<div id="progressBar"></div>
+
+<div class="layout">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar">
+    <div class="logo-box">
+      <div class="logo-ic">&gt;_</div>
+      <div class="logo-txt">
+        <strong>HACK_THE_LOOP</strong>
+        <small>v1.0 · while &amp; do-while</small>
+      </div>
+    </div>
+
+    <div class="sb-sec">// modules</div>
+    <ul class="sb-nav">
+      <li><a href="#intro"><span class="idx">00</span>mission_briefing</a></li>
+      <li><a href="#m1"><span class="idx">01</span>entrada_abierta</a></li>
+      <li><a href="#m2"><span class="idx">02</span>centinela</a></li>
+      <li><a href="#m3"><span class="idx">03</span>flags</a></li>
+      <li><a href="#m4"><span class="idx">04</span>taller_caja</a></li>
+      <li><a href="#m5"><span class="idx">05</span>bug_hunter</a></li>
+    </ul>
+
+    <div class="sb-stats">
+      <div class="sb-stats-row"><span>runtime</span><strong>3.5h</strong></div>
+      <div class="sb-stats-row"><span>clearance</span><strong>L3</strong></div>
+      <div class="sb-stats-row"><span>lang</span><strong>C#</strong></div>
+      <div class="sb-stats-row"><span>xp_earned</span><strong id="xpDisp">0/600</strong></div>
+      <div class="sb-bar"><div class="sb-fill" id="sbFill"></div></div>
+    </div>
+
+    <div class="badges">
+      <div class="badges-t">// achievements</div>
+      <div class="badges-g">
+        <div class="bdg" id="bdg-while" title="while_master">🔁</div>
+        <div class="bdg" id="bdg-dowhile" title="do_while_pro">🛡️</div>
+        <div class="bdg" id="bdg-flag" title="flag_hunter">🚩</div>
+        <div class="bdg" id="bdg-cashier" title="cashier">💰</div>
+        <div class="bdg" id="bdg-bug" title="bug_hunter">🐛</div>
+        <div class="bdg" id="bdg-master" title="master">👑</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main">
+
+    <!-- ===== HERO ===== -->
+    <section class="hero">
+      <div class="hero-content">
+        <div class="hero-top">
+          <div class="hero-tag"><span class="blinker"></span>OPERATION: INFINITE LOOP</div>
+          <div class="hero-status">STATUS: ACTIVE</div>
+        </div>
+        <h1>Hacking the<br><span class="grad">System</span><span class="cursor"></span></h1>
+        <p class="hero-sub">Los <strong>bucles cuantitativos</strong> (<code>for</code>) son para cuando sabes exactamente cuántas veces algo va a pasar. Pero la vida real es impredecible: los usuarios escriben basura, los sensores fallan, los juegos no saben cuándo terminan. Aquí aprendes los <strong>bucles cualitativos</strong> — <code>while</code> y <code>do-while</code> — que reaccionan al <em>estado</em> del sistema, no a un número fijo.</p>
+
+        <div class="hero-brief">
+          <div class="ln">&gt; <span class="key">TARGET:</span> Controlar ciclos por condiciones cualitativas</div>
+          <div class="ln">&gt; <span class="key">WEAPONS:</span> while · do-while · bool · break</div>
+          <div class="ln">&gt; <span class="key">OPFOR:</span> Bucles infinitos · Entradas inválidas · Bugs lógicos</div>
+          <div class="ln">&gt; <span class="key">PAYLOAD:</span> 5 simuladores interactivos + 1 bug hunt</div>
+        </div>
+
+        <div class="hero-badges">
+          <span class="badge hl">⏱ 3.5 horas</span>
+          <span class="badge">🖥 5 simuladores</span>
+          <span class="badge">🐛 bug hunter arena</span>
+          <span class="badge">⚡ sistema XP</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== INTRO ===== -->
+    <section id="intro" class="fade-in">
+      <div class="sec-head">
+        <div class="sec-num m1">00</div>
+        <div class="sec-title-group">
+          <h2>mission_briefing</h2>
+          <div class="sec-sub">// ¿Por qué los bucles cualitativos cambian todo?</div>
+        </div>
+        <div class="sec-meta"><span class="meta-pill">15 MIN</span></div>
+      </div>
+
+      <div class="lead">Imagina un videojuego. ¿Sabes cuántas veces el jugador va a presionar "saltar"? No. ¿Sabes cuántos intentos tomará escribir una contraseña correcta? No. ¿Sabes cuántos productos va a escanear el cajero? No. <strong>Los bucles cuantitativos no sirven aquí.</strong> Necesitas algo que escuche el mundo y reaccione.</div>
+
+      <h3>La diferencia fundamental</h3>
+      <div class="cmp-grid">
+        <div class="cmp-card a">
+          <h4>🔢 Bucle Cuantitativo</h4>
+          <p style="color:var(--text);font-size:.88rem;margin:.5rem 0 0"><code>for (int i=0; i&lt;10; i++)</code><br>Sabes el número exacto de iteraciones <strong>antes</strong> de empezar.</p>
+        </div>
+        <div class="cmp-card b">
+          <h4>🎯 Bucle Cualitativo</h4>
+          <p style="color:var(--text);font-size:.88rem;margin:.5rem 0 0"><code>while (comando != "salir")</code><br>El número depende del <strong>estado del sistema</strong> o del usuario.</p>
+        </div>
+        <div class="cmp-card c">
+          <h4>🚨 Bucle de Validación</h4>
+          <p style="color:var(--text);font-size:.88rem;margin:.5rem 0 0"><code>do {...} while (!valido);</code><br>Se ejecuta <strong>al menos una vez</strong> y repite hasta que la entrada es correcta.</p>
+        </div>
+      </div>
+
+      <h3>Tu ruta de infiltración</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Module</th><th>Herramienta</th><th>Tiempo</th><th>XP</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>01 · Entrada Abierta</td><td style="color:var(--green)">while</td><td>45 min</td><td>100 XP</td></tr>
+            <tr><td>02 · Centinela y Validación</td><td style="color:var(--yellow)">do-while</td><td>45 min</td><td>100 XP</td></tr>
+            <tr><td>03 · Banderas de Control</td><td style="color:var(--magenta)">bool + break</td><td>45 min</td><td>100 XP</td></tr>
+            <tr><td>04 · Taller del Algoritmo</td><td style="color:var(--cyan)">Integración</td><td>60 min</td><td>150 XP</td></tr>
+            <tr><td>05 · Bug Hunter Arena</td><td style="color:var(--red)">Debug</td><td>45 min</td><td>150 XP</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout warn">
+        <div class="callout-icon">⚠</div>
+        <div class="callout-content">
+          <div class="callout-title">ALERTA: El Bucle Infinito</div>
+          <div class="callout-body">Un bucle cualitativo mal diseñado puede volverse <strong>infinito</strong>: el programa nunca termina y tienes que forzar el cierre. Esto se llama <em>"infinite loop"</em> y es el enemigo número 1 de todo hacker novato. Aprenderás a prevenirlo.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== MÓDULO 1: WHILE ===== -->
+    <section id="m1" class="fade-in">
+      <div class="sec-head">
+        <div class="sec-num m1">01</div>
+        <div class="sec-title-group">
+          <h2>¿Cuándo parar?</h2>
+          <div class="sec-sub">// El misterio de la Entrada Abierta</div>
+        </div>
+        <div class="sec-meta"><span class="meta-pill">45 MIN</span><span class="meta-pill">100 XP</span></div>
+      </div>
+
+      <div class="lead">Imagina un <strong>chatbot</strong>. El usuario escribe mensajes sin límite. ¿Cómo sabes cuándo termina? <strong>No lo sabes.</strong> Solo puedes reaccionar: si escribe "salir", te detienes. Si escribe otra cosa, respondes y sigues esperando. Ese es el corazón de un bucle cualitativo.</div>
+
+      <h3>Anatomía del <code>while</code></h3>
+      <div class="syntax-cmp">
+        <div class="syntax-box a">
+          <div class="syntax-t">// while: evalúa ANTES de entrar</div>
+<pre class="code-pre"><span class="kw">while</span> (condición)
+{
+    <span class="cm">// Solo entra si la condición es true</span>
+    <span class="cm">// Si es false desde el inicio,</span>
+    <span class="cm">// no se ejecuta NI UNA VEZ</span>
+}</pre>
+        </div>
+        <div class="syntax-box b">
+          <div class="syntax-t">// Ejemplo: chat infinito</div>
+<pre class="code-pre"><span class="kw">string</span> cmd = <span class="str">""</span>;
+
+<span class="kw">while</span> (cmd != <span class="str">"salir"</span>)
+{
+    Console.<span class="fn">Write</span>(<span class="str">"&gt; "</span>);
+    cmd = Console.<span class="fn">ReadLine</span>();
+    <span class="cm">// procesar comando...</span>
+}
+<span class="cm">// aquí salimos</span></pre>
+        </div>
+      </div>
+
+      <div class="callout tip">
+        <div class="callout-icon">💡</div>
+        <div class="callout-content">
+          <div class="callout-title">Patrón clave: el centinela</div>
+          <div class="callout-body">La palabra o valor que "rompe" el bucle se llama <strong>centinela</strong> (sentinel). En el ejemplo anterior, <code>"salir"</code> es el centinela. Puede ser un string, un número negativo, un bool, o cualquier valor que señale "aquí termina".</div>
+        </div>
+      </div>
+
+      <h3>🖥️ Simulador: Consola Hacker</h3>
+      <p>Escribe comandos en la terminal. El simulador evalúa la condición del <code>while</code> en tiempo real y te muestra qué decide el programa.</p>
+
+      <div class="sim">
+        <div class="sim-head">
+          <div class="sim-title">root@hacklab ~ $</div>
+          <div class="sim-stats">
+            <div class="sim-stat">iteraciones: <strong id="m1-iter">0</strong></div>
+            <div class="sim-stat cyan">comando: <strong id="m1-cmd">""</strong></div>
+          </div>
+        </div>
+
+        <div class="terminal">
+          <div class="term-head">
+            <div class="term-head-l">
+              <div class="code-dots"><span></span><span></span><span></span></div>
+              hack-terminal · /dev/tty0
+            </div>
+            <div class="term-head-r">while (cmd != "salir")</div>
+          </div>
+          <div class="term-body" id="termBody">
+            <div class="term-line"><span class="sys">[SISTEMA] Terminal iniciada. Escribe "ayuda" para ver comandos.</span></div>
+            <div class="term-line"><span class="sys">[SISTEMA] Escribe "salir" para terminar la sesión.</span></div>
+          </div>
+          <div class="term-input-row">
+            <span class="prompt">root@hacklab:~$</span>
+            <input type="text" class="term-input" id="termInput" placeholder="escribe un comando..." autocomplete="off">
+          </div>
+        </div>
+
+        <div class="condition-box">
+          <div class="cond-title">// Evaluación en tiempo real</div>
+          <div class="cond-eval">
+            <div class="cond-code"><span class="kw">while</span> (<span class="var">cmd</span> != <span class="str">"salir"</span>)  <span class="cm">// →</span> <span id="condLHS">""</span> != "salir"</div>
+            <div class="cond-result true" id="condResult">✓ TRUE → continúa el bucle</div>
+          </div>
+        </div>
+      </div>
+
+      <h3>💻 Código completo en C#</h3>
+      <div class="code-wrap">
+        <div class="code-head">
+          <div class="code-head-l"><div class="code-dots"><span></span><span></span><span></span></div>ChatBot.cs</div>
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        </div>
+<pre class="code-pre"><span class="kw">using</span> System;
+
+<span class="kw">class</span> <span class="ty">ChatBot</span>
+{
+    <span class="kw">static void</span> <span class="fn">Main</span>()
+    {
+        Console.<span class="fn">WriteLine</span>(<span class="str">"🤖 ChatBot iniciado. Escribe 'salir' para terminar.\n"</span>);
+
+        <span class="cm">// ═════════════════════════════════════════</span>
+        <span class="cm">// CENTINELA: variable de control cualitativa</span>
+        <span class="cm">// ═════════════════════════════════════════</span>
+        <span class="kw">string</span> comando = <span class="str">""</span>;   <span class="cm">// inicia vacío (NO es "salir")</span>
+
+        <span class="cm">// ═════════════════════════════════════════</span>
+        <span class="cm">// BUCLE CUALITATIVO: depende del estado</span>
+        <span class="cm">// ═════════════════════════════════════════</span>
+        <span class="kw">while</span> (comando != <span class="str">"salir"</span>)
+        {
+            Console.<span class="fn">Write</span>(<span class="str">"&gt; "</span>);
+            comando = Console.<span class="fn">ReadLine</span>();
+
+            <span class="kw">switch</span> (comando.ToLower())
+            {
+                <span class="kw">case</span> <span class="str">"hola"</span>:
+                    Console.<span class="fn">WriteLine</span>(<span class="str">"👋 ¡Hola, humano!"</span>);
+                    <span class="kw">break</span>;
+                <span class="kw">case</span> <span class="str">"hora"</span>:
+                    Console.<span class="fn">WriteLine</span>(<span class="str">$"🕐 Son las {DateTime.Now:HH:mm}"</span>);
+                    <span class="kw">break</span>;
+                <span class="kw">case</span> <span class="str">"chiste"</span>:
+                    Console.<span class="fn">WriteLine</span>(<span class="str">"😄 ¿Por qué los programadores prefieren el modo oscuro? Porque la luz atrae bugs."</span>);
+                    <span class="kw">break</span>;
+                <span class="kw">case</span> <span class="str">"salir"</span>:
+                    Console.<span class="fn">WriteLine</span>(<span class="str">"👋 Hasta luego."</span>);
+                    <span class="kw">break</span>;
+                <span class="kw">default</span>:
+                    Console.<span class="fn">WriteLine</span>(<span class="str">"🤔 No entiendo ese comando."</span>);
+                    <span class="kw">break</span>;
+            }
+        }
+
+        Console.<span class="fn">WriteLine</span>(<span class="str">"\n🔚 El bucle terminó. Sesión cerrada."</span>);
+    }
+}</pre>
+      </div>
+
+      <div class="callout quest">
+        <div class="callout-icon">?</div>
+        <div class="callout-content">
+          <div class="callout-title">Mini-reto mental</div>
+          <div class="callout-body">Si en vez de <code>while (comando != "salir")</code> usaras <code>while (comando == "salir")</code>, ¿qué pasaría? Pista: el valor inicial es <code>""</code>. ¿Entraría al bucle alguna vez?</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== MÓDULO 2: DO-WHILE ===== -->
+    <section id="m2" class="fade-in">
+      <div class="sec-head">
+        <div class="sec-num m2">02</div>
+        <div class="sec-title-group">
+          <h2>El Centinela y las Validaciones</h2>
+          <div class="sec-sub">// Algoritmos defensivos con do-while</div>
+        </div>
+        <div class="sec-meta"><span class="meta-pill">45 MIN</span><span class="meta-pill">100 XP</span></div>
+      </div>
+
+      <div class="lead">El mundo real es <strong>hostil</strong>: los usuarios escriben letras cuando pides números, dejan campos vacíos, ponen contraseñas débiles. Un programa robusto no se rompe ante esto — <strong>valida y vuelve a pedir</strong>. Aquí entra el <code>do-while</code>.</div>
+
+      <h3>Diferencia crítica con <code>while</code></h3>
+      <div class="syntax-cmp">
+        <div class="syntax-box a">
+          <div class="syntax-t">// while: pregunta PRIMERO</div>
+<pre class="code-pre"><span class="kw">while</span> (condición)
+{
+    <span class="cm">// Si la condición es false</span>
+    <span class="cm">// desde el inicio, NO se</span>
+    <span class="cm">// ejecuta ni una vez.</span>
+}</pre>
+        </div>
+        <div class="syntax-box d">
+          <div class="syntax-t">// do-while: ejecuta PRIMERO</div>
+<pre class="code-pre"><span class="kw">do</span>
+{
+    <span class="cm">// Se ejecuta AL MENOS</span>
+    <span class="cm">// una vez, sin importar</span>
+    <span class="cm">// la condición inicial.</span>
+} <span class="kw">while</span> (condición);</pre>
+        </div>
+      </div>
+
+      <div class="callout tip">
+        <div class="callout-icon">💡</div>
+        <div class="callout-content">
+          <div class="callout-title">Regla de oro</div>
+          <div class="callout-body">Usa <code>do-while</code> cuando necesites que algo pase <strong>al menos una vez</strong>: pedir una contraseña, pedir una opción de menú, leer un dato del usuario. El 90% de las validaciones de entrada usan <code>do-while</code>.</div>
+        </div>
+      </div>
+
+      <h3>🖥️ Simulador: Validador de Contraseñas</h3>
+      <p>El sistema no te deja avanzar hasta que la contraseña cumpla <strong>todas las reglas cualitativas</strong>. Mira cómo la variable <code>esValida</code> y el <code>do-while</code> trabajan juntos.</p>
+
+      <div class="sim">
+        <div class="sim-head">
+          <div class="sim-title">🛡 SecureAuth v2.1</div>
+          <div class="sim-stats">
+            <div class="sim-stat">intentos: <strong id="m2-attempts">0</strong></div>
+            <div class="sim-stat yellow">esValida: <strong id="m2-valid">false</strong></div>
+          </div>
+        </div>
+
+        <div class="pw-sim">
+          <div class="pw-input-box">
+            <label style="display:block;font-family:'Courier New',monospace;font-size:.78rem;color:var(--text-dim);margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.1em">Ingresa tu contraseña</label>
+            <input type="text" class="pw-input" id="pwInput" placeholder="escribe aquí..." autocomplete="off">
+            <div class="pw-attempts">Intento actual: <strong id="m2-attempt-num">1</strong> · El bucle continuará mientras <code>esValida == false</code></div>
+            <div class="btn-row">
+              <button class="btn primary" id="pwValidate">▶ Validar contraseña</button>
+              <button class="btn ghost" id="pwReset">↺ Reiniciar</button>
+            </div>
+          </div>
+
+          <div class="pw-rules">
+            <div class="pw-rules-t">// Reglas cualitativas</div>
+            <div class="pw-rule fail" id="rule-len">
+              <div class="pw-rule-ic">✗</div>
+              <div>Mínimo 8 caracteres</div>
+            </div>
+            <div class="pw-rule fail" id="rule-upper">
+              <div class="pw-rule-ic">✗</div>
+              <div>Al menos 1 mayúscula</div>
+            </div>
+            <div class="pw-rule fail" id="rule-number">
+              <div class="pw-rule-ic">✗</div>
+              <div>Al menos 1 número</div>
+            </div>
+            <div class="pw-rule fail" id="rule-symbol">
+              <div class="pw-rule-ic">✗</div>
+              <div>Al menos 1 símbolo (!@#$%)</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pw-do-while" id="pwCode">
+          <div class="ln"><span class="kw">bool</span> esValida;</div>
+          <div class="ln"><span class="kw">string</span> password;</div>
+          <div class="ln"><br></div>
+          <div class="ln" id="pw-ln-do"><span class="kw">do</span></div>
+          <div class="ln" id="pw-ln-ask">{</div>
+          <div class="ln" id="pw-ln-read">    Console.<span class="fn">Write</span>(<span class="str">"Contraseña: "</span>);</div>
+          <div class="ln" id="pw-ln-input">    password = Console.<span class="fn">ReadLine</span>();</div>
+          <div class="ln" id="pw-ln-check">    esValida = <span class="fn">ValidarPassword</span>(password);</div>
+          <div class="ln" id="pw-ln-if">    <span class="kw">if</span> (!esValida) Console.<span class="fn">WriteLine</span>(<span class="str">"❌ Reintenta."</span>);</div>
+          <div class="ln" id="pw-ln-close">}</div>
+          <div class="ln" id="pw-ln-while"><span class="kw">while</span> (!esValida);  <span class="cm">// continúa mientras sea inválida</span></div>
+          <div class="ln"><br></div>
+          <div class="ln" id="pw-ln-end">Console.<span class="fn">WriteLine</span>(<span class="str">"✅ Acceso concedido."</span>);</div>
+        </div>
+      </div>
+
+      <h3>💻 Código completo en C#</h3>
+      <div class="code-wrap">
+        <div class="code-head">
+          <div class="code-head-l"><div class="code-dots"><span></span><span></span><span></span></div>PasswordValidator.cs</div>
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        </div>
+<pre class="code-pre"><span class="kw">using</span> System;
+
+<span class="kw">class</span> <span class="ty">PasswordValidator</span>
+{
+    <span class="kw">static void</span> <span class="fn">Main</span>()
+    {
+        Console.<span class="fn">WriteLine</span>(<span class="str">"🛡 SecureAuth v2.1\n"</span>);
+
+        <span class="kw">bool</span> esValida;
+        <span class="kw">string</span> password;
+        <span class="kw">int</span> intentos = <span class="num">0</span>;
+
+        <span class="cm">// ═════════════════════════════════════════</span>
+        <span class="cm">// DO-WHILE: se ejecuta AL MENOS UNA VEZ</span>
+        <span class="cm">// ═════════════════════════════════════════</span>
+        <span class="kw">do</span>
+        {
+            Console.<span class="fn">Write</span>(<span class="str">"Contraseña: "</span>);
+            password = Console.<span class="fn">ReadLine</span>();
+            intentos++;
+
+            <span class="cm">// Validación cualitativa (4 reglas)</span>
+            esValida = <span class="fn">ValidarPassword</span>(password);
+
+            <span class="kw">if</span> (!esValida)
+            {
+                Console.<span class="fn">WriteLine</span>(<span class="str">"❌ No cumple los requisitos. Reintenta.\n"</span>);
+            }
+
+        } <span class="kw">while</span> (!esValida);   <span class="cm">// ← la condición va al final</span>
+
+        Console.<span class="fn">WriteLine</span>(<span class="str">$"\n✅ Acceso concedido en {intentos} intento(s)."</span>);
+    }
+
+    <span class="cm">// ═════════════════════════════════════════</span>
+    <span class="cm">// Validación cualitativa con banderas</span>
+    <span class="cm">// ═════════════════════════════════════════</span>
+    <span class="kw">static bool</span> <span class="fn">ValidarPassword</span>(<span class="kw">string</span> pwd)
+    {
+        <span class="kw">if</span> (pwd.Length &lt; <span class="num">8</span>)
+        {
+            Console.<span class="fn">WriteLine</span>(<span class="str">"  ⚠ Mínimo 8 caracteres."</span>);
+            <span class="kw">return false</span>;
+        }
+
+        <span class="kw">bool</span> tieneMayuscula = <span class="kw">false</span>;
+        <span class="kw">bool</span> tieneNumero    = <span class="kw">false</span>;
+        <span class="kw">bool</span> tieneSimbolo   = <span class="kw">false</span>;
+
+        <span class="kw">foreach</span> (<span class="kw">char</span> c <span class="kw">in</span> pwd)
+        {
+            <span class="kw">if</span> (<span class="kw">char</span>.<span class="fn">IsUpper</span>(c))   tieneMayuscula = <span class="kw">true</span>;
+            <span class="kw">if</span> (<span class="kw">char</span>.<span class="fn">IsDigit</span>(c))   tieneNumero    = <span class="kw">true</span>;
+            <span class="kw">if</span> (<span class="str">"!@#$%&amp;*"</span>.<span class="fn">Contains</span>(c)) tieneSimbolo = <span class="kw">true</span>;
+        }
+
+        <span class="kw">if</span> (!tieneMayuscula) Console.<span class="fn">WriteLine</span>(<span class="str">"  ⚠ Falta mayúscula."</span>);
+        <span class="kw">if</span> (!tieneNumero)    Console.<span class="fn">WriteLine</span>(<span class="str">"  ⚠ Falta número."</span>);
+        <span class="kw">if</span> (!tieneSimbolo)   Console.<span class="fn">WriteLine</span>(<span class="str">"  ⚠ Falta símbolo."</span>);
+
+        <span class="kw">return</span> tieneMayuscula &amp;&amp; tieneNumero &amp;&amp; tieneSimbolo;
+    }
+}</pre>
+      </div>
+
+      <div class="callout warn">
+        <div class="callout-icon">⚠</div>
+        <div class="callout-content">
+          <div class="callout-title">Punto y coma obligatorio</div>
+          <div class="callout-body">El <code>do-while</code> es la <strong>única</strong> estructura de control en C# que termina con <code>;</code> después del paréntesis de la condición. Si lo olvidas, no compila. El <code>while</code> normal NO lleva punto y coma al final.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== MÓDULO 3: FLAGS ===== -->
+    <section id="m3" class="fade-in">
+      <div class="sec-head">
+        <div class="sec-num m3">03</div>
+        <div class="sec-title-group">
+          <h2>Banderas de Control de Estado</h2>
+          <div class="sec-sub">// Interruptores de emergencia para romper ciclos</div>
+        </div>
+        <div class="sec-meta"><span class="meta-pill">45 MIN</span><span class="meta-pill">100 XP</span></div>
+      </div>
+
+      <div class="lead">A veces necesitas <strong>más de una razón</strong> para detener un bucle. O tal vez el bucle depende de algo que cambia en el tiempo: ¿se quedó sin batería? ¿encontró al enemigo? ¿excedió el tiempo? Las <strong>banderas</strong> (flags) son variables booleanas que actúan como <em>interruptores de emergencia</em>.</div>
+
+      <h3>¿Qué es una bandera?</h3>
+      <p>Una bandera es simplemente una variable <code>bool</code> que <strong>recuerda si algo ocurrió</strong>. Se inicializa en <code>false</code>, y cuando el evento sucede, se cambia a <code>true</code>. El bucle la revisa constantemente.</p>
+
+      <div class="syntax-cmp">
+        <div class="syntax-box a">
+          <div class="syntax-t">// Patrón básico</div>
+<pre class="code-pre"><span class="kw">bool</span> juegoTerminado = <span class="kw">false</span>;
+
+<span class="kw">while</span> (!juegoTerminado)
+{
+    <span class="cm">// lógica del juego...</span>
+
+    <span class="kw">if</span> (vidas == <span class="num">0</span>)
+        juegoTerminado = <span class="kw">true</span>;
+}</pre>
+        </div>
+        <div class="syntax-box b">
+          <div class="syntax-t">// Múltiples banderas</div>
+<pre class="code-pre"><span class="kw">bool</span> sinVidas  = <span class="kw">false</span>;
+<span class="kw">bool</span> sinTiempo = <span class="kw">false</span>;
+<span class="kw">bool</span> gano      = <span class="kw">false</span>;
+
+<span class="kw">while</span> (!sinVidas &amp;&amp;
+       !sinTiempo &amp;&amp;
+       !gano)
+{
+    <span class="cm">// jugar...</span>
+}</pre>
+        </div>
+      </div>
+
+      <h3>🖥️ Simulador: Intruder Detection System</h3>
+      <p>Un sistema de seguridad monitorea 3 interruptores. Cuando cualquiera se activa, la bandera de alarma detiene el bucle de monitoreo. Activa los switches y observa cómo el código reacciona.</p>
+
+      <div class="sim">
+        <div class="sim-head">
+          <div class="sim-title">🚨 Intruder Detection System</div>
+          <div class="sim-stats">
+            <div class="sim-stat">ciclos: <strong id="m3-cycles">0</strong></div>
+            <div class="sim-stat red">alerta: <strong id="m3-alert">false</strong></div>
+            <div class="sim-stat">estado: <strong id="m3-status">MONITORING</strong></div>
+          </div>
+        </div>
+
+        <div class="flag-panel">
+          <div class="switches">
+            <div style="font-family:'Courier New',monospace;font-size:.75rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.75rem">// interruptores de sensores</div>
+
+            <div class="switch" id="sw-motion" data-flag="motionDetected">
+              <div class="switch-led"></div>
+              <div class="switch-info">
+                <div class="switch-name">motionDetected</div>
+                <div class="switch-desc">Sensor de movimiento</div>
+              </div>
+              <div class="switch-val">false</div>
+            </div>
+
+            <div class="switch" id="sw-door" data-flag="doorOpen">
+              <div class="switch-led"></div>
+              <div class="switch-info">
+                <div class="switch-name">doorOpen</div>
+                <div class="switch-desc">Sensor de puerta</div>
+              </div>
+              <div class="switch-val">false</div>
+            </div>
+
+            <div class="switch" id="sw-window" data-flag="windowBroken">
+              <div class="switch-led"></div>
+              <div class="switch-info">
+                <div class="switch-name">windowBroken</div>
+                <div class="switch-desc">Sensor de ventana</div>
+              </div>
+              <div class="switch-val">false</div>
+            </div>
+
+            <div class="btn-row">
+              <button class="btn primary" id="flagRun">▶ Ejecutar bucle</button>
+              <button class="btn red" id="flagReset">↺ Reset sistema</button>
+            </div>
+
+            <div class="log-stream" id="flagLog">
+              <div class="log-entry">[BOOT] Sistema de monitoreo iniciado...</div>
+            </div>
+          </div>
+
+          <div>
+            <div class="flag-code" id="flagCode">
+<span class="kw">bool</span> <span id="fc-mo" class="flag-false">motionDetected = false</span>;
+<span class="kw">bool</span> <span id="fc-do" class="flag-false">doorOpen = false</span>;
+<span class="kw">bool</span> <span id="fc-wi" class="flag-false">windowBroken = false</span>;
+<span class="kw">bool</span> <span id="fc-al">alerta = false</span>;
+<span class="kw">int</span> ciclos = <span class="num">0</span>;
+
+<span id="fc-while" class="ln-active"><span class="kw">while</span> (!alerta)
+{
+    ciclos++;
+    Console.<span class="fn">WriteLine</span>($<span class="str">"[Ciclo {ciclos}] Monitoreando..."</span>);
+
+    <span class="cm">// Los sensores pueden activarse</span>
+    <span class="cm">// durante el ciclo</span>
+
+    <span id="fc-if1">    <span class="kw">if</span> (motionDetected || doorOpen || windowBroken)
+    {
+        alerta = <span class="kw">true</span>;   <span class="cm">// ← bandera de emergencia</span>
+        Console.<span class="fn">WriteLine</span>(<span class="str">"🚨 ¡ALERTA ACTIVADA!"</span>);
+        <span class="kw">break</span>;   <span class="cm">// ← salida forzada del bucle</span>
+    }</span>
+
+    Thread.<span class="fn">Sleep</span>(<span class="num">500</span>);
+}</span>
+
+Console.<span class="fn">WriteLine</span>($<span class="str">"Sistema detenido tras {ciclos} ciclos."</span>);
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h3>💻 Código completo en C#</h3>
+      <div class="code-wrap">
+        <div class="code-head">
+          <div class="code-head-l"><div class="code-dots"><span></span><span></span><span></span></div>SecuritySystem.cs</div>
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        </div>
+<pre class="code-pre"><span class="kw">using</span> System;
+<span class="kw">using</span> System.Threading;
+
+<span class="kw">class</span> <span class="ty">SecuritySystem</span>
+{
+    <span class="kw">static void</span> <span class="fn">Main</span>()
+    {
+        Console.<span class="fn">WriteLine</span>(<span class="str">"🚨 Sistema de seguridad iniciado\n"</span>);
+
+        <span class="cm">// ═════════════════════════════════════════</span>
+        <span class="cm">// BANDERAS: una por cada posible evento</span>
+        <span class="cm">// ═════════════════════════════════════════</span>
+        <span class="kw">bool</span> motionDetected = <span class="kw">false</span>;
+        <span class="kw">bool</span> doorOpen       = <span class="kw">false</span>;
+        <span class="kw">bool</span> windowBroken   = <span class="kw">false</span>;
+        <span class="kw">bool</span> alerta         = <span class="kw">false</span>;  <span class="cm">// bandera maestra</span>
+        <span class="kw">int</span> ciclos = <span class="num">0</span>;
+        Random rnd = <span class="kw">new</span> <span class="fn">Random</span>();
+
+        <span class="cm">// ═════════════════════════════════════════</span>
+        <span class="cm">// Bucle mientras no haya alerta</span>
+        <span class="cm">// ═════════════════════════════════════════</span>
+        <span class="kw">while</span> (!alerta)
+        {
+            ciclos++;
+            Console.<span class="fn">WriteLine</span>(<span class="str">$"[Ciclo {ciclos}] Monitoreando..."</span>);
+
+            <span class="cm">// Simulación: eventos aleatorios</span>
+            <span class="kw">if</span> (rnd.<span class="fn">Next</span>(<span class="num">10</span>) == <span class="num">0</span>) motionDetected = <span class="kw">true</span>;
+            <span class="kw">if</span> (rnd.<span class="fn">Next</span>(<span class="num">15</span>) == <span class="num">0</span>) doorOpen       = <span class="kw">true</span>;
+            <span class="kw">if</span> (rnd.<span class="fn">Next</span>(<span class="num">20</span>) == <span class="num">0</span>) windowBroken   = <span class="kw">true</span>;
+
+            <span class="cm">// ═════════════════════════════════════</span>
+            <span class="cm">// ¿Alguna bandera se activó?</span>
+            <span class="cm">// ═════════════════════════════════════</span>
+            <span class="kw">if</span> (motionDetected || doorOpen || windowBroken)
+            {
+                alerta = <span class="kw">true</span>;
+                Console.<span class="fn">WriteLine</span>(<span class="str">"\n🚨 ¡INTRUSO DETECTADO!"</span>);
+
+                <span class="kw">if</span> (motionDetected) Console.<span class="fn">WriteLine</span>(<span class="str">"  → Sensor de movimiento"</span>);
+                <span class="kw">if</span> (doorOpen)       Console.<span class="fn">WriteLine</span>(<span class="str">"  → Puerta abierta"</span>);
+                <span class="kw">if</span> (windowBroken)   Console.<span class="fn">WriteLine</span>(<span class="str">"  → Ventana rota"</span>);
+
+                <span class="kw">break</span>;  <span class="cm">// salida forzada del bucle</span>
+            }
+
+            Thread.<span class="fn">Sleep</span>(<span class="num">500</span>);
+        }
+
+        Console.<span class="fn">WriteLine</span>(<span class="str">$"\n🔚 Sistema detenido tras {ciclos} ciclos."</span>);
+        Console.<span class="fn">WriteLine</span>(<span class="str">"📞 Llamando a seguridad..."</span>);
+    }
+}</pre>
+      </div>
+
+      <div class="callout danger">
+        <div class="callout-icon">!</div>
+        <div class="callout-content">
+          <div class="callout-title">El poder de <code>break</code></div>
+          <div class="callout-body"><code>break</code> saca del bucle <strong>inmediatamente</strong>, sin esperar a que la condición se evalúe. Es útil cuando detectas una condición crítica dentro del cuerpo. Pero no abuses: usar banderas es más limpio y legible que llenar el código de <code>break</code>.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== MÓDULO 4: TALLER ===== -->
+    <section id="m4" class="fade-in">
+      <div class="sec-head">
+        <div class="sec-num m4">04</div>
+        <div class="sec-title-group">
+          <h2>Taller del Algoritmo Secuencial</h2>
+          <div class="sec-sub">// Caja registradora con entrada abierta</div>
+        </div>
+        <div class="sec-meta"><span class="meta-pill">60 MIN</span><span class="meta-pill">150 XP</span></div>
+      </div>
+
+      <div class="lead">Ahora integramos todo: <code>while</code> de entrada abierta + validación con <code>do-while</code> + bandera para logros. El caso: una caja de supermercado que acepta productos <strong>sin límite</strong>, valida entradas, y otorga logros cualitativos.</div>
+
+      <h3>🖥️ Simulador: SuperCashier Pro</h3>
+      <p>Agrega productos uno a uno. Reglas: <strong>precios positivos</strong>, escribe <strong>"PAGAR"</strong> como centinela para cerrar, y si el total supera $100 se activa el logro <strong>"VIP"</strong>. El diagrama de flujo se ilumina en tiempo real.</p>
+
+      <div class="sim">
+        <div class="sim-head">
+          <div class="sim-title">💰 SuperCashier Pro</div>
+          <div class="sim-stats">
+            <div class="sim-stat">productos: <strong id="m4-count">0</strong></div>
+            <div class="sim-stat cyan">total: <strong id="m4-total">$0.00</strong></div>
+            <div class="sim-stat magenta">esVIP: <strong id="m4-vip">false</strong></div>
+          </div>
+        </div>
+
+        <div class="cashier-sim">
+          <div class="cash-left">
+            <div class="cash-input-row">
+              <label>Producto</label>
+              <input type="text" class="cash-field" id="cashName" placeholder="Ej: Manzana" value="Pan">
+            </div>
+            <div class="cash-input-row">
+              <label>Precio $</label>
+              <input type="number" class="cash-field" id="cashPrice" value="2.50" step="0.01">
+            </div>
+            <div class="btn-row">
+              <button class="btn primary" id="cashAdd">+ Añadir producto</button>
+              <button class="btn cyan big" id="cashPay">💳 PAGAR (centinela)</button>
+            </div>
+            <div class="btn-row">
+              <button class="btn ghost" id="cashReset">↺ Reiniciar caja</button>
+            </div>
+
+            <div class="cash-log" id="cashLog">
+              <div class="cash-log-entry"><span class="name">[Sistema listo]</span><span class="price">—</span></div>
+            </div>
+          </div>
+
+          <div class="cash-right">
+            <div class="receipt-head">════ TICKET ════</div>
+            <div class="receipt" id="receipt">
+              <div style="text-align:center;color:var(--text-dim);padding:1.5rem;font-family:'Courier New',monospace;font-size:.78rem">Esperando productos...<br><br>Escribe "PAGAR" para cerrar la venta.</div>
+            </div>
+          </div>
+        </div>
+
+        <h4 style="margin-top:2rem">Diagrama de flujo en vivo</h4>
+        <svg class="flow-svg" viewBox="0 0 800 420" id="flowSvg">
+          <defs>
+            <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#00ff41"/>
+            </marker>
+          </defs>
+
+          <!-- Step 1: Start -->
+          <ellipse cx="100" cy="60" rx="70" ry="30" fill="#18222c" stroke="#00ff41" stroke-width="2" id="fs-start"/>
+          <text x="100" y="65" text-anchor="middle" fill="#00ff41" font-size="12" font-weight="700">INICIO</text>
+
+          <!-- Step 2: Init vars -->
+          <rect x="220" y="35" width="160" height="50" fill="#18222c" stroke="#00f0ff" stroke-width="2" id="fs-init"/>
+          <text x="300" y="55" text-anchor="middle" fill="#00f0ff" font-size="11" font-weight="700">total=0, count=0</text>
+          <text x="300" y="72" text-anchor="middle" fill="#6b7f8c" font-size="10">esVIP = false</text>
+
+          <!-- Arrow 1->2 -->
+          <line x1="170" y1="60" x2="218" y2="60" stroke="#00ff41" stroke-width="2" marker-end="url(#arrow)"/>
+
+          <!-- Step 3: while loop -->
+          <polygon points="500,60 560,30 620,60 560,90" fill="#18222c" stroke="#f7ff3d" stroke-width="2" id="fs-while"/>
+          <text x="560" y="55" text-anchor="middle" fill="#f7ff3d" font-size="10" font-weight="700">¿comando</text>
+          <text x="560" y="70" text-anchor="middle" fill="#f7ff3d" font-size="10" font-weight="700">!= "PAGAR"?</text>
+
+          <!-- Arrow 2->3 -->
+          <line x1="380" y1="60" x2="498" y2="60" stroke="#00ff41" stroke-width="2" marker-end="url(#arrow)"/>
+
+          <!-- Step 4: read input (down) -->
+          <rect x="500" y="130" width="120" height="45" fill="#18222c" stroke="#00f0ff" stroke-width="2" id="fs-read"/>
+          <text x="560" y="150" text-anchor="middle" fill="#00f0ff" font-size="11" font-weight="700">leer precio</text>
+          <text x="560" y="165" text-anchor="middle" fill="#6b7f8c" font-size="10">validar &gt; 0</text>
+
+          <!-- Arrow 3->4 -->
+          <line x1="560" y1="90" x2="560" y2="128" stroke="#00ff41" stroke-width="2" marker-end="url(#arrow)"/>
+          <text x="580" y="115" fill="#00ff41" font-size="10" font-weight="700">SÍ</text>
+
+          <!-- Step 5: accumulate -->
+          <rect x="500" y="210" width="120" height="45" fill="#18222c" stroke="#a855f7" stroke-width="2" id="fs-acc"/>
+          <text x="560" y="230" text-anchor="middle" fill="#a855f7" font-size="11" font-weight="700">total += precio</text>
+          <text x="560" y="245" text-anchor="middle" fill="#6b7f8c" font-size="10">count++</text>
+
+          <line x1="560" y1="175" x2="560" y2="208" stroke="#00ff41" stroke-width="2" marker-end="url(#arrow)"/>
+
+          <!-- Arrow back to while -->
+          <path d="M 620 232 L 700 232 L 700 60 L 622 60" fill="none" stroke="#00ff41" stroke-width="2" marker-end="url(#arrow)"/>
+          <text x="715" y="145" fill="#6b7f8c" font-size="10">↻ loop</text>
+
+          <!-- Step 6: PAGAR exit -->
+          <rect x="380" y="305" width="140" height="50" fill="#18222c" stroke="#ff2bd6" stroke-width="2" id="fs-pay"/>
+          <text x="450" y="325" text-anchor="middle" fill="#ff2bd6" font-size="11" font-weight="700">PAGAR</text>
+          <text x="450" y="342" text-anchor="middle" fill="#6b7f8c" font-size="10">salir del bucle</text>
+
+          <line x1="560" y1="90" x2="560" y2="280" stroke="none"/>
+          <path d="M 500 75 L 450 100 L 450 303" fill="none" stroke="#ff2bd6" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#arrow)"/>
+          <text x="420" y="190" fill="#ff2bd6" font-size="10" font-weight="700">NO</text>
+
+          <!-- Step 7: VIP check -->
+          <polygon points="250,330 300,305 350,330 300,355" fill="#18222c" stroke="#f7ff3d" stroke-width="2" id="fs-vip"/>
+          <text x="300" y="328" text-anchor="middle" fill="#f7ff3d" font-size="10" font-weight="700">total</text>
+          <text x="300" y="342" text-anchor="middle" fill="#f7ff3d" font-size="10" font-weight="700">&gt; 100?</text>
+
+          <line x1="380" y1="330" x2="352" y2="330" stroke="#ff2bd6" stroke-width="2" marker-end="url(#arrow)"/>
+
+          <!-- VIP true -->
+          <rect x="100" y="310" width="100" height="40" fill="#18222c" stroke="#f7ff3d" stroke-width="2" id="fs-vip-y"/>
+          <text x="150" y="330" text-anchor="middle" fill="#f7ff3d" font-size="11" font-weight="700">esVIP =</text>
+          <text x="150" y="344" text-anchor="middle" fill="#f7ff3d" font-size="11" font-weight="700">true ⭐</text>
+          <line x1="250" y1="320" x2="202" y2="320" stroke="#f7ff3d" stroke-width="2" marker-end="url(#arrow)"/>
+          <text x="232" y="312" fill="#f7ff3d" font-size="10" font-weight="700">SÍ</text>
+
+          <!-- VIP false path (skip) -->
+          <line x1="300" y1="355" x2="300" y2="390" stroke="#6b7f8c" stroke-width="2" stroke-dasharray="3 2"/>
+          <text x="315" y="375" fill="#6b7f8c" font-size="10">NO</text>
+
+          <!-- Step 8: End -->
+          <ellipse cx="500" cy="400" rx="70" ry="25" fill="#18222c" stroke="#00ff41" stroke-width="2" id="fs-end"/>
+          <text x="500" y="405" text-anchor="middle" fill="#00ff41" font-size="12" font-weight="700">FIN</text>
+
+          <path d="M 150 350 L 150 400 L 428 400" fill="none" stroke="#00ff41" stroke-width="2" marker-end="url(#arrow)"/>
+          <line x1="300" y1="390" x2="430" y2="400" stroke="#00ff41" stroke-width="2" stroke-dasharray="3 2"/>
+        </svg>
+      </div>
+
+      <h3>💻 Código completo en C#</h3>
+      <div class="code-wrap">
+        <div class="code-head">
+          <div class="code-head-l"><div class="code-dots"><span></span><span></span><span></span></div>SuperCashier.cs</div>
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+        </div>
+<pre class="code-pre"><span class="kw">using</span> System;
+
+<span class="kw">class</span> <span class="ty">SuperCashier</span>
+{
+    <span class="kw">static void</span> <span class="fn">Main</span>()
+    {
+        Console.<span class="fn">WriteLine</span>(<span class="str">"💰 SuperCashier Pro\n"</span>);
+
+        <span class="cm">// ═════════════════════════════════════════</span>
+        <span class="cm">// 1. INICIALIZAR VARIABLES</span>
+        <span class="cm">// ═════════════════════════════════════════</span>
+        <span class="kw">double</span> total = <span class="num">0</span>;
+        <span class="kw">int</span> count = <span class="num">0</span>;
+        <span class="kw">bool</span> esVIP = <span class="kw">false</span>;
+        <span class="kw">string</span> entrada = <span class="str">""</span>;
+        <span class="kw">const double</span> LIMITE_VIP = <span class="num">100.0</span>;
+
+        <span class="cm">// ═════════════════════════════════════════</span>
+        <span class="cm">// 2. BUCLE while DE ENTRADA ABIERTA</span>
+        <span class="cm">// ═════════════════════════════════════════</span>
+        <span class="kw">while</span> (entrada != <span class="str">"PAGAR"</span>)
+        {
+            Console.<span class="fn">Write</span>(<span class="str">"Producto (o 'PAGAR'): "</span>);
+            entrada = Console.<span class="fn">ReadLine</span>();
+
+            <span class="kw">if</span> (entrada == <span class="str">"PAGAR"</span>) <span class="kw">break</span>;
+
+            <span class="cm">// ═════════════════════════════════════</span>
+            <span class="cm">// 3. do-while DE VALIDACIÓN</span>
+            <span class="cm">// ═════════════════════════════════════</span>
+            <span class="kw">double</span> precio;
+            <span class="kw">bool</span> precioValido;
+
+            <span class="kw">do</span>
+            {
+                Console.<span class="fn">Write</span>(<span class="str">"Precio: $"</span>);
+                precioValido = <span class="kw">double</span>.<span class="fn">TryParse</span>(Console.<span class="fn">ReadLine</span>(), <span class="kw">out</span> precio);
+
+                <span class="kw">if</span> (!precioValido || precio &lt;= <span class="num">0</span>)
+                {
+                    Console.<span class="fn">WriteLine</span>(<span class="str">"❌ Ingresa un número positivo."</span>);
+                    precioValido = <span class="kw">false</span>;
+                }
+            } <span class="kw">while</span> (!precioValido);
+
+            <span class="cm">// ═════════════════════════════════════</span>
+            <span class="cm">// 4. ACUMULAR</span>
+            <span class="cm">// ═════════════════════════════════════</span>
+            total += precio;
+            count++;
+            Console.<span class="fn">WriteLine</span>(<span class="str">$"✓ {entrada} añadido. Total: ${total:F2}\n"</span>);
+        }
+
+        <span class="cm">// ═════════════════════════════════════════</span>
+        <span class="cm">// 5. BANDERA DE LOGRO</span>
+        <span class="cm">// ═════════════════════════════════════════</span>
+        <span class="kw">if</span> (total &gt; LIMITE_VIP)
+        {
+            esVIP = <span class="kw">true</span>;
+        }
+
+        <span class="cm">// ═════════════════════════════════════════</span>
+        <span class="cm">// 6. IMPRIMIR TICKET</span>
+        <span class="cm">// ═════════════════════════════════════════</span>
+        Console.<span class="fn">WriteLine</span>(<span class="str">"\n════ TICKET FINAL ════"</span>);
+        Console.<span class="fn">WriteLine</span>(<span class="str">$"Productos: {count}"</span>);
+        Console.<span class="fn">WriteLine</span>(<span class="str">$"Subtotal:  ${total:F2}"</span>);
+
+        <span class="kw">if</span> (count &gt; <span class="num">0</span>)
+        {
+            Console.<span class="fn">WriteLine</span>(<span class="str">$"Promedio:  ${total / count:F2}"</span>);
+        }
+
+        <span class="kw">if</span> (esVIP)
+        {
+            <span class="kw">double</span> desc = total * <span class="num">0.10</span>;
+            Console.<span class="fn">WriteLine</span>(<span class="str">$"\n⭐ ¡LOGRO VIP! -10%: -${desc:F2}"</span>);
+            Console.<span class="fn">WriteLine</span>(<span class="str">$"TOTAL: ${total - desc:F2}"</span>);
+        }
+        <span class="kw">else</span>
+        {
+            Console.<span class="fn">WriteLine</span>(<span class="str">$"TOTAL: ${total:F2}"</span>);
+        }
+    }
+}</pre>
+      </div>
+    </section>
+
+    <!-- ===== MÓDULO 5: BUG HUNTER ===== -->
+    <section id="m5" class="fade-in">
+      <div class="sec-head">
+        <div class="sec-num m5">05</div>
+        <div class="sec-title-group">
+          <h2>Arena: Bug Hunter</h2>
+          <div class="sec-sub">// Encuentra el bucle infinito</div>
+        </div>
+        <div class="sec-meta"><span class="meta-pill">45 MIN</span><span class="meta-pill">150 XP</span></div>
+      </div>
+
+      <div class="lead">Hora de la verdad. Aquí hay <strong>3 códigos con bugs</strong> que crean bucles infinitos o lógicamente incorrectos. Tu misión: identificar el error y corregirlo. Cada bug que encuentres te acerca al rango de <strong>Master Hacker</strong>.</div>
+
+      <!-- BUG 1 -->
+      <div class="bug-card">
+        <div class="bug-head">
+          <span class="bug-badge">BUG #1</span>
+          <div class="bug-title">El contador olvidado</div>
+        </div>
+        <div class="bug-desc">Este código debería contar del 1 al 5, pero en realidad... <strong>nunca termina</strong>. ¿Por qué?</div>
+<pre class="bug-code"><span class="kw">int</span> i = <span class="num">1</span>;
+
+<span class="kw">while</span> (i &lt;= <span class="num">5</span>)
+{
+<span class="bug-line">    Console.<span class="fn">WriteLine</span>(i);</span>
+    <span class="cm">// ← falta algo aquí</span>
+}</pre>
+
+        <div class="bug-opts" data-bug="1">
+          <div class="bug-opt" data-correct="false">Añadir <code>Console.ReadLine();</code> dentro del bucle</div>
+          <div class="bug-opt" data-correct="true">Añadir <code>i++;</code> dentro del bucle</div>
+          <div class="bug-opt" data-correct="false">Cambiar <code>while</code> por <code>do-while</code></div>
+          <div class="bug-opt" data-correct="false">Cambiar la condición a <code>i &gt;= 5</code></div>
+        </div>
+        <div class="bug-fb" id="bug-fb-1"></div>
+      </div>
+
+      <!-- BUG 2 -->
+      <div class="bug-card">
+        <div class="bug-head">
+          <span class="bug-badge">BUG #2</span>
+          <div class="bug-title">La bandera zombie</div>
+        </div>
+        <div class="bug-desc">Este juego debería terminar cuando el jugador escriba "salir", pero <strong>la bandera nunca cambia</strong>. ¿Dónde está el error?</div>
+<pre class="bug-code"><span class="kw">bool</span> jugando = <span class="kw">true</span>;
+<span class="kw">string</span> comando;
+
+<span class="kw">while</span> (jugando)
+{
+    Console.<span class="fn">Write</span>(<span class="str">"&gt; "</span>);
+    comando = Console.<span class="fn">ReadLine</span>();
+
+<span class="bug-line">    <span class="kw">if</span> (comando == <span class="str">"salir"</span>)
+    {
+        Console.<span class="fn">WriteLine</span>(<span class="str">"Saliendo..."</span>);
+        <span class="cm">// ← falta la línea crítica</span>
+    }</span>
+    <span class="kw">else</span>
+    {
+        Console.<span class="fn">WriteLine</span>(<span class="str">$"Ejecutando: {comando}"</span>);
+    }
+}</pre>
+
+        <div class="bug-opts" data-bug="2">
+          <div class="bug-opt" data-correct="false">Añadir <code>break;</code> después de <code>continue;</code></div>
+          <div class="bug-opt" data-correct="false">Añadir <code>comando = "";</code></div>
+          <div class="bug-opt" data-correct="true">Añadir <code>jugando = false;</code> dentro del if</div>
+          <div class="bug-opt" data-correct="false">Cambiar <code>while (jugando)</code> por <code>while (!jugando)</code></div>
+        </div>
+        <div class="bug-fb" id="bug-fb-2"></div>
+      </div>
+
+      <!-- BUG 3 -->
+      <div class="bug-card">
+        <div class="bug-head">
+          <span class="bug-badge">BUG #3</span>
+          <div class="bug-title">El do-while invertido</div>
+        </div>
+        <div class="bug-desc">Este validador de número debería pedir números del 1 al 10 hasta obtener uno válido. Pero hay algo mal con la <strong>condición del while</strong>...</div>
+<pre class="bug-code"><span class="kw">int</span> numero;
+<span class="kw">bool</span> valido;
+
+<span class="kw">do</span>
+{
+    Console.<span class="fn">Write</span>(<span class="str">"Número del 1 al 10: "</span>);
+    valido = <span class="kw">int</span>.<span class="fn">TryParse</span>(Console.<span class="fn">ReadLine</span>(), <span class="kw">out</span> numero);
+
+    <span class="kw">if</span> (!valido || numero &lt; <span class="num">1</span> || numero &gt; <span class="num">10</span>)
+    {
+        Console.<span class="fn">WriteLine</span>(<span class="str">"❌ Inválido. Reintenta."</span>);
+        valido = <span class="kw">false</span>;
+    }
+
+<span class="bug-line">} <span class="kw">while</span> (valido);   <span class="cm">// ← algo está mal aquí</span></span></pre>
+
+        <div class="bug-opts" data-bug="3">
+          <div class="bug-opt" data-correct="true">Cambiar a <code>while (!valido);</code></div>
+          <div class="bug-opt" data-correct="false">Cambiar a <code>while (numero &gt; 10);</code></div>
+          <div class="bug-opt" data-correct="false">Quitar el <code>while</code> y dejar solo <code>}</code></div>
+          <div class="bug-opt" data-correct="false">Cambiar a <code>while (valido == true);</code></div>
+        </div>
+        <div class="bug-fb" id="bug-fb-3"></div>
+      </div>
+
+      <div class="callout warn" style="margin-top:2rem">
+        <div class="callout-icon">🏆</div>
+        <div class="callout-content">
+          <div class="callout-title">Anatomía de un bucle infinito</div>
+          <div class="callout-body">Los bucles infinitos casi siempre vienen de 3 errores: <strong>(1)</strong> olvidar actualizar la variable de control, <strong>(2)</strong> no cambiar la bandera cuando corresponde, <strong>(3)</strong> escribir mal la condición del while (inversión lógica). Revisa siempre estos 3 puntos antes de ejecutar.</div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="f-badge">🔓 HACKING_THE_SYSTEM · v1.0</div>
+      <div>// Ciclos Cualitativos en C# · 3.5 horas · Nivel L3</div>
+      <div style="margin-top:.5rem;font-size:.75rem;color:var(--text-dim)">while (!hasMastered) { practice(); learn(); }</div>
+    </footer>
+
+  </main>
+</div>
+
+<script>
+// ============ XP + BADGES ============
+let xp = 0;
+const badges = {};
+const addXP = (n, key) => {
+  xp += n;
+  document.getElementById('xpDisp').textContent = `${xp}/600`;
+  document.getElementById('sbFill').style.width = Math.min(100, (xp/600)*100) + '%';
+  if (key && !badges[key]) {
+    badges[key] = true;
+    const el = document.getElementById('bdg-' + key);
+    if (el) el.classList.add('on');
+  }
+  if (xp >= 600 && !badges.master) {
+    badges.master = true;
+    const m = document.getElementById('bdg-master');
+    if (m) m.classList.add('on');
+  }
+};
+
+// ============ Progress bar + active section ============
+const pBar = document.getElementById('progressBar');
+window.addEventListener('scroll', () => {
+  const s = window.scrollY;
+  const h = document.documentElement.scrollHeight - window.innerHeight;
+  pBar.style.width = ((s/h)*100) + '%';
+});
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.sb-nav a');
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navLinks.forEach(l => l.classList.remove('active'));
+      const a = document.querySelector(`.sb-nav a[href="#${e.target.id}"]`);
+      if (a) a.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+sections.forEach(s => io.observe(s));
+const fadeIO = new IntersectionObserver((es) => {
+  es.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.05 });
+document.querySelectorAll('.fade-in').forEach(el => fadeIO.observe(el));
+
+// ============ Copy code ============
+function copyCode(btn) {
+  const pre = btn.closest('.code-wrap').querySelector('.code-pre');
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    const t = btn.innerText;
+    btn.innerText = '✓ copied';
+    btn.classList.add('ok');
+    setTimeout(() => { btn.innerText = t; btn.classList.remove('ok'); }, 2000);
+  });
+}
+
+// ============ MODULE 1: Terminal ============
+(() => {
+  const input = document.getElementById('termInput');
+  const body = document.getElementById('termBody');
+  const iterEl = document.getElementById('m1-iter');
+  const cmdEl = document.getElementById('m1-cmd');
+  const lhs = document.getElementById('condLHS');
+  const res = document.getElementById('condResult');
+  let iter = 0;
+  let lastCmd = '';
+
+  const addLine = (type, text) => {
+    const line = document.createElement('div');
+    line.className = 'term-line';
+    line.innerHTML = `<span class="${type}">${text}</span>`;
+    body.appendChild(line);
+    body.scrollTop = body.scrollHeight;
+  };
+
+  const updateCond = () => {
+    lhs.textContent = `"${lastCmd}"`;
+    const evals = lastCmd.toLowerCase() !== 'salir';
+    res.className = 'cond-result ' + (evals ? 'true' : 'false');
+    res.innerHTML = evals
+      ? `✓ TRUE → continúa el bucle`
+      : `✗ FALSE → <strong>el bucle termina</strong>`;
+  };
+
+  const commands = {
+    'ayuda': () => { addLine('out', '  📖 Comandos: hola, hora, chiste, status, scan, help, salir'); },
+    'hola': () => { addLine('ok', '  👋 ¡Hola, hacker!'); },
+    'hora': () => { addLine('out', `  🕐 ${new Date().toLocaleTimeString()}`); },
+    'chiste': () => { addLine('out', '  😄 ¿Por qué los programadores odian la playa? Porque hay demasiados bugs en la arena.'); },
+    'status': () => { addLine('sys', `  [STATUS] Iteración #${iter} · cmd="${lastCmd}" · bucle activo`); },
+    'scan': () => {
+      addLine('sys', '  [SCAN] Analizando red...');
+      setTimeout(() => addLine('out', '  ✓ 3 dispositivos encontrados.'), 300);
+      setTimeout(() => addLine('out', '  ⚠ 1 puerto sospechoso: 4444'), 600);
+    },
+    'hack': () => { addLine('err', '  ✗ Acceso denegado. Necesitas más XP.'); },
+    'salir': () => {
+      addLine('ok', '  🔚 Sesión terminada. Bucle while finalizado.');
+      addLine('sys', '  [SISTEMA] El código sale del while y continúa con la línea siguiente.');
+    }
+  };
+
+  const process = (cmd) => {
+    const c = cmd.trim().toLowerCase();
+    iter++;
+    lastCmd = c;
+    iterEl.textContent = iter;
+    cmdEl.textContent = `"${c}"`;
+
+    addLine('prompt', `root@hacklab:~$ <span class="cmd">${cmd}</span>`);
+
+    if (commands[c]) {
+      commands[c]();
+    } else if (c === '') {
+      addLine('sys', '  [vacío]');
+    } else {
+      addLine('err', `  ✗ Comando desconocido: "${c}". Escribe "ayuda".`);
+    }
+
+    updateCond();
+
+    if (c === 'salir') {
+      input.disabled = true;
+      input.placeholder = 'Bucle terminado. Refresca para reiniciar.';
+      addXP(20, 'while');
+    }
+  };
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      const v = input.value;
+      process(v);
+      input.value = '';
+    }
+  });
+
+  updateCond();
+})();
+
+// ============ MODULE 2: Password Validator ============
+(() => {
+  const input = document.getElementById('pwInput');
+  const validateBtn = document.getElementById('pwValidate');
+  const resetBtn = document.getElementById('pwReset');
+  const attemptsEl = document.getElementById('m2-attempts');
+  const validEl = document.getElementById('m2-valid');
+  const attemptNumEl = document.getElementById('m2-attempt-num');
+
+  const rules = {
+    len: document.getElementById('rule-len'),
+    upper: document.getElementById('rule-upper'),
+    number: document.getElementById('rule-number'),
+    symbol: document.getElementById('rule-symbol')
+  };
+
+  const codeLines = ['pw-ln-do','pw-ln-ask','pw-ln-read','pw-ln-input','pw-ln-check','pw-ln-if','pw-ln-close','pw-ln-while','pw-ln-end'];
+  let attempts = 0;
+
+  const check = (pwd) => ({
+    len: pwd.length >= 8,
+    upper: /[A-Z]/.test(pwd),
+    number: /[0-9]/.test(pwd),
+    symbol: /[!@#$%&*]/.test(pwd)
+  });
+
+  const updateRules = (pwd) => {
+    const r = check(pwd);
+    Object.keys(r).forEach(k => {
+      rules[k].className = 'pw-rule ' + (r[k] ? 'pass' : 'fail');
+      rules[k].querySelector('.pw-rule-ic').textContent = r[k] ? '✓' : '✗';
+    });
+    return r;
+  };
+
+  const animateCode = async (steps, valid) => {
+    for (const s of steps) {
+      codeLines.forEach(l => document.getElementById(l).classList.remove('active'));
+      const el = document.getElementById(s);
+      if (el) el.classList.add('active');
+      await new Promise(r => setTimeout(r, 350));
+    }
+    codeLines.forEach(l => document.getElementById(l).classList.remove('active'));
+  };
+
+  input.addEventListener('input', () => {
+    updateRules(input.value);
+  });
+
+  validateBtn.addEventListener('click', async () => {
+    const pwd = input.value;
+    attempts++;
+    attemptsEl.textContent = attempts;
+    attemptNumEl.textContent = attempts;
+
+    const r = check(pwd);
+    updateRules(pwd);
+    const isValid = r.len && r.upper && r.number && r.symbol;
+
+    // Highlight input
+    input.classList.remove('valid', 'invalid');
+    input.classList.add(isValid ? 'valid' : 'invalid');
+
+    // Animate code
+    if (isValid) {
+      await animateCode(['pw-ln-do','pw-ln-ask','pw-ln-read','pw-ln-input','pw-ln-check','pw-ln-close','pw-ln-while','pw-ln-end']);
+      validEl.textContent = 'true';
+      validEl.style.color = 'var(--green)';
+      addXP(25, 'dowhile');
+    } else {
+      await animateCode(['pw-ln-do','pw-ln-ask','pw-ln-read','pw-ln-input','pw-ln-check','pw-ln-if','pw-ln-close','pw-ln-while']);
+      validEl.textContent = 'false';
+      validEl.style.color = 'var(--red)';
+      addXP(5);
+    }
+  });
+
+  resetBtn.addEventListener('click', () => {
+    input.value = '';
+    input.classList.remove('valid', 'invalid');
+    attempts = 0;
+    attemptsEl.textContent = '0';
+    attemptNumEl.textContent = '1';
+    validEl.textContent = 'false';
+    validEl.style.color = 'var(--red)';
+    updateRules('');
+  });
+
+  updateRules('');
+})();
+
+// ============ MODULE 3: Flags ============
+(() => {
+  const switches = document.querySelectorAll('.switch');
+  const runBtn = document.getElementById('flagRun');
+  const resetBtn = document.getElementById('flagReset');
+  const logEl = document.getElementById('flagLog');
+  const cyclesEl = document.getElementById('m3-cycles');
+  const alertEl = document.getElementById('m3-alert');
+  const statusEl = document.getElementById('m3-status');
+  const codeEl = document.getElementById('flagCode');
+
+  const state = {
+    motionDetected: false,
+    doorOpen: false,
+    windowBroken: false
+  };
+
+  const updateCode = () => {
+    document.getElementById('fc-mo').className = state.motionDetected ? 'flag-true' : 'flag-false';
+    document.getElementById('fc-mo').textContent = `motionDetected = ${state.motionDetected}`;
+    document.getElementById('fc-do').className = state.doorOpen ? 'flag-true' : 'flag-false';
+    document.getElementById('fc-do').textContent = `doorOpen = ${state.doorOpen}`;
+    document.getElementById('fc-wi').className = state.windowBroken ? 'flag-true' : 'flag-false';
+    document.getElementById('fc-wi').textContent = `windowBroken = ${state.windowBroken}`;
+  };
+
+  switches.forEach(sw => {
+    sw.addEventListener('click', () => {
+      const flag = sw.dataset.flag;
+      state[flag] = !state[flag];
+      sw.classList.toggle('on', state[flag]);
+      sw.querySelector('.switch-val').textContent = state[flag];
+      updateCode();
+    });
+  });
+
+  const addLog = (msg, cls = '') => {
+    const e = document.createElement('div');
+    e.className = 'log-entry ' + cls;
+    e.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+    logEl.appendChild(e);
+    logEl.scrollTop = logEl.scrollHeight;
+  };
+
+  runBtn.addEventListener('click', async () => {
+    runBtn.disabled = true;
+    resetBtn.disabled = true;
+    statusEl.textContent = 'RUNNING';
+    statusEl.style.color = 'var(--cyan)';
+
+    let cycles = 0;
+    const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+    while (true) {
+      cycles++;
+      cyclesEl.textContent = cycles;
+      addLog(`[Ciclo ${cycles}] Monitoreando...`);
+      await sleep(500);
+
+      if (state.motionDetected || state.doorOpen || state.windowBroken) {
+        alertEl.textContent = 'true';
+        alertEl.style.color = 'var(--red)';
+        statusEl.textContent = 'ALERT!';
+        statusEl.style.color = 'var(--red)';
+
+        addLog('🚨 ¡INTRUSO DETECTADO!', 'alert');
+        if (state.motionDetected) addLog('  → motionDetected = true', 'warn');
+        if (state.doorOpen) addLog('  → doorOpen = true', 'warn');
+        if (state.windowBroken) addLog('  → windowBroken = true', 'warn');
+        addLog(`Sistema detenido tras ${cycles} ciclos.`, 'ok');
+        addXP(30, 'flag');
+        break;
+      }
+
+      if (cycles >= 15) {
+        addLog('⏱ Tiempo máximo alcanzado. Sin intrusos.', 'ok');
+        statusEl.textContent = 'CLEAN';
+        statusEl.style.color = 'var(--green)';
+        addXP(15, 'flag');
+        break;
+      }
+    }
+
+    runBtn.disabled = false;
+    resetBtn.disabled = false;
+  });
+
+  resetBtn.addEventListener('click', () => {
+    state.motionDetected = false;
+    state.doorOpen = false;
+    state.windowBroken = false;
+    switches.forEach(sw => {
+      sw.classList.remove('on');
+      sw.querySelector('.switch-val').textContent = 'false';
+    });
+    updateCode();
+    cyclesEl.textContent = '0';
+    alertEl.textContent = 'false';
+    alertEl.style.color = 'var(--red)';
+    statusEl.textContent = 'MONITORING';
+    statusEl.style.color = 'var(--text-dim)';
+    logEl.innerHTML = '<div class="log-entry">[BOOT] Sistema reiniciado...</div>';
+  });
+
+  updateCode();
+})();
+
+// ============ MODULE 4: Cashier ============
+(() => {
+  const nameIn = document.getElementById('cashName');
+  const priceIn = document.getElementById('cashPrice');
+  const addBtn = document.getElementById('cashAdd');
+  const payBtn = document.getElementById('cashPay');
+  const resetBtn = document.getElementById('cashReset');
+  const logEl = document.getElementById('cashLog');
+  const receiptEl = document.getElementById('receipt');
+  const countEl = document.getElementById('m4-count');
+  const totalEl = document.getElementById('m4-total');
+  const vipEl = document.getElementById('m4-vip');
+
+  let items = [];
+  let total = 0;
+  let count = 0;
+  let esVIP = false;
+
+  const flowHighlight = (ids) => {
+    const all = ['fs-start','fs-init','fs-while','fs-read','fs-acc','fs-pay','fs-vip','fs-vip-y','fs-end'];
+    all.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.setAttribute('stroke-width', '2');
+        el.style.filter = '';
+      }
+    });
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.setAttribute('stroke-width', '4');
+        el.style.filter = 'drop-shadow(0 0 8px currentColor)';
+      }
+    });
+  };
+
+  const addLog = (name, price, cls = '') => {
+    const e = document.createElement('div');
+    e.className = 'cash-log-entry ' + cls;
+    e.innerHTML = `<span class="name">${name}</span><span class="price">${price}</span>`;
+    logEl.appendChild(e);
+    logEl.scrollTop = logEl.scrollHeight;
+  };
+
+  const renderReceipt = () => {
+    if (items.length === 0) {
+      receiptEl.innerHTML = '<div style="text-align:center;color:var(--text-dim);padding:1.5rem;font-family:\'Courier New\',monospace;font-size:.78rem">Esperando productos...<br><br>Escribe "PAGAR" para cerrar.</div>';
+      return;
+    }
+    let html = '';
+    items.forEach((it, i) => {
+      html += `<div class="receipt-line"><span class="key">${i+1}. ${it.name}</span><span class="val">$${it.price.toFixed(2)}</span></div>`;
+    });
+    html += `<div class="receipt-line" style="margin-top:.75rem;border-top:1px dashed var(--border);padding-top:.75rem"><span class="key">Productos:</span><span class="val">${count}</span></div>`;
+    html += `<div class="receipt-line"><span class="key">Subtotal:</span><span class="val">$${total.toFixed(2)}</span></div>`;
+    if (count > 0) html += `<div class="receipt-line"><span class="key">Promedio:</span><span class="val">$${(total/count).toFixed(2)}</span></div>`;
+    if (esVIP) {
+      const desc = total * 0.10;
+      html += `<div class="receipt-line vip"><span class="key">⭐ LOGRO VIP!</span><span class="val">-10%</span></div>`;
+      html += `<div class="receipt-line"><span class="key">Descuento:</span><span class="val" style="color:var(--yellow)">-$${desc.toFixed(2)}</span></div>`;
+      html += `<div class="receipt-line highlight"><span class="key">TOTAL:</span><span class="val" style="color:var(--yellow)">$${(total-desc).toFixed(2)}</span></div>`;
+    } else {
+      html += `<div class="receipt-line highlight"><span class="key">TOTAL:</span><span class="val">$${total.toFixed(2)}</span></div>`;
+    }
+    receiptEl.innerHTML = html;
+  };
+
+  addBtn.addEventListener('click', () => {
+    const name = nameIn.value.trim();
+    const price = parseFloat(priceIn.value);
+
+    flowHighlight(['fs-read']);
+
+    if (!name) {
+      addLog('⚠ Nombre vacío', '—', 'err');
+      return;
+    }
+    if (isNaN(price) || price <= 0) {
+      addLog(`❌ ${name} → precio inválido`, '—', 'err');
+      addLog('do-while: reintentando...', '—', 'warn');
+      addXP(2);
+      return;
+    }
+
+    setTimeout(() => {
+      flowHighlight(['fs-acc']);
+      items.push({ name, price });
+      total += price;
+      count++;
+      countEl.textContent = count;
+      totalEl.textContent = '$' + total.toFixed(2);
+      addLog(name, `$${price.toFixed(2)}`);
+      renderReceipt();
+      nameIn.value = '';
+      addXP(5);
+    }, 400);
+  });
+
+  payBtn.addEventListener('click', () => {
+    if (items.length === 0) {
+      addLog('⚠ No hay productos. Añade al menos uno.', '—', 'warn');
+      return;
+    }
+
+    flowHighlight(['fs-pay']);
+    addLog('💳 CENTINELA "PAGAR" detectado', '—', 'warn');
+
+    setTimeout(() => {
+      flowHighlight(['fs-vip']);
+      esVIP = total > 100;
+      vipEl.textContent = esVIP;
+      vipEl.style.color = esVIP ? 'var(--yellow)' : 'var(--red)';
+    }, 600);
+
+    setTimeout(() => {
+      if (esVIP) {
+        flowHighlight(['fs-vip-y']);
+        addLog('⭐ LOGRO VIP activado', '—', 'warn');
+      } else {
+        flowHighlight(['fs-end']);
+        addLog('Total no alcanza VIP', '—');
+      }
+      renderReceipt();
+      addXP(40, 'cashier');
+    }, 1200);
+
+    setTimeout(() => {
+      flowHighlight(['fs-end']);
+    }, 1800);
+  });
+
+  resetBtn.addEventListener('click', () => {
+    items = [];
+    total = 0;
+    count = 0;
+    esVIP = false;
+    countEl.textContent = '0';
+    totalEl.textContent = '$0.00';
+    vipEl.textContent = 'false';
+    vipEl.style.color = 'var(--red)';
+    logEl.innerHTML = '<div class="cash-log-entry"><span class="name">[Caja reiniciada]</span><span class="price">—</span></div>';
+    renderReceipt();
+    flowHighlight(['fs-start', 'fs-init']);
+  });
+
+  flowHighlight(['fs-start', 'fs-init']);
+})();
+
+// ============ MODULE 5: Bug Hunter ============
+const bugExplanations = {
+  1: {
+    ok: '¡Correcto! Sin <code>i++</code>, la variable <code>i</code> vale 1 para siempre, por lo que <code>i &lt;= 5</code> siempre es true. Bucle infinito clásico.',
+    no: 'Piensa: ¿qué hace que la condición <code>i &lt;= 5</code> deje de cumplirse? Necesitas cambiar <code>i</code> dentro del bucle.'
+  },
+  2: {
+    ok: '¡Perfecto! La bandera <code>jugando</code> nunca se vuelve false, por eso el bucle no termina. Debes activar el "interruptor" cuando se detecta el centinela.',
+    no: 'La condición del bucle es <code>while (jugando)</code>. Para salir, necesitas que <code>jugando</code> sea false. ¿Dónde debes cambiarlo?'
+  },
+  3: {
+    ok: '¡Excelente! El <code>do-while</code> repite mientras la condición es <strong>true</strong>. Si pones <code>while (valido)</code>, repite cuando YA es válido (inverso). Debes usar <code>while (!valido)</code>.',
+    no: 'Recuerda: <code>do {...} while (condición)</code> se repite <strong>mientras</strong> la condición sea true. ¿Quieres repetir cuando es válido o cuando es inválido?'
+  }
+};
+
+document.querySelectorAll('.bug-opts').forEach(group => {
+  const bugId = group.dataset.bug;
+  const fb = document.getElementById('bug-fb-' + bugId);
+  let answered = false;
+  group.querySelectorAll('.bug-opt').forEach(opt => {
+    opt.addEventListener('click', () => {
+      if (answered) return;
+      answered = true;
+      const correct = opt.dataset.correct === 'true';
+      group.querySelectorAll('.bug-opt').forEach(o => {
+        if (o.dataset.correct === 'true') o.classList.add('correct');
+        else if (o === opt && !correct) o.classList.add('wrong');
+      });
+      fb.classList.add('show');
+      if (correct) {
+        fb.className = 'bug-fb show ok';
+        fb.innerHTML = '✅ ' + bugExplanations[bugId].ok;
+        addXP(50, 'bug');
+      } else {
+        fb.className = 'bug-fb show no';
+        fb.innerHTML = '❌ ' + bugExplanations[bugId].no;
+        addXP(5);
+      }
+    });
+  });
+});
+</script>
+
+</body>
+</html>
+
